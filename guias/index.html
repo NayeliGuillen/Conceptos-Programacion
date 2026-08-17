@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptos de Programación — Guías de Estudio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f9fafb; color: #1f2937; min-height: 100vh; }
+  header { background: #1e1b4b; color: white; padding: 48px 24px; text-align: center; }
+  header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+  header p { font-size: 1.1rem; color: #d1d5db; }
+  .langs { margin-top: 16px; display: flex; justify-content: center; gap: 10px; }
+  .lang-pill { font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,0.12); color: #e0e7ff; }
+  main { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
+  .level-title { font-size: 1.05rem; font-weight: 800; color: #1e1b4b; margin: 8px 0 4px; }
+  .level-sub { font-size: 0.85rem; color: #6b7280; margin-bottom: 20px; }
+  .level-title.mt { margin-top: 44px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+  .card { display: block; background: white; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
+  .card-bar { height: 6px; }
+  .card-body { padding: 24px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; }
+  .card h2 { font-size: 1.05rem; font-weight: 700; margin: 12px 0 8px; }
+  .card p { font-size: 0.85rem; color: #6b7280; line-height: 1.5; }
+  .footer { margin-top: 48px; text-align: center; font-size: 0.85rem; color: #9ca3af; }
+  .bar-teal { background: #0d9488; }    .badge-teal { color: #0f766e; background: #f0fdfa; }
+  .bar-violet { background: #7c3aed; }  .badge-violet { color: #6d28d9; background: #f5f3ff; }
+  .bar-emerald { background: #059669; } .badge-emerald { color: #047857; background: #ecfdf5; }
+  .bar-amber { background: #d97706; }   .badge-amber { color: #b45309; background: #fffbeb; }
+  .bar-fuchsia { background: #c026d3; } .badge-fuchsia { color: #a21caf; background: #fdf4ff; }
+  .bar-sky { background: #0284c7; }     .badge-sky { color: #0369a1; background: #f0f9ff; }
+  .bar-orange { background: #ea580c; }  .badge-orange { color: #c2410c; background: #fff7ed; }
+  .bar-red { background: #dc2626; }     .badge-red { color: #b91c1c; background: #fef2f2; }
+  .bar-lime { background: #65a30d; }    .badge-lime { color: #4d7c0f; background: #f7fee7; }
+  .bar-indigo { background: #4f46e5; }  .badge-indigo { color: #4338ca; background: #eef2ff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Conceptos de Programación</h1>
+  <p>Guías de Estudio — De principiante a las bases de un programador senior</p>
+  <div class="langs">
+    <span class="lang-pill">🐍 Ejemplos en Python</span>
+    <span class="lang-pill">#️⃣ Ejemplos en C#</span>
+  </div>
+</header>
+
+<main>
+  <div class="level-title">📗 Nivel 1 — Fundamentos</div>
+  <div class="level-sub">Empieza aquí. No se requiere experiencia previa; cada guía se apoya en la anterior.</div>
+  <div class="grid">
+
+    <a href="CP1-Fundamentos-de-programacion.html" class="card">
+      <div class="card-bar bar-teal"></div>
+      <div class="card-body">
+        <span class="badge badge-teal">CP1</span>
+        <h2>Fundamentos de Programación</h2>
+        <p>Qué es programar, variables, tipos de datos, control de flujo, funciones, estructuras de datos y manejo de errores.</p>
+      </div>
+    </a>
+
+    <a href="CP2-Programacion-orientada-a-objetos.html" class="card">
+      <div class="card-bar bar-violet"></div>
+      <div class="card-body">
+        <span class="badge badge-violet">CP2</span>
+        <h2>Programación Orientada a Objetos</h2>
+        <p>Clases, objetos, los 4 pilares de la POO, interfaces, composición, principios SOLID y patrones de diseño.</p>
+      </div>
+    </a>
+
+    <a href="CP3-APIs-y-comunicacion.html" class="card">
+      <div class="card-bar bar-emerald"></div>
+      <div class="card-body">
+        <span class="badge badge-emerald">CP3</span>
+        <h2>APIs y Comunicación entre Sistemas</h2>
+        <p>Qué es una API y para qué sirve, HTTP, REST, JSON, autenticación, Postman, webhooks y GraphQL.</p>
+      </div>
+    </a>
+
+    <a href="CP4-Lo-que-todo-programador-debe-saber.html" class="card">
+      <div class="card-bar bar-amber"></div>
+      <div class="card-body">
+        <span class="badge badge-amber">CP4</span>
+        <h2>Lo que Todo Programador Debe Saber</h2>
+        <p>Git, bases de datos, testing, clean code y convenciones de nombres, complejidad Big-O, arquitectura y despliegue.</p>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="level-title mt">📕 Nivel 2 — Avanzado / Senior</div>
+  <div class="level-sub">Los temas que se esperan de un desarrollador senior. Requieren haber dominado el Nivel 1.</div>
+  <div class="grid">
+
+    <a href="CP5-Backend-avanzado.html" class="card">
+      <div class="card-bar bar-fuchsia"></div>
+      <div class="card-body">
+        <span class="badge badge-fuchsia">CP5</span>
+        <h2>Backend Avanzado y Tiempo Real</h2>
+        <p>MVC, patrones de diseño a fondo, asincronía, colas de mensajes, WebSockets, rate limiting y caching.</p>
+      </div>
+    </a>
+
+    <a href="CP6-Bases-de-datos-avanzado.html" class="card">
+      <div class="card-bar bar-sky"></div>
+      <div class="card-body">
+        <span class="badge badge-sky">CP6</span>
+        <h2>Bases de Datos Avanzado</h2>
+        <p>Normalización, SQL avanzado, índices y optimización, transacciones ACID, NoSQL (MongoDB, Redis, DynamoDB) y ORMs.</p>
+      </div>
+    </a>
+
+    <a href="CP7-DevOps-e-infraestructura.html" class="card">
+      <div class="card-bar bar-orange"></div>
+      <div class="card-body">
+        <span class="badge badge-orange">CP7</span>
+        <h2>DevOps e Infraestructura</h2>
+        <p>Git avanzado (rebase, cherry-pick), CI/CD, Docker y Kubernetes, la nube, Terraform, monitoreo y Nginx.</p>
+      </div>
+    </a>
+
+    <a href="CP8-Seguridad.html" class="card">
+      <div class="card-bar bar-red"></div>
+      <div class="card-body">
+        <span class="badge badge-red">CP8</span>
+        <h2>Seguridad para Desarrolladores</h2>
+        <p>OWASP Top 10, inyección SQL, XSS, CSRF, HTTPS y TLS, manejo de secretos y principio de menor privilegio.</p>
+      </div>
+    </a>
+
+    <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" class="card">
+      <div class="card-bar bar-lime"></div>
+      <div class="card-body">
+        <span class="badge badge-lime">CP9</span>
+        <h2>Diseño de Sistemas y Liderazgo</h2>
+        <p>System design, escalabilidad, teorema CAP, arquitectura orientada a eventos, y las habilidades blandas del nivel senior.</p>
+      </div>
+    </a>
+
+    <a href="CP10-Servicios-de-red-e-infraestructura.html" class="card">
+      <div class="card-bar bar-indigo"></div>
+      <div class="card-body">
+        <span class="badge badge-indigo">CP10</span>
+        <h2>Servicios de Red e Infraestructura TI</h2>
+        <p>Servidores y virtualización, SSH, FTP/SFTP, NTP, DNS, DHCP, gestión de servicios en Linux/Windows y troubleshooting de red.</p>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    <p>Cada guía incluye exámenes por módulo, glosario ES/EN, flashcards, consejos para entrevistas (con traducción) y registro de estudios.</p>
+  </div>
+</main>
+
+</body>
+</html>

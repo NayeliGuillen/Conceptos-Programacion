@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programación Orientada a Objetos — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(124,58,237,0.12); color: #7c3aed; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #7c3aed; cursor: help; position: relative; color: #6d28d9; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #2e1065; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .ct-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px 8px 0 0; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; }
+  .ct-btn.ct-active { background: #0f172a; color: #c4b5fd; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 0 10px 10px 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; } .tok-f { color: #7dd3fc; } .tok-n { color: #fbbf24; } .tok-t { color: #f0abfc; } .tok-nd { color: #fb923c; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <a href="CP1-Fundamentos-de-programacion.html" title="Fundamentos de Programación" style="color:#2dd4bf;text-decoration:none;">CP1</a>
+  <span style="color:#c4b5fd;font-weight:700;border-bottom:2px solid #c4b5fd;">CP2</span>
+  <a href="CP3-APIs-y-comunicacion.html" title="APIs" style="color:#6ee7b7;text-decoration:none;">CP3</a>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <a href="CP6-Bases-de-datos-avanzado.html" title="Bases de Datos Avanzado" style="color:#7dd3fc;text-decoration:none;">CP6</a>
+  <a href="CP7-DevOps-e-infraestructura.html" title="DevOps" style="color:#fdba74;text-decoration:none;">CP7</a>
+  <a href="CP8-Seguridad.html" title="Seguridad" style="color:#f87171;text-decoration:none;">CP8</a>
+  <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" title="Diseño de Sistemas y Liderazgo" style="color:#bef264;text-decoration:none;">CP9</a>
+  <a href="CP10-Servicios-de-red-e-infraestructura.html" title="Servicios de Red e Infraestructura TI" style="color:#a5b4fc;text-decoration:none;">CP10</a>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-violet-700 font-bold text-lg">CP2</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">Programación Orientada a Objetos</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-violet-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">Paradigmas</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">Clases</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">Encapsular</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">Herencia</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">Interfaces</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">SOLID</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: Paradigmas de Programación</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: Clases y Objetos</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: Encapsulamiento y Abstracción</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: Herencia y Polimorfismo</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: Interfaces y Composición</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: SOLID y Patrones</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-violet-900 to-purple-800 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-violet-300/70 text-sm mb-4">Guía de Estudio Completa · Curso 2 de 4</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">Programación<br>Orientada a Objetos</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">Clases, objetos, los 4 pilares, interfaces, SOLID y patrones de diseño. El paradigma detrás de C#, Java y gran parte de Python — explicado con analogías que sí se entienden.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-violet-700">4</div><div class="text-sm text-gray-500 mt-1">Pilares de la POO</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-500">5</div><div class="text-sm text-gray-500 mt-1">Principios SOLID</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">3</div><div class="text-sm text-gray-500 mt-1">Patrones de diseño clave</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-violet-500"><span class="text-xs font-bold text-violet-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">Paradigmas de Programación</h3><p class="text-sm text-gray-500 mt-1">¿Por qué existe la POO? ¿Qué había antes?</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">Clases y Objetos</h3><p class="text-sm text-gray-500 mt-1">El molde y las galletas: atributos, métodos, constructores.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">Encapsulamiento y Abstracción</h3><p class="text-sm text-gray-500 mt-1">Pilares 1 y 2: proteger datos y ocultar complejidad.</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">Herencia y Polimorfismo</h3><p class="text-sm text-gray-500 mt-1">Pilares 3 y 4: reutilizar y especializar comportamiento.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">Interfaces y Composición</h3><p class="text-sm text-gray-500 mt-1">Contratos, clases abstractas y "tiene un" vs "es un".</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">SOLID y Patrones de Diseño</h3><p class="text-sm text-gray-500 mt-1">Los principios que separan al junior del senior.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">Todo el vocabulario de la POO.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">La POO es EL tema favorito de las entrevistas.</p></div>
+    </div>
+    <div class="mt-8 bg-violet-50 border border-violet-200 rounded-xl p-5 text-sm text-violet-900">
+      💡 <strong>Requisito:</strong> esta guía asume que ya dominas <a href="CP1-Fundamentos-de-programacion.html" class="underline font-semibold">CP1 — Fundamentos</a> (variables, funciones, listas). Si algo no te suena, regresa un momento a CP1.
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: PARADIGMAS ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-violet-700 to-violet-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-violet-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Paradigmas de Programación</h1>
+    <p class="text-lg text-violet-200 max-w-3xl">Un paradigma es una forma de PENSAR y organizar el código. La POO es una de varias — y hay que saber por qué ganó tanto terreno.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-violet-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🗺️ ¿Qué es un paradigma?</h2>
+      <p class="text-sm text-gray-600 mb-4">Un <span class="gterm">paradigma<span class="gtooltip">🇪🇸 Paradigma / 🇺🇸 Paradigm — Estilo o filosofía para estructurar programas: cómo se organiza el código y cómo se modela el problema.</span></span> es como el estilo arquitectónico de una casa: con los mismos ladrillos (variables, funciones, bucles) puedes construir estilos muy distintos. Los tres paradigmas que más escucharás:</p>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200"><p class="text-sm font-semibold text-slate-800 mb-1">📜 Procedural / Imperativo</p><p class="text-sm text-gray-600">El programa es una <strong>lista de pasos</strong> de arriba a abajo, organizada en funciones. Así se escriben los scripts simples. Ej: C, Pascal, Python básico.</p></div>
+        <div class="bg-violet-50 rounded-xl p-4 border border-violet-200"><p class="text-sm font-semibold text-violet-800 mb-1">🧩 Orientado a Objetos (POO)</p><p class="text-sm text-gray-600">El programa se organiza en <strong>objetos</strong>: piezas que juntan datos + comportamiento, imitando cosas del mundo real. Ej: C#, Java, y Python cuando usas clases.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="text-sm font-semibold text-blue-800 mb-1">λ Funcional</p><p class="text-sm text-gray-600">El programa se arma <strong>combinando funciones puras</strong> que no modifican nada externo. Ej: Haskell, F#, y las funciones lambda/LINQ que ya existen en Python y C#.</p></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-4">💡 Python y C# son <strong>multiparadigma</strong>: soportan los tres estilos. Un buen programador elige el estilo según el problema, no por moda.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-violet-600 rounded-full"></span>¿Por qué nació la POO?</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">El problema: el "código espagueti" 🍝</h3>
+        <p class="text-sm text-gray-600 mb-3">En los 60s-70s los programas crecieron tanto que se volvieron inmanejables: cientos de funciones y variables globales tocándose entre sí. Cambiar una línea rompía diez cosas en lugares inesperados.</p>
+        <p class="text-sm text-gray-600">La POO propuso: <strong>agrupa cada dato con las funciones que lo manipulan</strong> en una "cápsula" llamada objeto. Así, el estado de cada pieza solo lo toca quien debe tocarlo.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">Breve historia</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li class="flex gap-3"><span class="font-mono text-xs bg-violet-100 text-violet-700 rounded px-2 py-0.5 flex-shrink-0">1967</span><span><strong>Simula</strong> (Noruega) introduce las clases y objetos.</span></li>
+          <li class="flex gap-3"><span class="font-mono text-xs bg-violet-100 text-violet-700 rounded px-2 py-0.5 flex-shrink-0">1972</span><span><strong>Smalltalk</strong> populariza el término "orientado a objetos".</span></li>
+          <li class="flex gap-3"><span class="font-mono text-xs bg-violet-100 text-violet-700 rounded px-2 py-0.5 flex-shrink-0">1985+</span><span><strong>C++</strong> lleva la POO al mundo masivo.</span></li>
+          <li class="flex gap-3"><span class="font-mono text-xs bg-violet-100 text-violet-700 rounded px-2 py-0.5 flex-shrink-0">1995</span><span><strong>Java</strong> hace de la POO el estándar empresarial.</span></li>
+          <li class="flex gap-3"><span class="font-mono text-xs bg-violet-100 text-violet-700 rounded px-2 py-0.5 flex-shrink-0">2000</span><span><strong>C#</strong> nace como lenguaje POO moderno de Microsoft.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-slate-800 to-violet-900 text-white rounded-2xl p-6 mb-10">
+      <h3 class="font-bold text-lg mb-3">Los 4 pilares — el mapa de esta guía</h3>
+      <p class="text-sm text-gray-300 mb-4">Toda la POO se sostiene sobre 4 ideas. Las verás a detalle en los módulos 3 y 4, pero grábate los nombres desde ya:</p>
+      <div class="grid md:grid-cols-4 gap-3 text-center text-sm">
+        <div class="bg-white/10 rounded-lg p-3"><strong class="text-violet-300">1. Encapsulamiento</strong><br><span class="text-xs text-gray-300">Proteger los datos internos</span></div>
+        <div class="bg-white/10 rounded-lg p-3"><strong class="text-blue-300">2. Abstracción</strong><br><span class="text-xs text-gray-300">Ocultar la complejidad</span></div>
+        <div class="bg-white/10 rounded-lg p-3"><strong class="text-teal-300">3. Herencia</strong><br><span class="text-xs text-gray-300">Reutilizar entre clases</span></div>
+        <div class="bg-white/10 rounded-lg p-3"><strong class="text-amber-300">4. Polimorfismo</strong><br><span class="text-xs text-gray-300">Mismo mensaje, distintas respuestas</span></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-violet-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">Paradigmas de Programación.</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-violet-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-violet-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-violet-800 transition text-sm font-semibold">Siguiente: Clases y Objetos →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: CLASES Y OBJETOS ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Clases y Objetos</h1>
+    <p class="text-lg text-blue-200">El molde de galletas y las galletas: la idea central de toda la POO.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🍪 La analogía del molde de galletas</h2>
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="text-sm font-semibold text-blue-800 mb-1">La CLASE es el molde</p><p class="text-sm text-gray-600">Una <span class="gterm">clase<span class="gtooltip">🇪🇸 Clase / 🇺🇸 Class — Plantilla o molde que define qué datos (atributos) y qué comportamientos (métodos) tendrán los objetos creados a partir de ella.</span></span> define la FORMA: qué datos tendrá (atributos) y qué sabrá hacer (métodos). El molde <strong>no es</strong> una galleta — es la definición.</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="text-sm font-semibold text-teal-800 mb-1">El OBJETO es la galleta</p><p class="text-sm text-gray-600">Un <span class="gterm">objeto<span class="gtooltip">🇪🇸 Objeto / 🇺🇸 Object — Instancia concreta de una clase, con sus propios valores en los atributos. De una clase puedes crear tantos objetos como quieras.</span></span> es una <span class="gterm">instancia<span class="gtooltip">🇪🇸 Instancia / 🇺🇸 Instance — Cada objeto concreto creado a partir de una clase. "Instanciar" = crear un objeto con new (C#) o llamando la clase (Python).</span></span> concreta creada con ese molde. Puedes hacer 50 galletas del mismo molde, cada una con su propio chispazo de chocolate (sus propios valores).</p></div>
+      </div>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-k">class</span> <span class="tok-t">Perro</span>:
+    <span class="tok-c"># CONSTRUCTOR: se ejecuta al crear cada objeto</span>
+    <span class="tok-k">def</span> <span class="tok-f">__init__</span>(self, nombre, edad):
+        self.nombre = nombre     <span class="tok-c"># atributo (dato del objeto)</span>
+        self.edad = edad
+
+    <span class="tok-c"># MÉTODO: comportamiento del objeto</span>
+    <span class="tok-k">def</span> <span class="tok-f">ladrar</span>(self):
+        <span class="tok-k">return</span> <span class="tok-s">f"{self.nombre} dice: ¡Guau!"</span>
+
+<span class="tok-c"># Crear OBJETOS (instancias) — cada uno con sus propios datos</span>
+firulais = <span class="tok-t">Perro</span>(<span class="tok-s">"Firulais"</span>, <span class="tok-n">3</span>)
+luna = <span class="tok-t">Perro</span>(<span class="tok-s">"Luna"</span>, <span class="tok-n">5</span>)
+
+<span class="tok-f">print</span>(firulais.<span class="tok-f">ladrar</span>())   <span class="tok-c"># Firulais dice: ¡Guau!</span>
+<span class="tok-f">print</span>(luna.edad)           <span class="tok-c"># 5</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">class</span> <span class="tok-t">Perro</span>
+{
+    <span class="tok-c">// ATRIBUTOS (en C#: propiedades)</span>
+    <span class="tok-k">public string</span> Nombre { <span class="tok-k">get</span>; <span class="tok-k">set</span>; }
+    <span class="tok-k">public int</span> Edad { <span class="tok-k">get</span>; <span class="tok-k">set</span>; }
+
+    <span class="tok-c">// CONSTRUCTOR: se ejecuta al crear cada objeto</span>
+    <span class="tok-k">public</span> <span class="tok-f">Perro</span>(<span class="tok-k">string</span> nombre, <span class="tok-k">int</span> edad)
+    {
+        Nombre = nombre;
+        Edad = edad;
+    }
+
+    <span class="tok-c">// MÉTODO: comportamiento del objeto</span>
+    <span class="tok-k">public string</span> <span class="tok-f">Ladrar</span>() =&gt; <span class="tok-s">$"{Nombre} dice: ¡Guau!"</span>;
+}
+
+<span class="tok-c">// Crear OBJETOS (instancias) — cada uno con sus propios datos</span>
+<span class="tok-k">var</span> firulais = <span class="tok-k">new</span> <span class="tok-t">Perro</span>(<span class="tok-s">"Firulais"</span>, <span class="tok-n">3</span>);
+<span class="tok-k">var</span> luna = <span class="tok-k">new</span> <span class="tok-t">Perro</span>(<span class="tok-s">"Luna"</span>, <span class="tok-n">5</span>);
+
+Console.<span class="tok-f">WriteLine</span>(firulais.<span class="tok-f">Ladrar</span>());  <span class="tok-c">// Firulais dice: ¡Guau!</span>
+Console.<span class="tok-f">WriteLine</span>(luna.Edad);           <span class="tok-c">// 5</span></code></pre>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">💡 <strong>self</strong> (Python) y <strong>this</strong> (C#) significan "este objeto en particular". Cuando Firulais ladra, self/this ES Firulais; cuando Luna ladra, ES Luna.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Las 3 piezas de toda clase</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-blue-400">
+        <h3 class="font-bold text-blue-700 text-sm uppercase mb-2">📊 Atributos</h3>
+        <p class="text-sm text-gray-600">Los <strong>datos</strong> que cada objeto guarda: nombre, edad, saldo, color. En C# suelen ser <span class="gterm">propiedades<span class="gtooltip">🇺🇸 Property — En C#, atributo con get/set integrados que permite controlar cómo se lee y escribe el dato.</span></span> con get/set. Responden a "¿qué ES / qué TIENE?"</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-teal-400">
+        <h3 class="font-bold text-teal-700 text-sm uppercase mb-2">⚡ Métodos</h3>
+        <p class="text-sm text-gray-600">Las <strong>acciones</strong> que el objeto sabe hacer: ladrar(), depositar(), enviar_correo(). Son funciones que viven dentro de la clase. Responden a "¿qué SABE HACER?"</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-purple-400">
+        <h3 class="font-bold text-purple-700 text-sm uppercase mb-2">🏗️ Constructor</h3>
+        <p class="text-sm text-gray-600">El método especial que se ejecuta <strong>al crear</strong> el objeto, para dejarlo listo con sus valores iniciales. <code class="bg-gray-100 px-1 rounded text-xs">__init__</code> en Python; un método con el nombre de la clase en C#.</p>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Ejemplo realista: una cuenta bancaria</h2>
+    <div class="code-wrap mb-10">
+      <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+      <pre class="code-block code-py"><code><span class="tok-k">class</span> <span class="tok-t">CuentaBancaria</span>:
+    <span class="tok-k">def</span> <span class="tok-f">__init__</span>(self, titular):
+        self.titular = titular
+        self.saldo = <span class="tok-n">0</span>            <span class="tok-c"># toda cuenta nueva empieza en 0</span>
+
+    <span class="tok-k">def</span> <span class="tok-f">depositar</span>(self, monto):
+        <span class="tok-k">if</span> monto &lt;= <span class="tok-n">0</span>:
+            <span class="tok-k">raise</span> <span class="tok-f">ValueError</span>(<span class="tok-s">"El monto debe ser positivo"</span>)
+        self.saldo += monto
+
+    <span class="tok-k">def</span> <span class="tok-f">retirar</span>(self, monto):
+        <span class="tok-k">if</span> monto &gt; self.saldo:
+            <span class="tok-k">raise</span> <span class="tok-f">ValueError</span>(<span class="tok-s">"Fondos insuficientes"</span>)
+        self.saldo -= monto
+
+cuenta = <span class="tok-t">CuentaBancaria</span>(<span class="tok-s">"Nayeli"</span>)
+cuenta.<span class="tok-f">depositar</span>(<span class="tok-n">1000</span>)
+cuenta.<span class="tok-f">retirar</span>(<span class="tok-n">250</span>)
+<span class="tok-f">print</span>(cuenta.saldo)    <span class="tok-c"># 750</span></code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-k">class</span> <span class="tok-t">CuentaBancaria</span>
+{
+    <span class="tok-k">public string</span> Titular { <span class="tok-k">get</span>; }
+    <span class="tok-k">public decimal</span> Saldo { <span class="tok-k">get</span>; <span class="tok-k">private set</span>; }   <span class="tok-c">// solo la clase lo modifica</span>
+
+    <span class="tok-k">public</span> <span class="tok-f">CuentaBancaria</span>(<span class="tok-k">string</span> titular)
+    {
+        Titular = titular;
+        Saldo = <span class="tok-n">0</span>;               <span class="tok-c">// toda cuenta nueva empieza en 0</span>
+    }
+
+    <span class="tok-k">public void</span> <span class="tok-f">Depositar</span>(<span class="tok-k">decimal</span> monto)
+    {
+        <span class="tok-k">if</span> (monto &lt;= <span class="tok-n">0</span>)
+            <span class="tok-k">throw new</span> <span class="tok-f">ArgumentException</span>(<span class="tok-s">"El monto debe ser positivo"</span>);
+        Saldo += monto;
+    }
+
+    <span class="tok-k">public void</span> <span class="tok-f">Retirar</span>(<span class="tok-k">decimal</span> monto)
+    {
+        <span class="tok-k">if</span> (monto &gt; Saldo)
+            <span class="tok-k">throw new</span> <span class="tok-f">InvalidOperationException</span>(<span class="tok-s">"Fondos insuficientes"</span>);
+        Saldo -= monto;
+    }
+}
+
+<span class="tok-k">var</span> cuenta = <span class="tok-k">new</span> <span class="tok-t">CuentaBancaria</span>(<span class="tok-s">"Nayeli"</span>);
+cuenta.<span class="tok-f">Depositar</span>(<span class="tok-n">1000</span>);
+cuenta.<span class="tok-f">Retirar</span>(<span class="tok-n">250</span>);
+Console.<span class="tok-f">WriteLine</span>(cuenta.Saldo);   <span class="tok-c">// 750</span></code></pre>
+    </div>
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-10 text-sm text-blue-900">
+      🧠 <strong>Esto ES la POO:</strong> el dato (saldo) y las reglas para tocarlo (depositar valida positivo, retirar valida fondos) viven <strong>juntos</strong> en la misma cápsula. Nadie puede dejar el saldo en un estado inválido "desde afuera". Compáralo con tener una variable global <code class="bg-blue-100 px-1 rounded">saldo</code> que cualquier parte del programa puede pisar.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">Clases y Objetos.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← Paradigmas</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-violet-800 transition text-sm font-semibold">Siguiente: Encapsulamiento →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: ENCAPSULAMIENTO Y ABSTRACCIÓN ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3 · Pilares 1 y 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Encapsulamiento y Abstracción</h1>
+    <p class="text-lg text-purple-200">Proteger lo interno y mostrar solo lo necesario.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">💊 Pilar 1: Encapsulamiento — la cápsula de medicina</h2>
+      <p class="text-sm text-gray-600 mb-4">El <span class="gterm">encapsulamiento<span class="gtooltip">🇪🇸 Encapsulamiento / 🇺🇸 Encapsulation — Ocultar los datos internos de un objeto y permitir su acceso solo mediante métodos controlados. Protege el estado de modificaciones inválidas.</span></span> junta datos y métodos en una cápsula y <strong>esconde el interior</strong>. Como una cápsula de medicina: te tomas la cápsula completa; no abres el polvito para administrártelo tú. Los datos internos son <em>privados</em> y solo se tocan por los métodos <em>públicos</em> que la clase ofrece.</p>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-4">
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Modificador</th><th class="p-3 text-left">Quién puede acceder</th><th class="p-3 text-left">🐍 Python</th><th class="p-3 text-left">#️⃣ C#</th></tr></thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr><td class="p-3 font-semibold">Público</td><td class="p-3">Todo el mundo</td><td class="p-3 font-mono text-xs">nombre (normal)</td><td class="p-3 font-mono text-xs">public</td></tr>
+            <tr class="bg-gray-50"><td class="p-3 font-semibold">Privado</td><td class="p-3">Solo la propia clase</td><td class="p-3 font-mono text-xs">__nombre (convención _ o __)</td><td class="p-3 font-mono text-xs">private</td></tr>
+            <tr><td class="p-3 font-semibold">Protegido</td><td class="p-3">La clase y sus hijas</td><td class="p-3 font-mono text-xs">_nombre (convención)</td><td class="p-3 font-mono text-xs">protected</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mb-4">⚠️ Detalle honesto: en Python la privacidad es por <strong>convención</strong> (el guion bajo dice "no me toques", pero técnicamente se puede). En C# el compilador la <strong>impone</strong>: acceder a un private desde fuera ni siquiera compila.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-k">class</span> <span class="tok-t">Termostato</span>:
+    <span class="tok-k">def</span> <span class="tok-f">__init__</span>(self):
+        self.__temperatura = <span class="tok-n">22</span>      <span class="tok-c"># __ = privado (convención fuerte)</span>
+
+    <span class="tok-c"># @property permite leerla como atributo, con control</span>
+    <span class="tok-nd">@property</span>
+    <span class="tok-k">def</span> <span class="tok-f">temperatura</span>(self):
+        <span class="tok-k">return</span> self.__temperatura
+
+    <span class="tok-nd">@temperatura.setter</span>
+    <span class="tok-k">def</span> <span class="tok-f">temperatura</span>(self, valor):
+        <span class="tok-k">if</span> <span class="tok-n">10</span> &lt;= valor &lt;= <span class="tok-n">30</span>:         <span class="tok-c"># la REGLA vive dentro de la clase</span>
+            self.__temperatura = valor
+        <span class="tok-k">else</span>:
+            <span class="tok-k">raise</span> <span class="tok-f">ValueError</span>(<span class="tok-s">"Rango permitido: 10–30°C"</span>)
+
+t = <span class="tok-t">Termostato</span>()
+t.temperatura = <span class="tok-n">25</span>     <span class="tok-c"># ✅ pasa por el setter y su validación</span>
+t.temperatura = <span class="tok-n">80</span>     <span class="tok-c"># ❌ ValueError: imposible dejarlo inválido</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">class</span> <span class="tok-t">Termostato</span>
+{
+    <span class="tok-k">private int</span> _temperatura = <span class="tok-n">22</span>;   <span class="tok-c">// privado: el compilador lo protege</span>
+
+    <span class="tok-k">public int</span> Temperatura
+    {
+        <span class="tok-k">get</span> =&gt; _temperatura;
+        <span class="tok-k">set</span>
+        {
+            <span class="tok-k">if</span> (value &gt;= <span class="tok-n">10</span> &amp;&amp; value &lt;= <span class="tok-n">30</span>)   <span class="tok-c">// la REGLA vive en la clase</span>
+                _temperatura = value;
+            <span class="tok-k">else</span>
+                <span class="tok-k">throw new</span> <span class="tok-f">ArgumentOutOfRangeException</span>(<span class="tok-s">"Rango: 10–30°C"</span>);
+        }
+    }
+}
+
+<span class="tok-k">var</span> t = <span class="tok-k">new</span> <span class="tok-t">Termostato</span>();
+t.Temperatura = <span class="tok-n">25</span>;   <span class="tok-c">// ✅ pasa por el setter y su validación</span>
+t.Temperatura = <span class="tok-n">80</span>;   <span class="tok-c">// ❌ excepción: imposible dejarlo inválido</span></code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📺 Pilar 2: Abstracción — el control remoto</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">abstracción<span class="gtooltip">🇪🇸 Abstracción / 🇺🇸 Abstraction — Exponer solo lo esencial de un objeto y ocultar los detalles de implementación. El usuario ve QUÉ hace, no CÓMO lo hace.</span></span> es mostrar <strong>qué hace</strong> algo sin exponer <strong>cómo lo hace</strong>. Tu control remoto tiene un botón "subir volumen": no necesitas saber nada de señales infrarrojas ni circuitos. La clase ofrece métodos simples (<code class="bg-gray-100 px-1 rounded">enviar_correo(destinatario)</code>) y esconde el caos interno (servidores SMTP, encriptación, reintentos...).</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-purple-50 rounded-xl p-4 border border-purple-200">
+          <p class="text-sm font-semibold text-purple-800 mb-1">Encapsulamiento vs. Abstracción (pregunta de entrevista ⭐)</p>
+          <p class="text-sm text-gray-600"><strong>Abstracción</strong> = decisión de diseño: qué mostrar (la interfaz simple). <strong>Encapsulamiento</strong> = el mecanismo: cómo ocultar y proteger lo interno (private, properties). La abstracción es el "menú del restaurante"; el encapsulamiento es "la puerta de la cocina cerrada".</p>
+        </div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200">
+          <p class="text-sm font-semibold text-teal-800 mb-1">Ya usas abstracción todos los días</p>
+          <p class="text-sm text-gray-600"><code class="bg-teal-100 px-1 rounded text-xs">print()</code>, <code class="bg-teal-100 px-1 rounded text-xs">Console.WriteLine()</code>, <code class="bg-teal-100 px-1 rounded text-xs">lista.sort()</code>... ¿Sabes CÓMO ordenan internamente? No, y no importa. Eso es una buena abstracción: la usas sin abrirla.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">Encapsulamiento y Abstracción.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← Clases</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-violet-800 transition text-sm font-semibold">Siguiente: Herencia →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: HERENCIA Y POLIMORFISMO ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4 · Pilares 3 y 4</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Herencia y Polimorfismo</h1>
+    <p class="text-lg text-cyan-200">Reutilizar lo común y especializar lo diferente.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">👨‍👧 Pilar 3: Herencia — rasgos de familia</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">herencia<span class="gtooltip">🇪🇸 Herencia / 🇺🇸 Inheritance — Mecanismo por el cual una clase (hija/derivada) obtiene los atributos y métodos de otra (padre/base), pudiendo agregar o modificar comportamiento.</span></span> permite que una clase <strong>hija</strong> reciba todo lo de una clase <strong>padre</strong> y le agregue o cambie lo suyo. Como los rasgos de familia: heredas los ojos de tu mamá, pero tienes tu propia personalidad. La prueba para saber si aplica: la hija <strong>"ES UN"</strong> padre (un Perro ES UN Animal ✓).</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-k">class</span> <span class="tok-t">Animal</span>:                       <span class="tok-c"># clase PADRE (base)</span>
+    <span class="tok-k">def</span> <span class="tok-f">__init__</span>(self, nombre):
+        self.nombre = nombre
+
+    <span class="tok-k">def</span> <span class="tok-f">hablar</span>(self):
+        <span class="tok-k">return</span> <span class="tok-s">"..."</span>
+
+    <span class="tok-k">def</span> <span class="tok-f">dormir</span>(self):
+        <span class="tok-k">return</span> <span class="tok-s">f"{self.nombre} está durmiendo 😴"</span>
+
+<span class="tok-k">class</span> <span class="tok-t">Perro</span>(<span class="tok-t">Animal</span>):                <span class="tok-c"># Perro HEREDA de Animal</span>
+    <span class="tok-k">def</span> <span class="tok-f">hablar</span>(self):               <span class="tok-c"># SOBREESCRIBE (override) hablar</span>
+        <span class="tok-k">return</span> <span class="tok-s">f"{self.nombre}: ¡Guau!"</span>
+
+<span class="tok-k">class</span> <span class="tok-t">Gato</span>(<span class="tok-t">Animal</span>):
+    <span class="tok-k">def</span> <span class="tok-f">hablar</span>(self):
+        <span class="tok-k">return</span> <span class="tok-s">f"{self.nombre}: ¡Miau!"</span>
+
+firu = <span class="tok-t">Perro</span>(<span class="tok-s">"Firulais"</span>)
+<span class="tok-f">print</span>(firu.<span class="tok-f">hablar</span>())    <span class="tok-c"># ¡Guau!  → versión de Perro</span>
+<span class="tok-f">print</span>(firu.<span class="tok-f">dormir</span>())    <span class="tok-c"># heredado de Animal sin escribirlo de nuevo</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">class</span> <span class="tok-t">Animal</span>                        <span class="tok-c">// clase PADRE (base)</span>
+{
+    <span class="tok-k">public string</span> Nombre { <span class="tok-k">get</span>; <span class="tok-k">set</span>; }
+    <span class="tok-k">public</span> <span class="tok-f">Animal</span>(<span class="tok-k">string</span> nombre) =&gt; Nombre = nombre;
+
+    <span class="tok-c">// virtual = "las hijas PUEDEN sobreescribirme"</span>
+    <span class="tok-k">public virtual string</span> <span class="tok-f">Hablar</span>() =&gt; <span class="tok-s">"..."</span>;
+
+    <span class="tok-k">public string</span> <span class="tok-f">Dormir</span>() =&gt; <span class="tok-s">$"{Nombre} está durmiendo 😴"</span>;
+}
+
+<span class="tok-k">class</span> <span class="tok-t">Perro</span> : <span class="tok-t">Animal</span>                <span class="tok-c">// Perro HEREDA de Animal (:)</span>
+{
+    <span class="tok-k">public</span> <span class="tok-f">Perro</span>(<span class="tok-k">string</span> n) : <span class="tok-k">base</span>(n) { }   <span class="tok-c">// base() llama al constructor padre</span>
+    <span class="tok-k">public override string</span> <span class="tok-f">Hablar</span>() =&gt; <span class="tok-s">$"{Nombre}: ¡Guau!"</span>;
+}
+
+<span class="tok-k">class</span> <span class="tok-t">Gato</span> : <span class="tok-t">Animal</span>
+{
+    <span class="tok-k">public</span> <span class="tok-f">Gato</span>(<span class="tok-k">string</span> n) : <span class="tok-k">base</span>(n) { }
+    <span class="tok-k">public override string</span> <span class="tok-f">Hablar</span>() =&gt; <span class="tok-s">$"{Nombre}: ¡Miau!"</span>;
+}
+
+<span class="tok-k">var</span> firu = <span class="tok-k">new</span> <span class="tok-t">Perro</span>(<span class="tok-s">"Firulais"</span>);
+Console.<span class="tok-f">WriteLine</span>(firu.<span class="tok-f">Hablar</span>());   <span class="tok-c">// ¡Guau! → versión de Perro</span>
+Console.<span class="tok-f">WriteLine</span>(firu.<span class="tok-f">Dormir</span>());   <span class="tok-c">// heredado de Animal</span></code></pre>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">💡 Vocabulario: cambiar el comportamiento heredado se llama <span class="gterm">sobreescritura<span class="gtooltip">🇺🇸 Override — Redefinir en la clase hija un método heredado del padre. En C# requiere virtual/override; en Python basta con volver a definirlo.</span></span> (override). En C# el padre debe marcar el método como <code class="bg-gray-100 px-1 rounded">virtual</code>; en Python basta con redefinirlo. <code class="bg-gray-100 px-1 rounded">super()</code> (Py) / <code class="bg-gray-100 px-1 rounded">base</code> (C#) llaman a la versión del padre.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-amber-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🎭 Pilar 4: Polimorfismo — mismo mensaje, distintas respuestas</h2>
+      <p class="text-sm text-gray-600 mb-4"><span class="gterm">Polimorfismo<span class="gtooltip">🇪🇸 Polimorfismo / 🇺🇸 Polymorphism — "Muchas formas": objetos de distintas clases responden al mismo método cada uno a su manera. Permite tratar objetos diferentes de forma uniforme.</span></span> significa "muchas formas": le dices <strong>lo mismo</strong> a objetos distintos y cada uno responde <strong>a su manera</strong>. Le dices "habla" a un perro y ladra; a un gato y maúlla. Tu código no necesita preguntar qué animal es — solo confía en que todos saben hablar.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-c"># Una sola lista con animales DISTINTOS</span>
+animales = [<span class="tok-t">Perro</span>(<span class="tok-s">"Firulais"</span>), <span class="tok-t">Gato</span>(<span class="tok-s">"Michi"</span>), <span class="tok-t">Perro</span>(<span class="tok-s">"Luna"</span>)]
+
+<span class="tok-k">for</span> animal <span class="tok-k">in</span> animales:
+    <span class="tok-f">print</span>(animal.<span class="tok-f">hablar</span>())   <span class="tok-c"># cada uno responde a SU manera</span>
+
+<span class="tok-c"># Firulais: ¡Guau!</span>
+<span class="tok-c"># Michi: ¡Miau!</span>
+<span class="tok-c"># Luna: ¡Guau!</span>
+<span class="tok-c"># ⭐ El for NO pregunta el tipo. Eso es polimorfismo.</span></code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-c">// Una sola lista del tipo PADRE con hijos distintos</span>
+<span class="tok-k">var</span> animales = <span class="tok-k">new</span> List&lt;<span class="tok-t">Animal</span>&gt;
+{
+    <span class="tok-k">new</span> <span class="tok-t">Perro</span>(<span class="tok-s">"Firulais"</span>),
+    <span class="tok-k">new</span> <span class="tok-t">Gato</span>(<span class="tok-s">"Michi"</span>),
+    <span class="tok-k">new</span> <span class="tok-t">Perro</span>(<span class="tok-s">"Luna"</span>)
+};
+
+<span class="tok-k">foreach</span> (<span class="tok-t">Animal</span> animal <span class="tok-k">in</span> animales)
+    Console.<span class="tok-f">WriteLine</span>(animal.<span class="tok-f">Hablar</span>());  <span class="tok-c">// cada uno a SU manera</span>
+
+<span class="tok-c">// Firulais: ¡Guau!</span>
+<span class="tok-c">// Michi: ¡Miau!</span>
+<span class="tok-c">// Luna: ¡Guau!</span>
+<span class="tok-c">// ⭐ El foreach NO pregunta el tipo. Eso es polimorfismo.</span></code></pre>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-4 text-sm text-amber-900">
+        🚫 <strong>El anti-ejemplo que delata al principiante:</strong> <code class="bg-amber-100 px-1 rounded">if tipo == "perro": ladrar() elif tipo == "gato": maullar()...</code> — cada animal nuevo obliga a tocar ese if. Con polimorfismo, agregar la clase <code class="bg-amber-100 px-1 rounded">Vaca</code> no toca NADA del código existente. Ese es el superpoder.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">Herencia y Polimorfismo.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← Encapsulamiento</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-violet-800 transition text-sm font-semibold">Siguiente: Interfaces →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: INTERFACES Y COMPOSICIÓN ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Interfaces y Composición</h1>
+    <p class="text-lg text-green-200">Contratos que prometen comportamiento, y la alternativa moderna a heredar todo.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📜 Interfaces: el contrato</h2>
+      <p class="text-sm text-gray-600 mb-4">Una <span class="gterm">interfaz<span class="gtooltip">🇪🇸 Interfaz / 🇺🇸 Interface — Contrato que lista métodos SIN implementarlos. Toda clase que la implementa se compromete a definir esos métodos. En C#: interface; en Python: ABC o Protocol.</span></span> es un <strong>contrato</strong>: una lista de métodos que una clase <em>promete</em> tener, sin decir cómo. Como el examen de manejo: no importa si aprendiste en un Tsuru o en un Tesla, si "implementas" frenar, acelerar y estacionarte, obtienes la licencia.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-k">from</span> abc <span class="tok-k">import</span> ABC, abstractmethod
+
+<span class="tok-k">class</span> <span class="tok-t">Notificador</span>(ABC):          <span class="tok-c"># ABC = clase abstracta (el "contrato")</span>
+    <span class="tok-nd">@abstractmethod</span>
+    <span class="tok-k">def</span> <span class="tok-f">enviar</span>(self, mensaje):    <span class="tok-c"># SIN implementación: solo la promesa</span>
+        ...
+
+<span class="tok-k">class</span> <span class="tok-t">NotificadorEmail</span>(<span class="tok-t">Notificador</span>):
+    <span class="tok-k">def</span> <span class="tok-f">enviar</span>(self, mensaje):
+        <span class="tok-f">print</span>(<span class="tok-s">f"📧 Email: {mensaje}"</span>)
+
+<span class="tok-k">class</span> <span class="tok-t">NotificadorSMS</span>(<span class="tok-t">Notificador</span>):
+    <span class="tok-k">def</span> <span class="tok-f">enviar</span>(self, mensaje):
+        <span class="tok-f">print</span>(<span class="tok-s">f"📱 SMS: {mensaje}"</span>)
+
+<span class="tok-c"># El código cliente solo conoce el CONTRATO, no los detalles:</span>
+<span class="tok-k">def</span> <span class="tok-f">avisar_usuario</span>(notificador, texto):
+    notificador.<span class="tok-f">enviar</span>(texto)     <span class="tok-c"># funciona con CUALQUIER implementación</span>
+
+<span class="tok-f">avisar_usuario</span>(<span class="tok-t">NotificadorEmail</span>(), <span class="tok-s">"Tu pedido llegó"</span>)
+<span class="tok-f">avisar_usuario</span>(<span class="tok-t">NotificadorSMS</span>(), <span class="tok-s">"Tu pedido llegó"</span>)</code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-c">// interface = el contrato. Por convención empiezan con I</span>
+<span class="tok-k">interface</span> <span class="tok-t">INotificador</span>
+{
+    <span class="tok-k">void</span> <span class="tok-f">Enviar</span>(<span class="tok-k">string</span> mensaje);   <span class="tok-c">// SIN implementación: solo la promesa</span>
+}
+
+<span class="tok-k">class</span> <span class="tok-t">NotificadorEmail</span> : <span class="tok-t">INotificador</span>
+{
+    <span class="tok-k">public void</span> <span class="tok-f">Enviar</span>(<span class="tok-k">string</span> mensaje)
+        =&gt; Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"📧 Email: {mensaje}"</span>);
+}
+
+<span class="tok-k">class</span> <span class="tok-t">NotificadorSMS</span> : <span class="tok-t">INotificador</span>
+{
+    <span class="tok-k">public void</span> <span class="tok-f">Enviar</span>(<span class="tok-k">string</span> mensaje)
+        =&gt; Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"📱 SMS: {mensaje}"</span>);
+}
+
+<span class="tok-c">// El código cliente solo conoce el CONTRATO, no los detalles:</span>
+<span class="tok-k">void</span> <span class="tok-f">AvisarUsuario</span>(<span class="tok-t">INotificador</span> notificador, <span class="tok-k">string</span> texto)
+    =&gt; notificador.<span class="tok-f">Enviar</span>(texto);   <span class="tok-c">// CUALQUIER implementación sirve</span>
+
+<span class="tok-f">AvisarUsuario</span>(<span class="tok-k">new</span> <span class="tok-t">NotificadorEmail</span>(), <span class="tok-s">"Tu pedido llegó"</span>);
+<span class="tok-f">AvisarUsuario</span>(<span class="tok-k">new</span> <span class="tok-t">NotificadorSMS</span>(), <span class="tok-s">"Tu pedido llegó"</span>);</code></pre>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-green-600 rounded-full"></span>Interfaz vs. Clase Abstracta (clásica de entrevista)</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left"></th><th class="p-3 text-left">Interfaz (interface)</th><th class="p-3 text-left">Clase Abstracta</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-semibold">¿Tiene código implementado?</td><td class="p-3">No (solo firmas de métodos)*</td><td class="p-3">Sí: puede mezclar métodos hechos y abstractos</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">¿Cuántas puede tener una clase?</td><td class="p-3">Muchas (implementas varias)</td><td class="p-3">Solo una (herencia única en C#)</td></tr>
+          <tr><td class="p-3 font-semibold">¿Puede tener atributos/estado?</td><td class="p-3">No</td><td class="p-3">Sí</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Úsala cuando...</td><td class="p-3">Quieres definir una CAPACIDAD ("puede notificar", "puede guardarse")</td><td class="p-3">Hay una relación de familia con lógica común compartida</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-teal-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🧱 Composición: "tiene un" vs. "es un"</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">composición<span class="gtooltip">🇪🇸 Composición / 🇺🇸 Composition — Construir clases combinando otros objetos como piezas ("tiene un") en lugar de heredar ("es un"). Regla senior: prefiere composición sobre herencia.</span></span> arma objetos <strong>combinando piezas</strong>, como LEGO. Un Coche <strong>TIENE UN</strong> motor, TIENE ruedas — no "es un motor". La regla que repiten los seniors: <em>"prefiere composición sobre herencia"</em>, porque las jerarquías de herencia profundas se vuelven rígidas y frágiles.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-k">class</span> <span class="tok-t">Motor</span>:
+    <span class="tok-k">def</span> <span class="tok-f">encender</span>(self):
+        <span class="tok-k">return</span> <span class="tok-s">"Motor rugiendo 🔥"</span>
+
+<span class="tok-k">class</span> <span class="tok-t">Coche</span>:
+    <span class="tok-k">def</span> <span class="tok-f">__init__</span>(self):
+        self.motor = <span class="tok-t">Motor</span>()      <span class="tok-c"># el Coche TIENE UN motor (composición)</span>
+
+    <span class="tok-k">def</span> <span class="tok-f">arrancar</span>(self):
+        <span class="tok-k">return</span> self.motor.<span class="tok-f">encender</span>()  <span class="tok-c"># delega el trabajo a su pieza</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">class</span> <span class="tok-t">Motor</span>
+{
+    <span class="tok-k">public string</span> <span class="tok-f">Encender</span>() =&gt; <span class="tok-s">"Motor rugiendo 🔥"</span>;
+}
+
+<span class="tok-k">class</span> <span class="tok-t">Coche</span>
+{
+    <span class="tok-k">private readonly</span> <span class="tok-t">Motor</span> _motor = <span class="tok-k">new</span> <span class="tok-t">Motor</span>();  <span class="tok-c">// TIENE UN motor</span>
+
+    <span class="tok-k">public string</span> <span class="tok-f">Arrancar</span>() =&gt; _motor.<span class="tok-f">Encender</span>();  <span class="tok-c">// delega a su pieza</span>
+}</code></pre>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-900"><strong>✅ Usa HERENCIA cuando:</strong> la relación es claramente "ES UN" y quieres polimorfismo (Perro es un Animal).</div>
+        <div class="bg-teal-50 border border-teal-200 rounded-xl p-4 text-sm text-teal-900"><strong>✅ Usa COMPOSICIÓN cuando:</strong> la relación es "TIENE UN" o "USA UN" (Coche tiene Motor, Reporte usa Impresora). En la duda, composición.</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">Interfaces y Composición.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← Herencia</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-violet-800 transition text-sm font-semibold">Siguiente: SOLID →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: SOLID Y PATRONES ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">SOLID y Patrones de Diseño</h1>
+    <p class="text-lg text-rose-200">Los principios y recetas que distinguen el código profesional.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-rose-600 rounded-full"></span>SOLID: 5 principios, 5 letras</h2>
+    <p class="text-sm text-gray-600 mb-5">SOLID es un acrónimo de 5 principios para escribir POO mantenible (Robert C. Martin, "Uncle Bob"). No los memorices: entiende el problema que cada uno evita.</p>
+    <div class="space-y-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-rose-500">
+        <h3 class="font-bold text-slate-800"><span class="text-rose-600 font-black text-xl mr-2">S</span>Single Responsibility — Responsabilidad Única</h3>
+        <p class="text-sm text-gray-600 mt-1">Cada clase debe tener <strong>UNA sola razón para cambiar</strong>. Una clase <code class="bg-gray-100 px-1 rounded text-xs">Reporte</code> que calcula datos Y los imprime Y los envía por correo hace demasiado: sepárala en 3. <em>Analogía: en un restaurante, el chef cocina y el mesero atiende — nadie hace ambos.</em></p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-orange-500">
+        <h3 class="font-bold text-slate-800"><span class="text-orange-600 font-black text-xl mr-2">O</span>Open/Closed — Abierto/Cerrado</h3>
+        <p class="text-sm text-gray-600 mt-1">Abierto a <strong>extensión</strong>, cerrado a <strong>modificación</strong>: agregar funciones nuevas sin editar el código que ya funciona. ¿Recuerdas el ejemplo de los animales? Agregar <code class="bg-gray-100 px-1 rounded text-xs">Vaca</code> sin tocar el foreach — eso es Open/Closed en acción.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-amber-500">
+        <h3 class="font-bold text-slate-800"><span class="text-amber-600 font-black text-xl mr-2">L</span>Liskov Substitution — Sustitución de Liskov</h3>
+        <p class="text-sm text-gray-600 mt-1">Donde tu código espera un <code class="bg-gray-100 px-1 rounded text-xs">Animal</code>, debe funcionar <strong>cualquier hijo</strong> sin sorpresas. Si tu clase <code class="bg-gray-100 px-1 rounded text-xs">Pinguino</code> hereda de <code class="bg-gray-100 px-1 rounded text-xs">Ave</code> pero truena al llamar <code class="bg-gray-100 px-1 rounded text-xs">volar()</code>, la jerarquía está mal diseñada.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-teal-500">
+        <h3 class="font-bold text-slate-800"><span class="text-teal-600 font-black text-xl mr-2">I</span>Interface Segregation — Segregación de Interfaces</h3>
+        <p class="text-sm text-gray-600 mt-1">Mejor varias interfaces <strong>pequeñas y específicas</strong> que una gigante. No obligues a una clase a implementar métodos que no usa. <em>Analogía: menú de tacos y menú de postres separados, no un menú de 40 páginas obligatorio.</em></p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
+        <h3 class="font-bold text-slate-800"><span class="text-blue-600 font-black text-xl mr-2">D</span>Dependency Inversion — Inversión de Dependencias</h3>
+        <p class="text-sm text-gray-600 mt-1">Depende de <strong>abstracciones</strong> (interfaces), no de clases concretas. El ejemplo del <code class="bg-gray-100 px-1 rounded text-xs">INotificador</code>: <code class="bg-gray-100 px-1 rounded text-xs">AvisarUsuario</code> no sabe si es email o SMS — por eso puedes cambiar uno por otro sin tocarla. Base de la <em>inyección de dependencias</em> que verás en frameworks como ASP.NET.</p>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-rose-600 rounded-full"></span>Patrones de diseño: recetas probadas</h2>
+    <p class="text-sm text-gray-600 mb-5">Un <span class="gterm">patrón de diseño<span class="gtooltip">🇪🇸 Patrón de Diseño / 🇺🇸 Design Pattern — Solución reutilizable y documentada a un problema de diseño que aparece una y otra vez. Catalogados por la "Gang of Four" (1994).</span></span> es una solución con nombre a un problema que aparece una y otra vez. Conocer los 3 más comunes te da vocabulario de equipo profesional:</p>
+    <div class="grid md:grid-cols-3 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-rose-400">
+        <h3 class="font-bold text-rose-700 text-sm uppercase mb-2">🔒 Singleton</h3>
+        <p class="text-sm text-gray-600 mb-2"><strong>Garantiza que exista UNA sola instancia</strong> de una clase en todo el programa, con acceso global.</p>
+        <p class="text-xs text-gray-500 italic">Uso típico: la configuración de la app, la conexión al log. Analogía: solo hay UN director en la escuela.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-indigo-400">
+        <h3 class="font-bold text-indigo-700 text-sm uppercase mb-2">🏭 Factory</h3>
+        <p class="text-sm text-gray-600 mb-2"><strong>Centraliza la creación de objetos:</strong> pides "dame un notificador para este usuario" y la fábrica decide si construir Email o SMS.</p>
+        <p class="text-xs text-gray-500 italic">Uso típico: crear objetos según configuración o datos. Analogía: la cocina decide cómo preparar tu platillo; tú solo lo pides.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-emerald-400">
+        <h3 class="font-bold text-emerald-700 text-sm uppercase mb-2">👀 Observer</h3>
+        <p class="text-sm text-gray-600 mb-2"><strong>Unos objetos se "suscriben" a otro</strong> y son notificados automáticamente cuando algo cambia.</p>
+        <p class="text-xs text-gray-500 italic">Uso típico: eventos de interfaz (clic de botón), notificaciones. Analogía: suscribirte a un canal de YouTube — te llega aviso de cada video nuevo.</p>
+      </div>
+    </div>
+    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-10 text-sm text-rose-900">
+      ⚖️ <strong>Advertencia senior:</strong> los patrones son herramientas, no trofeos. Meter 5 patrones a un programa de 100 líneas es sobre-ingeniería. Primero haz que funcione simple; aplica un patrón cuando el dolor que resuelve aparezca de verdad.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">SOLID y Patrones.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← Interfaces</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-violet-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-violet-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← SOLID</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">La POO es el tema #1 en entrevistas para puestos con C#, Java y backend en general.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 Estrategia para preguntas de POO</h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><strong class="text-amber-700">Estructura fija:</strong><p class="text-gray-600 mt-1">Definición corta → analogía → mini ejemplo de código → cuándo usarlo. 60 segundos, sin divagar.</p></div>
+        <div><strong class="text-amber-700">Prepara los 4 pilares:</strong><p class="text-gray-600 mt-1">"Name the four pillars of OOP" es LA pregunta filtro. Practica decirlos en inglés sin titubear.</p></div>
+        <div><strong class="text-amber-700">Ten un ejemplo propio:</strong><p class="text-gray-600 mt-1">Prepara UNA jerarquía de clases de un proyecto tuyo para ilustrar cualquier pilar que te pregunten.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de POO</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-violet-700 mb-3 text-sm uppercase">Hablar de diseño</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-violet-600 font-mono text-xs">"I designed the class hierarchy so that..."</p><p class="text-gray-500 text-xs">Diseñé la jerarquía de clases de modo que...</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-violet-600 font-mono text-xs">"Each class has a single responsibility."</p><p class="text-gray-500 text-xs">Cada clase tiene una única responsabilidad.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-violet-600 font-mono text-xs">"I favored composition over inheritance here."</p><p class="text-gray-500 text-xs">Preferí composición sobre herencia aquí.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-violet-600 font-mono text-xs">"The dependency is injected through the constructor."</p><p class="text-gray-500 text-xs">La dependencia se inyecta por el constructor.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Explicar los pilares</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Encapsulation hides the internal state of an object."</p><p class="text-gray-500 text-xs">El encapsulamiento oculta el estado interno del objeto.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"The child class overrides the parent's method."</p><p class="text-gray-500 text-xs">La clase hija sobreescribe el método del padre.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Polymorphism lets me treat different objects uniformly."</p><p class="text-gray-500 text-xs">El polimorfismo me permite tratar objetos distintos de forma uniforme.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"An interface is a contract that guarantees behavior."</p><p class="text-gray-500 text-xs">Una interfaz es un contrato que garantiza comportamiento.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-violet-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-violet-600" value="1"><span class="text-sm">Módulo 1: Paradigmas</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-violet-600" value="2"><span class="text-sm">Módulo 2: Clases</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-violet-600" value="3"><span class="text-sm">Módulo 3: Encapsulamiento</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-violet-600" value="4"><span class="text-sm">Módulo 4: Herencia</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-violet-600" value="5"><span class="text-sm">Módulo 5: Interfaces</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-violet-600" value="6"><span class="text-sm">Módulo 6: SOLID</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-violet-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-violet-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-violet-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · Programación Orientada a Objetos · Conceptos de Programación CP2</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'Paradigma',en:'Paradigm',def:'Estilo o filosofía para estructurar programas: procedural, orientado a objetos, funcional...'},
+  {es:'Programación Orientada a Objetos',en:'OOP — Object-Oriented Programming',def:'Paradigma que organiza el código en objetos que combinan datos (atributos) y comportamiento (métodos).'},
+  {es:'Clase',en:'Class',def:'Plantilla o molde que define qué atributos y métodos tendrán los objetos creados a partir de ella.'},
+  {es:'Objeto',en:'Object',def:'Instancia concreta de una clase, con sus propios valores. De una clase salen tantos objetos como quieras.'},
+  {es:'Instancia',en:'Instance',def:'Cada objeto creado a partir de una clase. Instanciar = crear el objeto (new en C#, llamar la clase en Python).'},
+  {es:'Atributo',en:'Attribute / Field',def:'Dato que guarda cada objeto: nombre, saldo, color. En C# suelen exponerse como propiedades.'},
+  {es:'Propiedad',en:'Property',def:'En C#, atributo con get/set integrados que controla cómo se lee y escribe el dato. En Python: @property.'},
+  {es:'Método',en:'Method',def:'Función que vive dentro de una clase y define un comportamiento del objeto: ladrar(), depositar().'},
+  {es:'Constructor',en:'Constructor',def:'Método especial que se ejecuta al crear el objeto para inicializarlo. __init__ en Python; método con el nombre de la clase en C#.'},
+  {es:'self / this',en:'self / this',def:'Referencia al objeto actual: "este objeto en particular". self en Python, this en C#.'},
+  {es:'Encapsulamiento',en:'Encapsulation',def:'Pilar 1: ocultar los datos internos y permitir su acceso solo mediante métodos controlados.'},
+  {es:'Abstracción',en:'Abstraction',def:'Pilar 2: exponer solo lo esencial (QUÉ hace) y ocultar los detalles (CÓMO lo hace).'},
+  {es:'Herencia',en:'Inheritance',def:'Pilar 3: una clase hija recibe atributos y métodos de la clase padre y puede agregar o modificar los suyos.'},
+  {es:'Polimorfismo',en:'Polymorphism',def:'Pilar 4: objetos de distintas clases responden al mismo método cada uno a su manera.'},
+  {es:'Clase Base / Padre',en:'Base / Parent Class',def:'La clase de la que se hereda. También llamada superclase.'},
+  {es:'Clase Derivada / Hija',en:'Derived / Child Class',def:'La clase que hereda de otra. También llamada subclase.'},
+  {es:'Sobreescritura',en:'Override',def:'Redefinir en la hija un método heredado. En C# requiere virtual (padre) y override (hija).'},
+  {es:'Sobrecarga',en:'Overload',def:'Varias versiones del mismo método con distintos parámetros. Común en C#; en Python se logra con valores por defecto.'},
+  {es:'virtual / override',en:'virtual / override',def:'Palabras clave de C#: virtual marca un método como sobreescribible; override lo redefine en la hija.'},
+  {es:'super() / base',en:'super() / base',def:'Forma de llamar al constructor o métodos de la clase padre desde la hija.'},
+  {es:'Modificador de Acceso',en:'Access Modifier',def:'Controla quién puede acceder a un miembro: public (todos), private (solo la clase), protected (clase e hijas).'},
+  {es:'Getter / Setter',en:'Getter / Setter',def:'Métodos para leer (get) y escribir (set) un atributo privado, permitiendo validar en el camino.'},
+  {es:'Interfaz',en:'Interface',def:'Contrato que lista métodos sin implementarlos. La clase que la implementa promete definirlos todos.'},
+  {es:'Clase Abstracta',en:'Abstract Class',def:'Clase que no se puede instanciar directamente; mezcla métodos implementados y abstractos. Base para hijas.'},
+  {es:'Método Abstracto',en:'Abstract Method',def:'Método declarado sin cuerpo que las clases hijas están obligadas a implementar.'},
+  {es:'Implementar',en:'Implement',def:'Cumplir el contrato de una interfaz definiendo todos sus métodos.'},
+  {es:'Composición',en:'Composition',def:'Construir clases combinando otros objetos como piezas ("tiene un") en vez de heredar ("es un").'},
+  {es:'Relación ES-UN',en:'IS-A Relationship',def:'Prueba para herencia: Perro ES UN Animal ✓. Si no suena natural, no heredes.'},
+  {es:'Relación TIENE-UN',en:'HAS-A Relationship',def:'Prueba para composición: Coche TIENE UN Motor ✓.'},
+  {es:'SOLID',en:'SOLID',def:'5 principios de diseño OO: responsabilidad única, abierto/cerrado, sustitución de Liskov, segregación de interfaces, inversión de dependencias.'},
+  {es:'Responsabilidad Única',en:'Single Responsibility Principle',def:'La S de SOLID: cada clase debe tener una sola razón para cambiar.'},
+  {es:'Inversión de Dependencias',en:'Dependency Inversion',def:'La D de SOLID: depender de interfaces (abstracciones), no de clases concretas.'},
+  {es:'Inyección de Dependencias',en:'Dependency Injection',def:'Técnica: pasarle a una clase sus dependencias desde fuera (por constructor) en vez de que las cree ella misma.'},
+  {es:'Patrón de Diseño',en:'Design Pattern',def:'Solución reutilizable y con nombre a un problema de diseño recurrente. Catalogados por la Gang of Four (1994).'},
+  {es:'Singleton',en:'Singleton',def:'Patrón que garantiza una única instancia de una clase con acceso global. Ej: configuración de la app.'},
+  {es:'Fábrica',en:'Factory',def:'Patrón que centraliza la creación de objetos: la fábrica decide qué clase concreta construir.'},
+  {es:'Observador',en:'Observer',def:'Patrón donde objetos se suscriben a otro y son notificados automáticamente cuando cambia. Base de los eventos.'},
+  {es:'Acoplamiento',en:'Coupling',def:'Qué tanto depende una clase de otras. Bajo acoplamiento = clases independientes = código fácil de cambiar.'},
+  {es:'Cohesión',en:'Cohesion',def:'Qué tan relacionadas están las responsabilidades dentro de una clase. Alta cohesión = la clase hace una cosa bien.'},
+  {es:'Sobre-ingeniería',en:'Over-engineering',def:'Aplicar más patrones y abstracciones de las que el problema necesita. Lo simple que funciona gana.'}
+];
+
+const flashcards = [
+  {en:'Class',es:'Clase',def:'A template or blueprint that defines the attributes and methods of its objects.',pron:'klas'},
+  {en:'Object',es:'Objeto',def:'A concrete instance of a class, with its own attribute values.',pron:'OB-jekt'},
+  {en:'Inheritance',es:'Herencia',def:'A mechanism where a child class receives attributes and methods from a parent class.',pron:'in-HEHR-ih-tans'},
+  {en:'Polymorphism',es:'Polimorfismo',def:'Objects of different classes responding to the same method call, each in its own way.',pron:'pol-ee-MOR-fizm'},
+  {en:'Encapsulation',es:'Encapsulamiento',def:'Hiding internal data and exposing it only through controlled methods.',pron:'en-kap-soo-LEY-shun'},
+  {en:'Abstraction',es:'Abstracción',def:'Exposing only what an object does while hiding how it does it.',pron:'ab-STRAK-shun'},
+  {en:'Interface',es:'Interfaz',def:'A contract listing methods that implementing classes promise to define.',pron:'IN-ter-feys'},
+  {en:'Abstract Class',es:'Clase Abstracta',def:'A class that cannot be instantiated; it mixes implemented and abstract methods.',pron:'AB-strakt klas'},
+  {en:'Constructor',es:'Constructor',def:'A special method that runs when an object is created, to initialize it.',pron:'kun-STRUK-tor'},
+  {en:'Override',es:'Sobreescribir',def:'To redefine an inherited method in the child class.',pron:'oh-ver-RYD'},
+  {en:'Composition',es:'Composición',def:'Building classes by combining other objects as parts (HAS-A) instead of inheriting (IS-A).',pron:'kom-po-ZIH-shun'},
+  {en:'Design Pattern',es:'Patrón de Diseño',def:'A named, reusable solution to a recurring design problem.',pron:'dih-ZYN PAT-ern'},
+  {en:'Singleton',es:'Singleton',def:'A pattern ensuring only one instance of a class exists, with global access.',pron:'SING-gul-tun'},
+  {en:'Dependency Injection',es:'Inyección de Dependencias',def:'Passing a class its dependencies from outside instead of creating them internally.',pron:'dee-PEN-den-see in-JEK-shun'},
+  {en:'Coupling',es:'Acoplamiento',def:'How much one class depends on others. Low coupling makes code easier to change.',pron:'KUP-ling'}
+];
+
+const interviewQA = [
+  {q:'What are the four pillars of OOP? / ¿Cuáles son los 4 pilares de la POO?',cat:'Conceptual',
+   ans:'Encapsulation (hiding internal state, accessed only through controlled methods), Abstraction (exposing WHAT an object does, hiding HOW), Inheritance (child classes reuse parent behavior), and Polymorphism (different objects respond to the same message in their own way).\n\n🇪🇸 Español: Encapsulamiento (ocultar el estado interno, accesible solo mediante métodos controlados), Abstracción (exponer QUÉ hace un objeto, ocultando el CÓMO), Herencia (las clases hijas reutilizan el comportamiento del padre) y Polimorfismo (objetos distintos responden al mismo mensaje cada uno a su manera). ⭐ Es LA pregunta filtro: practica decir los 4 en inglés en menos de 60 segundos, con un mini ejemplo cada uno.'},
+  {q:'What is the difference between a class and an object? / ¿Diferencia entre clase y objeto?',cat:'Conceptual',
+   ans:'A class is the template/blueprint that defines attributes and methods; an object is a concrete instance created from that template, with its own values. Winning analogy: "A class is the cookie cutter; objects are the cookies. Same shape, different sprinkles."\n\n🇪🇸 Español: La clase es la plantilla/molde que define atributos y métodos; el objeto es una instancia concreta creada a partir de esa plantilla, con sus propios valores. Analogía ganadora: "La clase es el molde de galletas; los objetos son las galletas. La misma forma, distintas chispas."'},
+  {q:'What is the difference between an interface and an abstract class? / ¿Interfaz vs clase abstracta?',cat:'Técnica',
+   ans:'An interface is a pure contract: method signatures with no state (a class can implement many). An abstract class can contain implemented methods and state, but a class can only inherit from one. Rule of thumb: interface = defines a CAPABILITY ("can notify", "can save"); abstract class = family relationship with shared logic.\n\n🇪🇸 Español: Una interfaz es un contrato puro: firmas de métodos sin estado (una clase puede implementar muchas). Una clase abstracta puede contener métodos implementados y estado, pero solo se puede heredar de una. Regla práctica: interfaz = define una CAPACIDAD ("puede notificar", "puede guardarse"); clase abstracta = relación de familia con lógica compartida.'},
+  {q:'What is the difference between overriding and overloading? / ¿Sobreescritura vs sobrecarga?',cat:'Técnica',
+   ans:'Overriding: the child class REDEFINES an inherited method (same signature, new behavior) — requires virtual/override in C#. Overloading: SAME method name with DIFFERENT parameters in the same class.\n\n🇪🇸 Español: Sobreescritura (override): la clase hija REDEFINE un método heredado (misma firma, nuevo comportamiento) — en C# requiere virtual/override. Sobrecarga (overload): el MISMO nombre de método con DIFERENTES parámetros en la misma clase. Truco para no confundirlas: override = "sobre-escribir al padre"; overload = "cargar el método con más versiones".'},
+  {q:'Why favor composition over inheritance? / ¿Por qué preferir composición sobre herencia?',cat:'Técnica',
+   ans:'Deep inheritance hierarchies become rigid: a change in the base class ripples into every child, and you inherit things you don\'t need. Composition assembles behavior from small pieces (HAS-A), which you can swap independently. Use inheritance only for true IS-A relationships where you need polymorphism.\n\n🇪🇸 Español: Las jerarquías de herencia profundas se vuelven rígidas: un cambio en la clase base repercute en todas las hijas, y heredas cosas que no necesitas. La composición arma el comportamiento con piezas pequeñas ("TIENE UN") que puedes cambiar de forma independiente. Usa herencia solo para relaciones "ES UN" genuinas donde necesites polimorfismo.'},
+  {q:'Explain encapsulation vs abstraction — aren\'t they the same? / ¿Encapsulamiento y abstracción no son lo mismo?',cat:'Técnica',
+   ans:'They\'re related but different. Abstraction is the DESIGN decision: what simple interface to expose (the restaurant menu). Encapsulation is the MECHANISM: how you hide and protect internals (private fields, properties — the closed kitchen door).\n\n🇪🇸 Español: Están relacionados pero son distintos. La abstracción es la decisión de DISEÑO: qué interfaz simple exponer (el menú del restaurante). El encapsulamiento es el MECANISMO: cómo ocultas y proteges lo interno (campos privados, properties — la puerta cerrada de la cocina). Esta distinción fina es la que separa las respuestas junior de las senior.'},
+  {q:'What is SOLID and why does it matter? / ¿Qué es SOLID y por qué importa?',cat:'Conceptual',
+   ans:'Five OO design principles: Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion. Together they produce code that is easier to test, extend and maintain.\n\n🇪🇸 Español: Cinco principios de diseño orientado a objetos: Responsabilidad única, Abierto/cerrado, Sustitución de Liskov, Segregación de interfaces e Inversión de dependencias. Juntos producen código más fácil de probar, extender y mantener. No necesitas recitarlos de memoria a detalle: explica bien la S (una clase = una responsabilidad) y la D (depender de interfaces) con ejemplos, y menciona los demás.'},
+  {q:'Tell me about a class design you\'re proud of. / Háblame de un diseño de clases del que estés orgullosa.',cat:'Comportamental',
+   ans:'Prepare ONE real example: the problem, the classes you created, why you chose inheritance or composition, and what changed easily later thanks to the design. Example structure: "I had to support multiple notification channels. I defined an INotificador interface, implemented Email and SMS, and the rest of the app depends only on the interface — adding WhatsApp later took one new class and zero changes elsewhere."\n\n🇪🇸 Español: Prepara UN ejemplo real: el problema, las clases que creaste, por qué elegiste herencia o composición, y qué pudo cambiarse fácilmente después gracias al diseño. Estructura de ejemplo: "Tenía que soportar varios canales de notificación. Definí una interfaz INotificador, implementé Email y SMS, y el resto de la app depende solo de la interfaz — agregar WhatsApp después tomó una clase nueva y cero cambios en el resto."'}
+];
+
+const quizData = {
+  1:[{q:'¿Qué es un paradigma de programación?',opts:['Un lenguaje','Una forma de pensar y organizar el código','Un tipo de computadora','Un framework'],ans:1},
+     {q:'La POO organiza el código en...',opts:['Archivos separados','Objetos que juntan datos + comportamiento','Solo funciones','Bases de datos'],ans:1},
+     {q:'¿Qué problema motivó la creación de la POO?',opts:['La falta de computadoras','El "código espagueti": programas grandes inmanejables con variables globales','Internet lento','Los precios del software'],ans:1},
+     {q:'¿Cuáles lenguajes son multiparadigma?',opts:['Solo Haskell','Python y C#','Ninguno','Solo C'],ans:1},
+     {q:'¿Cuántos pilares tiene la POO?',opts:['2','3','4','5'],ans:2}],
+  2:[{q:'En la analogía del molde de galletas, la clase es...',opts:['La galleta','El molde','El horno','La receta de otro pastel'],ans:1},
+     {q:'¿Qué es instanciar?',opts:['Borrar una clase','Crear un objeto a partir de una clase','Compilar el programa','Heredar'],ans:1},
+     {q:'El constructor es...',opts:['Un método cualquiera','El método especial que se ejecuta al crear el objeto','Una variable global','Un tipo de bucle'],ans:1},
+     {q:'self (Python) y this (C#) se refieren a...',opts:['La clase padre','El objeto actual ("este objeto en particular")','El programa completo','El compilador'],ans:1},
+     {q:'En la clase CuentaBancaria, ¿por qué es mejor que la validación viva en depositar()/retirar()?',opts:['Por velocidad','Porque nadie puede dejar el saldo en estado inválido desde fuera','Porque es más corto','No hay diferencia'],ans:1},
+     {q:'Los métodos responden a la pregunta...',opts:['¿Qué TIENE el objeto?','¿Qué SABE HACER el objeto?','¿Dónde vive el objeto?','¿Cuánto pesa el objeto?'],ans:1}],
+  3:[{q:'El encapsulamiento consiste en...',opts:['Hacer todo público','Ocultar los datos internos y accederlos solo por métodos controlados','Borrar los atributos','Usar muchas clases'],ans:1},
+     {q:'¿Quién puede acceder a un miembro private?',opts:['Todo el mundo','Solo la propia clase','Solo las clases hijas','Nadie'],ans:1},
+     {q:'En Python, la privacidad de __atributo es...',opts:['Impuesta por el compilador','Una convención (técnicamente se puede acceder)','Igual que en C#','Imposible'],ans:1},
+     {q:'La abstracción se parece a...',opts:['Un control remoto: usas botones sin saber la electrónica interna','Un motor a la vista','Un manual técnico completo','Una contraseña'],ans:0},
+     {q:'¿Cuál es la diferencia entre abstracción y encapsulamiento?',opts:['Son idénticos','Abstracción = qué mostrar (diseño); Encapsulamiento = cómo ocultar (mecanismo)','Encapsulamiento es solo de Python','Abstracción es solo de C#'],ans:1}],
+  4:[{q:'La prueba correcta para usar herencia es...',opts:['"TIENE UN"','"ES UN" (Perro es un Animal)','"USA UN"','"PARECE UN"'],ans:1},
+     {q:'¿Qué significa sobreescribir (override)?',opts:['Borrar un método','Redefinir en la hija un método heredado del padre','Duplicar una clase','Comentar código'],ans:1},
+     {q:'En C#, para que una hija pueda sobreescribir un método, el padre debe marcarlo como...',opts:['static','private','virtual','sealed'],ans:2},
+     {q:'El polimorfismo permite...',opts:['Que un objeto tenga muchos nombres','Tratar objetos distintos de forma uniforme: mismo mensaje, respuesta propia','Crear variables globales','Evitar los constructores'],ans:1},
+     {q:'¿Qué código delata que NO se está usando polimorfismo?',opts:['Un foreach sobre una lista','Una cadena de if tipo == "perro"... elif tipo == "gato"...','Una interfaz','Un override'],ans:1},
+     {q:'super() en Python y base en C# sirven para...',opts:['Crear objetos','Llamar al constructor o métodos de la clase padre','Borrar la herencia','Hacer público un método'],ans:1}],
+  5:[{q:'Una interfaz es...',opts:['Una clase normal','Un contrato: lista de métodos sin implementación','Una base de datos','Un tipo de variable'],ans:1},
+     {q:'¿Cuántas interfaces puede implementar una clase en C#?',opts:['Solo una','Dos máximo','Muchas','Ninguna'],ans:2},
+     {q:'Una clase abstracta se diferencia de una interfaz en que...',opts:['No sirve para nada','Puede tener métodos implementados y estado','Es más rápida','Solo existe en Python'],ans:1},
+     {q:'La composición corresponde a la relación...',opts:['"ES UN"','"TIENE UN" (Coche tiene un Motor)','"HEREDA DE"','"ES IGUAL A"'],ans:1},
+     {q:'La regla senior dice: en la duda...',opts:['Prefiere herencia','Prefiere composición sobre herencia','Usa variables globales','No uses clases'],ans:1},
+     {q:'En el ejemplo del notificador, ¿por qué avisar_usuario funciona con Email y SMS?',opts:['Por suerte','Porque solo conoce el contrato (la interfaz), no la implementación','Porque son la misma clase','Porque usa if/else'],ans:1}],
+  6:[{q:'La S de SOLID significa...',opts:['Speed','Single Responsibility: una clase, una razón para cambiar','Static','Simple'],ans:1},
+     {q:'El principio Abierto/Cerrado busca...',opts:['Cerrar el programa','Extender funcionalidad sin modificar código que ya funciona','Abrir archivos','Hacer todo público'],ans:1},
+     {q:'Si Pinguino hereda de Ave pero truena al llamar volar(), se viola...',opts:['Singleton','La Sustitución de Liskov','El patrón Observer','DRY'],ans:1},
+     {q:'La D de SOLID recomienda depender de...',opts:['Clases concretas','Abstracciones (interfaces)','Variables globales','Frameworks'],ans:1},
+     {q:'¿Qué patrón garantiza UNA sola instancia con acceso global?',opts:['Factory','Observer','Singleton','Builder'],ans:2},
+     {q:'¿Qué patrón usa la idea de "suscribirse y ser notificado"?',opts:['Singleton','Factory','Observer','Adapter'],ans:2}]
+};
+
+// ===== RENDER =====
+function setLang(lang){
+  localStorage.setItem('cp_lang',lang);
+  document.querySelectorAll('.code-wrap').forEach(w=>{
+    w.querySelectorAll('.ct-btn').forEach(b=>b.classList.toggle('ct-active',b.dataset.lang===lang));
+    w.querySelectorAll('.code-block').forEach(p=>p.classList.toggle('hidden',!p.classList.contains('code-'+lang)));
+  });
+}
+
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-violet-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp2_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp2_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp2_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-violet-600 text-white">'+
+      '<p class="text-xs text-violet-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-violet-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-violet-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-violet-100 text-violet-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-orange-100 text-orange-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp2_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp2_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp2_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp2_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-violet-100 text-violet-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+  setLang(localStorage.getItem('cp_lang')||'py');
+});
+</script>
+</body>
+</html>

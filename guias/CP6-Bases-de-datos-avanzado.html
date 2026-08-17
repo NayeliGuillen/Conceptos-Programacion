@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bases de Datos Avanzado — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(2,132,199,0.12); color: #0284c7; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #0284c7; cursor: help; position: relative; color: #0369a1; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #082f49; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 900px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .ct-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px 8px 0 0; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; }
+  .ct-btn.ct-active { background: #0f172a; color: #7dd3fc; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 0 10px 10px 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .code-single { border-radius: 10px; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; } .tok-f { color: #7dd3fc; } .tok-n { color: #fbbf24; } .tok-t { color: #f0abfc; } .tok-nd { color: #fb923c; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <a href="CP1-Fundamentos-de-programacion.html" title="Fundamentos de Programación" style="color:#2dd4bf;text-decoration:none;">CP1</a>
+  <a href="CP2-Programacion-orientada-a-objetos.html" title="POO" style="color:#c4b5fd;text-decoration:none;">CP2</a>
+  <a href="CP3-APIs-y-comunicacion.html" title="APIs" style="color:#6ee7b7;text-decoration:none;">CP3</a>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <span style="color:#7dd3fc;font-weight:700;border-bottom:2px solid #7dd3fc;">CP6</span>
+  <a href="CP7-DevOps-e-infraestructura.html" title="DevOps" style="color:#fdba74;text-decoration:none;">CP7</a>
+  <a href="CP8-Seguridad.html" title="Seguridad" style="color:#f87171;text-decoration:none;">CP8</a>
+  <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" title="Diseño de Sistemas y Liderazgo" style="color:#bef264;text-decoration:none;">CP9</a>
+  <a href="CP10-Servicios-de-red-e-infraestructura.html" title="Servicios de Red e Infraestructura TI" style="color:#a5b4fc;text-decoration:none;">CP10</a>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-sky-700 font-bold text-lg">CP6</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">Bases de Datos Avanzado</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-sky-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">Esquemas</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">SQL Avanzado</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">Índices</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">Transacciones</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">NoSQL</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">ORMs</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: Diseño de Esquemas y Normalización</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: SQL Avanzado</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: Índices y Optimización</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: Transacciones y Consistencia</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: NoSQL a Fondo</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: ORMs</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-sky-900 to-blue-800 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-sky-300/70 text-sm mb-4">Guía de Estudio Completa · Nivel Avanzado · Curso 6 de 9</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">Bases de Datos<br>Avanzado</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">Normalización, SQL avanzado (PostgreSQL/MySQL), índices, transacciones ACID, NoSQL (MongoDB, Redis, DynamoDB) y ORMs. Los datos son el activo más valioso de una empresa — aprende a tratarlos como tal.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-700">3FN</div><div class="text-sm text-gray-500 mt-1">La normalización que usarás a diario</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-500">JOIN</div><div class="text-sm text-gray-500 mt-1">La operación reina del SQL</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">ACID</div><div class="text-sm text-gray-500 mt-1">Las garantías de una transacción</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-sky-500"><span class="text-xs font-bold text-sky-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">Diseño de Esquemas y Normalización</h3><p class="text-sm text-gray-500 mt-1">Cómo estructurar tablas que no te muerdan después.</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">SQL Avanzado</h3><p class="text-sm text-gray-500 mt-1">JOINs, agregaciones, subconsultas y CTEs.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">Índices y Optimización</h3><p class="text-sm text-gray-500 mt-1">Por qué una consulta tarda 20ms o 20 segundos.</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">Transacciones y Consistencia</h3><p class="text-sm text-gray-500 mt-1">ACID, aislamiento y por qué el dinero nunca se pierde a medias.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">NoSQL a Fondo</h3><p class="text-sm text-gray-500 mt-1">MongoDB, Redis y DynamoDB: cuándo sí y cuándo no.</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">ORMs</h3><p class="text-sm text-gray-500 mt-1">SQLAlchemy, Entity Framework, Prisma... y el problema N+1.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">El vocabulario completo de bases de datos.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">En inglés y español, con traducción completa.</p></div>
+    </div>
+    <div class="mt-8 bg-sky-50 border border-sky-200 rounded-xl p-5 text-sm text-sky-900">
+      💡 <strong>Requisito:</strong> domina primero el módulo 2 de <a href="CP4-Lo-que-todo-programador-debe-saber.html" class="underline font-semibold">CP4</a> (SQL básico, llaves primarias/foráneas, CRUD). Esta guía arranca donde aquel terminó.
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: NORMALIZACIÓN ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-sky-700 to-sky-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-sky-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Diseño de Esquemas y Normalización</h1>
+    <p class="text-lg text-sky-200 max-w-3xl">Un dato, un lugar. El arte de no repetir información.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-sky-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">😱 El problema: la tabla "sábana"</h2>
+      <p class="text-sm text-gray-600 mb-4">Imagina registrar pedidos en UNA sola tabla gigante, repitiendo los datos del cliente en cada fila:</p>
+      <div class="overflow-x-auto mb-4">
+      <table class="w-full text-xs bg-rose-50 rounded-xl overflow-hidden border border-rose-200">
+        <thead class="bg-rose-600 text-white"><tr><th class="p-2">pedido</th><th class="p-2">cliente</th><th class="p-2">email_cliente</th><th class="p-2">ciudad_cliente</th><th class="p-2">producto</th></tr></thead>
+        <tbody class="divide-y divide-rose-200 text-gray-700">
+          <tr><td class="p-2">1001</td><td class="p-2">Ana López</td><td class="p-2">ana@mail.com</td><td class="p-2">Monterrey</td><td class="p-2">Laptop</td></tr>
+          <tr><td class="p-2">1002</td><td class="p-2">Ana López</td><td class="p-2">ana@mail.com</td><td class="p-2">Monterrey</td><td class="p-2">Mouse</td></tr>
+          <tr><td class="p-2">1003</td><td class="p-2">Ana López</td><td class="p-2">ana@mai.com ⚠️</td><td class="p-2">Monterrey</td><td class="p-2">Teclado</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="text-sm text-gray-600 mb-3">Los tres males de la duplicación (las <strong>anomalías</strong>):</p>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-rose-50 rounded-xl p-4 border border-rose-200"><p class="text-sm font-semibold text-rose-800 mb-1">✏️ De actualización</p><p class="text-sm text-gray-600">Ana cambia de email → hay que corregirlo en TODAS sus filas. Si olvidas una (fila 1003 ☝️), tienes datos contradictorios: ¿cuál email es el bueno?</p></div>
+        <div class="bg-orange-50 rounded-xl p-4 border border-orange-200"><p class="text-sm font-semibold text-orange-800 mb-1">➕ De inserción</p><p class="text-sm text-gray-600">¿Quieres registrar a un cliente nuevo que aún no compra nada? No puedes: la tabla exige un pedido. El cliente "no cabe" sin inventar datos.</p></div>
+        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200"><p class="text-sm font-semibold text-amber-800 mb-1">🗑️ De borrado</p><p class="text-sm text-gray-600">Borras el único pedido de un cliente → ¡perdiste también al cliente! Sus datos vivían solo en esa fila.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-sky-600 rounded-full"></span>La solución: normalizar (1FN → 2FN → 3FN)</h2>
+    <p class="text-sm text-gray-600 mb-4">La <span class="gterm">normalización<span class="gtooltip">🇪🇸 Normalización / 🇺🇸 Normalization — Proceso de organizar tablas para eliminar redundancia: cada dato vive en UN solo lugar y las tablas se conectan por llaves foráneas.</span></span> divide la tabla sábana en tablas enfocadas conectadas por llaves foráneas. Las "formas normales" son niveles progresivos de limpieza:</p>
+    <div class="space-y-4 mb-6">
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-sky-400">
+        <h3 class="font-bold text-slate-800">1FN — Primera Forma Normal: celdas atómicas</h3>
+        <p class="text-sm text-gray-600 mt-1">Cada celda guarda UN solo valor. ❌ <code class="bg-gray-100 px-1 rounded text-xs">telefonos = "811-111, 812-222"</code> (dos teléfonos en una celda) → ✅ una tabla <code class="bg-gray-100 px-1 rounded text-xs">Telefonos</code> con una fila por teléfono. Si necesitas "buscar por el segundo teléfono", la celda con lista te lo impide.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-400">
+        <h3 class="font-bold text-slate-800">2FN — Segunda Forma Normal: todo depende de la llave COMPLETA</h3>
+        <p class="text-sm text-gray-600 mt-1">Aplica a llaves compuestas. Si la llave de <code class="bg-gray-100 px-1 rounded text-xs">DetallePedido</code> es (pedido_id, producto_id), la columna <code class="bg-gray-100 px-1 rounded text-xs">nombre_producto</code> solo depende de producto_id (la mitad de la llave) → se muda a la tabla <code class="bg-gray-100 px-1 rounded text-xs">Productos</code>.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-l-4 border-indigo-400">
+        <h3 class="font-bold text-slate-800">3FN — Tercera Forma Normal: nada depende de columnas que no son llave</h3>
+        <p class="text-sm text-gray-600 mt-1">En <code class="bg-gray-100 px-1 rounded text-xs">Clientes</code>, si guardas <code class="bg-gray-100 px-1 rounded text-xs">ciudad</code> y también <code class="bg-gray-100 px-1 rounded text-xs">estado</code>, el estado depende de la ciudad (Monterrey → Nuevo León), no del cliente → tabla <code class="bg-gray-100 px-1 rounded text-xs">Ciudades</code> aparte. <strong>Regla mnemotécnica:</strong> <em>"cada columna depende de la llave, de toda la llave y nada más que la llave".</em></p>
+      </div>
+    </div>
+    <div class="overflow-x-auto mb-6">
+      <div class="grid md:grid-cols-3 gap-3 text-xs">
+        <table class="w-full bg-white rounded-xl overflow-hidden shadow"><thead class="bg-sky-600 text-white"><tr><th class="p-2" colspan="3">Clientes ✅</th></tr><tr class="bg-sky-500"><th class="p-1">id</th><th class="p-1">nombre</th><th class="p-1">email</th></tr></thead><tbody><tr class="text-gray-700"><td class="p-1 text-center">7</td><td class="p-1 text-center">Ana López</td><td class="p-1 text-center">ana@mail.com</td></tr></tbody></table>
+        <table class="w-full bg-white rounded-xl overflow-hidden shadow"><thead class="bg-blue-600 text-white"><tr><th class="p-2" colspan="3">Pedidos ✅</th></tr><tr class="bg-blue-500"><th class="p-1">id</th><th class="p-1">cliente_id (FK)</th><th class="p-1">fecha</th></tr></thead><tbody><tr class="text-gray-700"><td class="p-1 text-center">1001</td><td class="p-1 text-center">7</td><td class="p-1 text-center">2026-07-01</td></tr><tr class="text-gray-700"><td class="p-1 text-center">1002</td><td class="p-1 text-center">7</td><td class="p-1 text-center">2026-07-05</td></tr></tbody></table>
+        <table class="w-full bg-white rounded-xl overflow-hidden shadow"><thead class="bg-indigo-600 text-white"><tr><th class="p-2" colspan="3">Productos ✅</th></tr><tr class="bg-indigo-500"><th class="p-1">id</th><th class="p-1">nombre</th><th class="p-1">precio</th></tr></thead><tbody><tr class="text-gray-700"><td class="p-1 text-center">42</td><td class="p-1 text-center">Laptop</td><td class="p-1 text-center">24999.90</td></tr></tbody></table>
+      </div>
+      <p class="text-xs text-gray-500 mt-2 text-center">El email de Ana ahora vive en UN solo lugar. Cambiarlo = actualizar UNA fila. 🎉</p>
+    </div>
+
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-10 text-sm text-amber-900">
+      ⚖️ <strong>Matiz senior — desnormalizar a propósito:</strong> normalizar optimiza la ESCRITURA (un dato, un lugar) pero puede encarecer la LECTURA (más JOINs). En sistemas de reportes/analítica se <em>desnormaliza</em> deliberadamente: se duplica el dato para leer más rápido. La regla: normaliza por defecto; desnormaliza solo con una razón medida, y documentándolo.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-sky-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">Diseño de Esquemas y Normalización.</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-sky-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-sky-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-sky-800 transition text-sm font-semibold">Siguiente: SQL Avanzado →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: SQL AVANZADO ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">SQL Avanzado</h1>
+    <p class="text-lg text-blue-200">JOINs, agregaciones, subconsultas y CTEs — el 90% del SQL profesional.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🤝 Los JOINs, de una vez por todas</h2>
+      <p class="text-sm text-gray-600 mb-4">Un <span class="gterm">JOIN<span class="gtooltip">🇺🇸 JOIN — Operación que combina filas de dos tablas emparejándolas por una condición (normalmente FK = PK). Los tipos definen qué pasa con las filas SIN pareja.</span></span> empareja filas de dos tablas. La diferencia entre tipos es qué pasa con las filas <strong>que no encuentran pareja</strong>:</p>
+      <div class="overflow-x-auto mb-4">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Tipo</th><th class="p-3 text-left">Devuelve</th><th class="p-3 text-left">Ejemplo mental</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-mono font-bold text-blue-600">INNER JOIN</td><td class="p-3">Solo filas CON pareja en ambas tablas</td><td class="p-3 text-gray-500">Clientes que SÍ tienen pedidos</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-mono font-bold text-sky-600">LEFT JOIN</td><td class="p-3">TODAS las de la izquierda + pareja si existe (NULL si no)</td><td class="p-3 text-gray-500">TODOS los clientes, tengan pedidos o no</td></tr>
+          <tr><td class="p-3 font-mono font-bold text-cyan-600">RIGHT JOIN</td><td class="p-3">TODAS las de la derecha (es un LEFT volteado; se usa poco)</td><td class="p-3 text-gray-500">—</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-mono font-bold text-indigo-600">FULL OUTER JOIN</td><td class="p-3">Todas de ambas, con NULL donde falte pareja</td><td class="p-3 text-gray-500">Auditorías: ¿qué quedó suelto de cada lado?</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <pre class="code-block code-single"><code><span class="tok-c">-- ¿Qué clientes NO han comprado nunca? (truco clásico de entrevista)</span>
+<span class="tok-k">SELECT</span> c.nombre
+<span class="tok-k">FROM</span> Clientes c
+<span class="tok-k">LEFT JOIN</span> Pedidos p <span class="tok-k">ON</span> p.cliente_id = c.id
+<span class="tok-k">WHERE</span> p.id <span class="tok-k">IS NULL</span>;   <span class="tok-c">-- los que quedaron sin pareja</span></code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-sky-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📊 Agregaciones: GROUP BY y HAVING</h2>
+      <p class="text-sm text-gray-600 mb-3"><code class="bg-gray-100 px-1 rounded">GROUP BY</code> agrupa filas y las funciones de agregación (<code class="bg-gray-100 px-1 rounded">COUNT, SUM, AVG, MAX, MIN</code>) resumen cada grupo. <code class="bg-gray-100 px-1 rounded">HAVING</code> filtra <strong>grupos</strong> (WHERE filtra filas, ANTES de agrupar):</p>
+      <pre class="code-block code-single mb-3"><code><span class="tok-c">-- Ventas totales por cliente en 2026, solo clientes con más de $10,000</span>
+<span class="tok-k">SELECT</span> c.nombre,
+       <span class="tok-f">COUNT</span>(p.id)      <span class="tok-k">AS</span> num_pedidos,
+       <span class="tok-f">SUM</span>(p.total)     <span class="tok-k">AS</span> total_comprado
+<span class="tok-k">FROM</span> Clientes c
+<span class="tok-k">INNER JOIN</span> Pedidos p <span class="tok-k">ON</span> p.cliente_id = c.id
+<span class="tok-k">WHERE</span> p.fecha &gt;= <span class="tok-s">'2026-01-01'</span>      <span class="tok-c">-- filtra FILAS antes de agrupar</span>
+<span class="tok-k">GROUP BY</span> c.nombre
+<span class="tok-k">HAVING</span> <span class="tok-f">SUM</span>(p.total) &gt; <span class="tok-n">10000</span>       <span class="tok-c">-- filtra GRUPOS ya calculados</span>
+<span class="tok-k">ORDER BY</span> total_comprado <span class="tok-k">DESC</span>;</code></pre>
+      <p class="text-xs text-gray-500">🧠 Truco para recordar el orden de evaluación: <strong>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY</strong>. Por eso WHERE no puede usar el resultado de SUM(): todavía no existe cuando WHERE se ejecuta.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-indigo-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🪆 Subconsultas y CTEs (consultas legibles)</h2>
+      <p class="text-sm text-gray-600 mb-3">Una <strong>subconsulta</strong> es una consulta dentro de otra. Una <span class="gterm">CTE<span class="gtooltip">🇺🇸 CTE — Common Table Expression — Consulta nombrada con WITH que actúa como "tabla temporal" dentro de tu query. Hace legibles las consultas complejas y puede encadenarse.</span></span> (<code class="bg-gray-100 px-1 rounded">WITH</code>) es lo mismo pero con nombre — como extraer una función en código (¡DRY aplicado a SQL!):</p>
+      <pre class="code-block code-single mb-3"><code><span class="tok-c">-- CTE: "define primero, usa después" — mucho más legible</span>
+<span class="tok-k">WITH</span> ventas_por_cliente <span class="tok-k">AS</span> (
+    <span class="tok-k">SELECT</span> cliente_id, <span class="tok-f">SUM</span>(total) <span class="tok-k">AS</span> total_comprado
+    <span class="tok-k">FROM</span> Pedidos
+    <span class="tok-k">GROUP BY</span> cliente_id
+)
+<span class="tok-k">SELECT</span> c.nombre, v.total_comprado
+<span class="tok-k">FROM</span> ventas_por_cliente v
+<span class="tok-k">INNER JOIN</span> Clientes c <span class="tok-k">ON</span> c.id = v.cliente_id
+<span class="tok-k">WHERE</span> v.total_comprado &gt; (
+    <span class="tok-k">SELECT</span> <span class="tok-f">AVG</span>(total) <span class="tok-k">FROM</span> Pedidos   <span class="tok-c">-- subconsulta: el promedio general</span>
+);   <span class="tok-c">-- clientes que compran arriba del promedio</span></code></pre>
+      <div class="grid md:grid-cols-2 gap-4 text-sm">
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-indigo-900">🐘 <strong>PostgreSQL vs 🐬 MySQL:</strong> ambos son excelentes y gratuitos. PostgreSQL destaca en features avanzados (JSON nativo potente, window functions completas, tipos ricos) y rigor; MySQL en sencillez y ubicuidad (WordPress, hosting barato). El SQL de esta guía funciona en los dos.</div>
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-4 text-sky-900">🪟 <strong>Siguiente nivel — window functions:</strong> <code class="bg-sky-100 px-1 rounded">ROW_NUMBER() OVER (PARTITION BY ...)</code> numera/acumula SIN colapsar filas como GROUP BY. Típica de entrevista avanzada: "dame el pedido más reciente DE CADA cliente".</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">SQL Avanzado.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← Esquemas</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-sky-800 transition text-sm font-semibold">Siguiente: Índices →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: ÍNDICES ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Índices y Optimización de Queries</h1>
+    <p class="text-lg text-purple-200">La diferencia entre 20 milisegundos y 20 segundos.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📖 El índice del libro</h2>
+      <p class="text-sm text-gray-600 mb-4">Buscar "polimorfismo" en un libro de 800 páginas: ¿lees página por página (un <span class="gterm">full table scan<span class="gtooltip">🇺🇸 Full Table Scan — La base de datos lee TODAS las filas de la tabla para responder la consulta. Con millones de filas es la causa #1 de consultas lentas.</span></span>) o vas al índice alfabético del final, que te dice "página 214"? Un <span class="gterm">índice<span class="gtooltip">🇪🇸 Índice / 🇺🇸 Index — Estructura ordenada (típicamente un árbol B-tree) que la base de datos mantiene sobre una o más columnas para localizar filas sin leer toda la tabla. Acelera lecturas; encarece escrituras.</span></span> de base de datos es exactamente eso: una estructura ordenada (un árbol <strong>B-tree</strong>) que apunta directo a las filas. Es el O(log n) de CP4 aplicado: en una tabla de 10 millones de filas, ~23 saltos en vez de 10 millones de lecturas.</p>
+      <pre class="code-block code-single mb-4"><code><span class="tok-c">-- Sin índice: esta consulta lee TODA la tabla (lenta con millones de filas)</span>
+<span class="tok-k">SELECT</span> * <span class="tok-k">FROM</span> Pedidos <span class="tok-k">WHERE</span> cliente_id = <span class="tok-n">7</span>;
+
+<span class="tok-c">-- Crear el índice: la BD mantiene un "índice de libro" sobre esa columna</span>
+<span class="tok-k">CREATE INDEX</span> idx_pedidos_cliente <span class="tok-k">ON</span> Pedidos (cliente_id);
+
+<span class="tok-c">-- La MISMA consulta ahora es casi instantánea 🚀</span>
+
+<span class="tok-c">-- ¿Cómo saber qué está haciendo la BD? Pídele su plan:</span>
+<span class="tok-k">EXPLAIN</span> <span class="tok-k">SELECT</span> * <span class="tok-k">FROM</span> Pedidos <span class="tok-k">WHERE</span> cliente_id = <span class="tok-n">7</span>;
+<span class="tok-c">-- "Seq Scan" (escaneo completo) = mal 😬 · "Index Scan" = bien ✅</span></code></pre>
+      <p class="text-sm text-gray-600">Las llaves primarias ya traen índice automático. Los candidatos naturales a indexar: <strong>llaves foráneas</strong> y columnas que aparecen mucho en <strong>WHERE, JOIN y ORDER BY</strong>.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-purple-600 rounded-full"></span>El costo oculto y las reglas del juego</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">⚖️ Los índices no son gratis</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li>💾 <strong>Ocupan espacio</strong> (a veces tanto como la tabla).</li>
+          <li>🐢 <strong>Encarecen las escrituras:</strong> cada INSERT/UPDATE también actualiza cada índice. Una tabla con 12 índices escribe lento.</li>
+          <li>🧭 <strong>Regla:</strong> indexa lo que se CONSULTA mucho; no indexes "por si acaso". Tablas de mucha escritura y poca lectura → pocos índices.</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">🎯 Índices compuestos: el orden importa</h3>
+        <p class="text-sm text-gray-600 mb-2">Un índice sobre <code class="bg-gray-100 px-1 rounded text-xs">(cliente_id, fecha)</code> es como un directorio ordenado por apellido Y LUEGO nombre:</p>
+        <ul class="space-y-1 text-sm text-gray-600">
+          <li>✅ Sirve para buscar por <code class="bg-gray-100 px-1 rounded text-xs">cliente_id</code> solo</li>
+          <li>✅ Sirve para <code class="bg-gray-100 px-1 rounded text-xs">cliente_id + fecha</code></li>
+          <li>❌ NO sirve para buscar por <code class="bg-gray-100 px-1 rounded text-xs">fecha</code> sola (¿buscarías "todos los Juan" en un directorio ordenado por apellido?)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-purple-50 border border-purple-200 rounded-xl p-5 mb-10 text-sm text-purple-900">
+      🕵️ <strong>Checklist senior cuando una consulta es lenta:</strong> 1) Corre <code class="bg-purple-100 px-1 rounded">EXPLAIN</code> y busca escaneos completos. 2) ¿La columna del WHERE/JOIN tiene índice? 3) ¿Estás haciendo <code class="bg-purple-100 px-1 rounded">SELECT *</code> cuando solo necesitas 3 columnas? 4) ¿Envuelves la columna indexada en una función? (<code class="bg-purple-100 px-1 rounded">WHERE YEAR(fecha)=2026</code> anula el índice; usa rangos: <code class="bg-purple-100 px-1 rounded">fecha &gt;= '2026-01-01' AND fecha &lt; '2027-01-01'</code>). 5) ¿Traes un millón de filas sin paginar?
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">Índices y Optimización.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← SQL Avanzado</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-sky-800 transition text-sm font-semibold">Siguiente: Transacciones →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: TRANSACCIONES ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Transacciones y Consistencia</h1>
+    <p class="text-lg text-cyan-200">Todo o nada: por qué el dinero nunca desaparece "a medias".</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">💸 El ejemplo eterno: la transferencia bancaria</h2>
+      <p class="text-sm text-gray-600 mb-4">Transferir $500 de Ana a Luis son DOS operaciones: restar a Ana y sumar a Luis. ¿Qué pasa si el servidor se apaga <strong>entre las dos</strong>? Sin protección: los $500 se esfumaron. Una <span class="gterm">transacción<span class="gtooltip">🇪🇸 Transacción / 🇺🇸 Transaction — Grupo de operaciones que se ejecutan como una unidad indivisible: o TODAS se aplican (COMMIT) o NINGUNA (ROLLBACK).</span></span> agrupa operaciones en una unidad <strong>todo-o-nada</strong>:</p>
+      <pre class="code-block code-single mb-4"><code><span class="tok-k">BEGIN TRANSACTION</span>;                <span class="tok-c">-- abre la "burbuja protegida"</span>
+
+<span class="tok-k">UPDATE</span> Cuentas <span class="tok-k">SET</span> saldo = saldo - <span class="tok-n">500</span> <span class="tok-k">WHERE</span> titular = <span class="tok-s">'Ana'</span>;
+<span class="tok-k">UPDATE</span> Cuentas <span class="tok-k">SET</span> saldo = saldo + <span class="tok-n">500</span> <span class="tok-k">WHERE</span> titular = <span class="tok-s">'Luis'</span>;
+
+<span class="tok-k">COMMIT</span>;      <span class="tok-c">-- ✅ TODO se aplica de golpe y queda permanente</span>
+<span class="tok-c">-- Si algo falla en medio (error, apagón):</span>
+<span class="tok-k">ROLLBACK</span>;    <span class="tok-c">-- ❌ NADA se aplica: como si nunca hubiera pasado</span></code></pre>
+      <h3 class="font-bold text-slate-800 mb-3">Las 4 garantías: ACID</h3>
+      <div class="grid md:grid-cols-4 gap-3 text-sm">
+        <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-200"><p class="font-bold text-cyan-800 mb-1">A — Atomicidad</p><p class="text-gray-600 text-xs">Todo o nada. No existen las transferencias "a medias".</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="font-bold text-teal-800 mb-1">C — Consistencia</p><p class="text-gray-600 text-xs">La BD pasa de un estado válido a otro válido: las reglas (saldos no negativos, FKs) se respetan siempre.</p></div>
+        <div class="bg-sky-50 rounded-xl p-4 border border-sky-200"><p class="font-bold text-sky-800 mb-1">I — Aislamiento (Isolation)</p><p class="text-gray-600 text-xs">Transacciones simultáneas no se ven "a medio hacer" entre sí.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="font-bold text-blue-800 mb-1">D — Durabilidad</p><p class="text-gray-600 text-xs">Tras el COMMIT, el cambio sobrevive apagones: ya está en disco.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-cyan-600 rounded-full"></span>Aislamiento: qué tan "solas" van las transacciones</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <p class="text-sm text-gray-600 mb-3">Si dos transacciones tocan los mismos datos a la vez, pueden verse cosas raras. Los <strong>niveles de aislamiento</strong> son el "volumen" de protección — más protección, menos concurrencia:</p>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><strong>Read Uncommitted</strong> — puedes leer cambios NO confirmados de otros (lecturas sucias). Casi nunca se usa.</li>
+          <li><strong>Read Committed</strong> — solo lees lo confirmado. <em>Default en PostgreSQL y SQL Server.</em></li>
+          <li><strong>Repeatable Read</strong> — lo que lees no cambia durante tu transacción. <em>Default en MySQL/InnoDB.</em></li>
+          <li><strong>Serializable</strong> — como si las transacciones corrieran una por una. Máxima seguridad, mínimo paralelismo.</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">🔒 Bloqueos y deadlocks</h3>
+        <p class="text-sm text-gray-600 mb-2">Para aislarse, la BD usa <strong>bloqueos (locks)</strong>: "esta fila es mía hasta que termine". El riesgo famoso: el <span class="gterm">deadlock<span class="gtooltip">🇺🇸 Deadlock / 🇪🇸 Abrazo mortal — Dos transacciones se esperan mutuamente por bloqueos cruzados y ninguna puede avanzar. La BD detecta y mata a una de las dos.</span></span> — la transacción A bloquea la fila 1 y espera la 2; la B bloquea la 2 y espera la 1. Ninguna avanza; la BD mata a una.</p>
+        <p class="text-sm text-gray-600"><strong>Prevención práctica:</strong> transacciones CORTAS (no metas llamadas a APIs dentro de una transacción), y toca las tablas siempre en el mismo orden.</p>
+      </div>
+    </div>
+
+    <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-4 mb-10 text-sm text-cyan-900">
+      🌉 <strong>Conexión con lo que ya sabes:</strong> ¿recuerdas la advertencia de CP4 sobre UPDATE sin WHERE? La versión profesional: haz cambios masivos DENTRO de una transacción → verifica el número de filas afectadas → COMMIT si es lo esperado, ROLLBACK si no. Red de seguridad instantánea.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">Transacciones y Consistencia.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← Índices</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-sky-800 transition text-sm font-semibold">Siguiente: NoSQL →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: NOSQL ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">NoSQL a Fondo</h1>
+    <p class="text-lg text-green-200">MongoDB, Redis y DynamoDB: cada una brilla en lo suyo.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🍃 MongoDB — documentos flexibles</h2>
+      <p class="text-sm text-gray-600 mb-3">Guarda <strong>documentos tipo JSON</strong> en colecciones. Cada documento puede tener campos distintos — no hay esquema rígido. Ideal cuando la estructura varía (catálogos con atributos diferentes por producto) o evoluciona rápido:</p>
+      <pre class="code-block code-single mb-3"><code><span class="tok-c">// Un documento en la colección "productos" — todo junto, sin JOINs</span>
+{
+  <span class="tok-s">"_id"</span>: <span class="tok-s">"prod_42"</span>,
+  <span class="tok-s">"nombre"</span>: <span class="tok-s">"Laptop Dell XPS"</span>,
+  <span class="tok-s">"precio"</span>: <span class="tok-n">24999.90</span>,
+  <span class="tok-s">"specs"</span>: { <span class="tok-s">"ram"</span>: <span class="tok-s">"16GB"</span>, <span class="tok-s">"cpu"</span>: <span class="tok-s">"i7"</span> },     <span class="tok-c">// anidado</span>
+  <span class="tok-s">"reseñas"</span>: [                                    <span class="tok-c">// ¡lista adentro!</span>
+    { <span class="tok-s">"usuario"</span>: <span class="tok-s">"ana"</span>, <span class="tok-s">"estrellas"</span>: <span class="tok-n">5</span> }
+  ]
+}
+
+<span class="tok-c">// Consultar: parecido a un diccionario, no a SQL</span>
+db.productos.<span class="tok-f">find</span>({ <span class="tok-s">"precio"</span>: { <span class="tok-s">"$lt"</span>: <span class="tok-n">30000</span> } })   <span class="tok-c">// $lt = less than</span></code></pre>
+      <p class="text-xs text-gray-500">⚖️ El trade-off: lo que en SQL normalizabas en 4 tablas aquí vive junto (lectura rapidísima de UN producto completo), pero consultas relacionales complejas ("clientes que compraron X y también Y") son más torpes. La flexibilidad también significa que NADA te obliga a la consistencia del esquema: la disciplina queda en tu código.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-red-400">
+        <h3 class="font-bold text-red-700 mb-2">⚡ Redis — el rayo en memoria</h3>
+        <p class="text-sm text-gray-600 mb-2">Base <strong>clave-valor EN MEMORIA RAM</strong>: lecturas/escrituras en microsegundos. Ya la viste como caché en CP5; también es el estándar para:</p>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li>• Sesiones de usuario y contadores de rate limiting</li>
+          <li>• Rankings en vivo (sorted sets) y colas ligeras</li>
+          <li>• Pub/sub para tiempo real entre servidores</li>
+        </ul>
+        <p class="text-xs text-gray-500 mt-2">RAM = rápida pero volátil y cara: Redis complementa a tu base principal, no la reemplaza.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-amber-400">
+        <h3 class="font-bold text-amber-700 mb-2">♾️ DynamoDB — escala sin límites (AWS)</h3>
+        <p class="text-sm text-gray-600 mb-2">Clave-valor/documentos <strong>administrada por AWS</strong>: escala a millones de operaciones por segundo con latencia constante de milisegundos, sin servidores que operar.</p>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li>• Carritos de compra, perfiles, sesiones a escala masiva</li>
+          <li>• Pagas por lectura/escritura, no por servidor</li>
+          <li>• El precio: DEBES diseñar las tablas alrededor de tus patrones de acceso — las consultas "creativas" posteriores son difíciles</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-green-600 rounded-full"></span>La tabla de decisión definitiva</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Tu situación</th><th class="p-3 text-left">Usa</th><th class="p-3 text-left">Porque...</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3">Datos de negocio con relaciones (ventas, usuarios, inventario)</td><td class="p-3 font-semibold text-sky-700">PostgreSQL / MySQL / SQL Server</td><td class="p-3 text-gray-500">Integridad, transacciones ACID, consultas flexibles</td></tr>
+          <tr class="bg-gray-50"><td class="p-3">Documentos de estructura variable que se leen completos</td><td class="p-3 font-semibold text-green-700">MongoDB</td><td class="p-3 text-gray-500">Esquema flexible, el documento viaja entero</td></tr>
+          <tr><td class="p-3">Caché, sesiones, contadores, tiempo real</td><td class="p-3 font-semibold text-red-700">Redis</td><td class="p-3 text-gray-500">Microsegundos, estructuras especializadas en RAM</td></tr>
+          <tr class="bg-gray-50"><td class="p-3">Escala masiva con patrones de acceso conocidos y fijos</td><td class="p-3 font-semibold text-amber-700">DynamoDB</td><td class="p-3 text-gray-500">Escala infinita administrada, latencia constante</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-10 text-sm text-green-900">
+      🧠 <strong>La respuesta senior a "¿SQL o NoSQL?":</strong> "Sí." Los sistemas reales usan <em>persistencia políglota</em>: PostgreSQL para el negocio + Redis para caché/sesiones + quizá Mongo para un catálogo flexible. La pregunta correcta nunca es cuál es "mejor", sino cuál encaja con ESTE dato y ESTE patrón de acceso.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">NoSQL a Fondo.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← Transacciones</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-sky-800 transition text-sm font-semibold">Siguiente: ORMs →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: ORMS ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">ORMs</h1>
+    <p class="text-lg text-rose-200">Objetos ↔ tablas sin escribir (casi) SQL... y sus trampas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-rose-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🌉 El traductor entre dos mundos</h2>
+      <p class="text-sm text-gray-600 mb-4">Tu código piensa en <strong>objetos</strong> (CP2); la base piensa en <strong>tablas</strong>. Un <span class="gterm">ORM<span class="gtooltip">🇺🇸 ORM — Object-Relational Mapper — Librería que mapea clases ↔ tablas y objetos ↔ filas, generando el SQL automáticamente. Ej: Entity Framework (C#), SQLAlchemy (Python), Prisma (JS/TS).</span></span> (Object-Relational Mapper) traduce automáticamente: defines clases, y él genera las tablas y el SQL. Los grandes por ecosistema: <strong>Entity Framework Core</strong> (C#), <strong>SQLAlchemy / Django ORM</strong> (Python), y en el mundo JavaScript/TypeScript: <strong>Prisma, TypeORM y Sequelize</strong>.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python (SQLAlchemy)</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C# (EF Core)</button></div>
+        <pre class="code-block code-py"><code><span class="tok-c"># 1. La clase ES la tabla (modelo declarativo)</span>
+<span class="tok-k">class</span> <span class="tok-t">Producto</span>(Base):
+    __tablename__ = <span class="tok-s">"productos"</span>
+    id     = <span class="tok-f">Column</span>(Integer, primary_key=<span class="tok-k">True</span>)
+    nombre = <span class="tok-f">Column</span>(String(<span class="tok-n">100</span>))
+    precio = <span class="tok-f">Column</span>(Numeric(<span class="tok-n">10</span>, <span class="tok-n">2</span>))
+
+<span class="tok-c"># 2. Consultas en Python — el ORM genera el SQL:</span>
+baratos = (session.<span class="tok-f">query</span>(<span class="tok-t">Producto</span>)
+           .<span class="tok-f">filter</span>(<span class="tok-t">Producto</span>.precio &lt; <span class="tok-n">30000</span>)
+           .<span class="tok-f">order_by</span>(<span class="tok-t">Producto</span>.precio)
+           .<span class="tok-f">all</span>())
+<span class="tok-c"># → SELECT * FROM productos WHERE precio &lt; 30000 ORDER BY precio</span>
+
+<span class="tok-c"># 3. Crear = instanciar y guardar (CP2 en acción)</span>
+nuevo = <span class="tok-t">Producto</span>(nombre=<span class="tok-s">"Mouse"</span>, precio=<span class="tok-n">499</span>)
+session.<span class="tok-f">add</span>(nuevo)
+session.<span class="tok-f">commit</span>()     <span class="tok-c"># ¡transacción incluida!</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-c">// 1. La clase ES la tabla (EF Core la mapea por convención)</span>
+<span class="tok-k">public class</span> <span class="tok-t">Producto</span>
+{
+    <span class="tok-k">public int</span> Id { <span class="tok-k">get</span>; <span class="tok-k">set</span>; }         <span class="tok-c">// → llave primaria automática</span>
+    <span class="tok-k">public string</span> Nombre { <span class="tok-k">get</span>; <span class="tok-k">set</span>; }
+    <span class="tok-k">public decimal</span> Precio { <span class="tok-k">get</span>; <span class="tok-k">set</span>; }
+}
+
+<span class="tok-c">// 2. Consultas con LINQ — EF genera el SQL:</span>
+<span class="tok-k">var</span> baratos = <span class="tok-k">await</span> db.Productos
+    .<span class="tok-f">Where</span>(p =&gt; p.Precio &lt; <span class="tok-n">30000</span>)
+    .<span class="tok-f">OrderBy</span>(p =&gt; p.Precio)
+    .<span class="tok-f">ToListAsync</span>();
+<span class="tok-c">// → SELECT * FROM Productos WHERE Precio &lt; 30000 ORDER BY Precio</span>
+
+<span class="tok-c">// 3. Crear = instanciar y guardar (CP2 en acción)</span>
+db.Productos.<span class="tok-f">Add</span>(<span class="tok-k">new</span> <span class="tok-t">Producto</span> { Nombre = <span class="tok-s">"Mouse"</span>, Precio = <span class="tok-n">499</span> });
+<span class="tok-k">await</span> db.<span class="tok-f">SaveChangesAsync</span>();   <span class="tok-c">// ¡transacción incluida!</span></code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-amber-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🪤 La trampa clásica: el problema N+1</h2>
+      <p class="text-sm text-gray-600 mb-3">El error de rendimiento #1 con ORMs. Quieres mostrar 100 pedidos con el nombre de su cliente:</p>
+      <pre class="code-block code-single mb-3"><code><span class="tok-c"># ❌ N+1: parece inocente, pero...</span>
+pedidos = session.<span class="tok-f">query</span>(<span class="tok-t">Pedido</span>).<span class="tok-f">all</span>()          <span class="tok-c"># 1 consulta</span>
+<span class="tok-k">for</span> p <span class="tok-k">in</span> pedidos:
+    <span class="tok-f">print</span>(p.cliente.nombre)   <span class="tok-c"># ¡una consulta MÁS por CADA pedido! (lazy loading)</span>
+<span class="tok-c"># Total: 1 + 100 = 101 consultas 🐌</span>
+
+<span class="tok-c"># ✅ Eager loading: dile al ORM que traiga la relación de una vez</span>
+pedidos = (session.<span class="tok-f">query</span>(<span class="tok-t">Pedido</span>)
+           .<span class="tok-f">options</span>(<span class="tok-f">joinedload</span>(<span class="tok-t">Pedido</span>.cliente))   <span class="tok-c"># SQLAlchemy</span>
+           .<span class="tok-f">all</span>())
+<span class="tok-c"># En EF Core: db.Pedidos.Include(p =&gt; p.Cliente)</span>
+<span class="tok-c"># Total: 1 consulta con JOIN 🚀</span></code></pre>
+      <p class="text-xs text-gray-500">La causa: el <strong>lazy loading</strong> (carga perezosa) trae las relaciones "hasta que las tocas" — cómodo, pero dentro de un bucle es una consulta por vuelta. La app va "bien" con 10 registros de prueba y muere con 10,000 reales.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">📦 Migraciones: Git para tu esquema</h3>
+        <p class="text-sm text-gray-600">Las <span class="gterm">migraciones<span class="gtooltip">🇺🇸 Migrations — Archivos versionados que describen cada cambio del esquema (crear tabla, agregar columna). Se aplican en orden y mantienen todas las copias de la BD sincronizadas.</span></span> versionan los cambios del esquema: "agregar columna telefono" queda en un archivo que se aplica en dev, staging y producción en orden. Herramientas: <code class="bg-gray-100 px-1 rounded text-xs">Alembic</code> (SQLAlchemy), <code class="bg-gray-100 px-1 rounded text-xs">dotnet ef migrations</code> (EF Core), <code class="bg-gray-100 px-1 rounded text-xs">prisma migrate</code>. Nunca cambies el esquema de producción "a mano".</p>
+      </div>
+      <div class="bg-rose-50 border border-rose-200 rounded-xl p-6 text-sm text-rose-900">
+        <h3 class="font-bold mb-2">⚖️ ¿ORM o SQL a mano? (pregunta de entrevista)</h3>
+        <p class="mb-2"><strong>ORM para el 90%:</strong> CRUD, consultas típicas — productividad, seguridad (parametriza contra inyección SQL) y migraciones.</p>
+        <p><strong>SQL directo para el 10%:</strong> reportes complejos, optimizaciones finas, operaciones masivas. Todos los ORMs te dejan "bajar" a SQL crudo cuando hace falta. Un senior domina AMBOS y sabe cuándo cambiar.</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">ORMs.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← NoSQL</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-sky-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-sky-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← ORMs</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">Bases de datos: el tema con más preguntas prácticas en pizarra. Cada respuesta con traducción al español.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 Cómo brillar en preguntas de bases de datos</h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><strong class="text-amber-700">Practica SQL escribiendo:</strong><p class="text-gray-600 mt-1">Te pedirán escribir queries en vivo. Practica JOINs con LEFT JOIN + IS NULL y GROUP BY + HAVING hasta que salgan solos.</p></div>
+        <div><strong class="text-amber-700">Menciona el EXPLAIN:</strong><p class="text-gray-600 mt-1">"Primero revisaría el plan de ejecución" te posiciona como alguien que diagnostica antes de adivinar.</p></div>
+        <div><strong class="text-amber-700">Piensa en trade-offs:</strong><p class="text-gray-600 mt-1">Índices aceleran lectura pero encarecen escritura; normalizar limpia pero agrega JOINs. Decirlo = puntos senior.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de bases de datos</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-sky-700 mb-3 text-sm uppercase">Hablar de datos y consultas</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-sky-600 font-mono text-xs">"The schema is normalized to third normal form."</p><p class="text-gray-500 text-xs">El esquema está normalizado a tercera forma normal.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-sky-600 font-mono text-xs">"I added a composite index on customer and date."</p><p class="text-gray-500 text-xs">Agregué un índice compuesto sobre cliente y fecha.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-sky-600 font-mono text-xs">"The query plan showed a full table scan."</p><p class="text-gray-500 text-xs">El plan de ejecución mostraba un escaneo completo de tabla.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-sky-600 font-mono text-xs">"We wrapped both updates in a single transaction."</p><p class="text-gray-500 text-xs">Envolvimos ambas actualizaciones en una sola transacción.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Hablar de ORMs y NoSQL</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"We hit an N+1 problem and fixed it with eager loading."</p><p class="text-gray-500 text-xs">Tuvimos un problema N+1 y lo corregimos con carga anticipada (eager loading).</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Schema changes are applied through migrations."</p><p class="text-gray-500 text-xs">Los cambios de esquema se aplican mediante migraciones.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"We use Redis for sessions and Postgres for business data."</p><p class="text-gray-500 text-xs">Usamos Redis para sesiones y Postgres para los datos del negocio.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"It depends on the access patterns."</p><p class="text-gray-500 text-xs">Depende de los patrones de acceso. (La frase favorita de los seniors.)</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-sky-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-sky-600" value="1"><span class="text-sm">Módulo 1: Esquemas</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-sky-600" value="2"><span class="text-sm">Módulo 2: SQL Avanzado</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-sky-600" value="3"><span class="text-sm">Módulo 3: Índices</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-sky-600" value="4"><span class="text-sm">Módulo 4: Transacciones</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-sky-600" value="5"><span class="text-sm">Módulo 5: NoSQL</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-sky-600" value="6"><span class="text-sm">Módulo 6: ORMs</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-sky-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-sky-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-sky-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · Bases de Datos Avanzado · Conceptos de Programación CP6</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'Esquema',en:'Schema',def:'La estructura de la base de datos: tablas, columnas, tipos, llaves y relaciones.'},
+  {es:'Normalización',en:'Normalization',def:'Organizar tablas para eliminar redundancia: cada dato vive en UN solo lugar, conectado por llaves foráneas.'},
+  {es:'Primera Forma Normal (1FN)',en:'First Normal Form (1NF)',def:'Cada celda guarda UN solo valor atómico: nada de listas separadas por comas dentro de una celda.'},
+  {es:'Segunda Forma Normal (2FN)',en:'Second Normal Form (2NF)',def:'Toda columna depende de la llave COMPLETA, no solo de una parte (aplica a llaves compuestas).'},
+  {es:'Tercera Forma Normal (3FN)',en:'Third Normal Form (3NF)',def:'Ninguna columna depende de otra columna que no sea llave. "La llave, toda la llave y nada más que la llave."'},
+  {es:'Anomalía de Actualización',en:'Update Anomaly',def:'Dato duplicado que hay que corregir en muchas filas: si olvidas una, tienes datos contradictorios.'},
+  {es:'Desnormalización',en:'Denormalization',def:'Duplicar datos a propósito para acelerar lecturas (típico en reportes/analítica). Se hace midiendo y documentando.'},
+  {es:'INNER JOIN',en:'INNER JOIN',def:'Combina tablas devolviendo SOLO las filas que tienen pareja en ambas.'},
+  {es:'LEFT JOIN',en:'LEFT JOIN',def:'Devuelve TODAS las filas de la tabla izquierda, con NULL donde no hubo pareja. Con IS NULL encuentras "los que no tienen".'},
+  {es:'GROUP BY',en:'GROUP BY',def:'Agrupa filas para resumirlas con funciones de agregación: COUNT, SUM, AVG, MAX, MIN.'},
+  {es:'HAVING',en:'HAVING',def:'Filtra GRUPOS ya agregados (WHERE filtra filas antes de agrupar). HAVING SUM(total) > 10000.'},
+  {es:'Subconsulta',en:'Subquery',def:'Una consulta dentro de otra, por ejemplo comparar contra un promedio calculado al vuelo.'},
+  {es:'CTE',en:'CTE — Common Table Expression',def:'Consulta nombrada con WITH que actúa como tabla temporal legible. El "extraer función" del SQL.'},
+  {es:'Window Function',en:'Window Function',def:'Funciones como ROW_NUMBER() OVER (PARTITION BY...) que calculan sobre grupos SIN colapsar las filas.'},
+  {es:'PostgreSQL',en:'PostgreSQL',def:'Base relacional open source destacada por rigor y features avanzados: JSON potente, tipos ricos, window functions completas.'},
+  {es:'MySQL',en:'MySQL',def:'Base relacional open source ubicua y sencilla; motor por defecto de WordPress y muchísimo hosting.'},
+  {es:'Índice',en:'Index',def:'Estructura ordenada (B-tree) sobre columnas que localiza filas sin leer toda la tabla. Acelera lecturas, encarece escrituras.'},
+  {es:'B-tree',en:'B-tree',def:'El árbol balanceado que usan los índices: encontrar una fila entre millones toma ~decenas de saltos (O(log n)).'},
+  {es:'Full Table Scan',en:'Full Table Scan',def:'La BD lee TODAS las filas para responder. La causa #1 de consultas lentas; se detecta con EXPLAIN.'},
+  {es:'EXPLAIN',en:'EXPLAIN / Query Plan',def:'Comando que muestra el plan de ejecución: cómo piensa resolver la consulta la BD (índices vs escaneos).'},
+  {es:'Índice Compuesto',en:'Composite Index',def:'Índice sobre varias columnas (a, b): sirve para buscar por a o por a+b, pero NO por b sola. El orden importa.'},
+  {es:'Transacción',en:'Transaction',def:'Grupo de operaciones todo-o-nada: o todas se aplican (COMMIT) o ninguna (ROLLBACK).'},
+  {es:'ACID',en:'ACID',def:'Las 4 garantías transaccionales: Atomicidad, Consistencia, Aislamiento (Isolation) y Durabilidad.'},
+  {es:'COMMIT / ROLLBACK',en:'COMMIT / ROLLBACK',def:'Confirmar todos los cambios de la transacción / deshacerlos todos como si nunca hubieran pasado.'},
+  {es:'Nivel de Aislamiento',en:'Isolation Level',def:'Cuánto se "ven" entre sí las transacciones simultáneas: Read Committed (default común) a Serializable (máximo).'},
+  {es:'Lectura Sucia',en:'Dirty Read',def:'Leer cambios de otra transacción que aún NO ha confirmado (y que podría deshacer). Se evita desde Read Committed.'},
+  {es:'Bloqueo',en:'Lock',def:'Mecanismo con el que una transacción reserva filas/tablas: "esto es mío hasta que termine".'},
+  {es:'Deadlock',en:'Deadlock',def:'Dos transacciones se esperan mutuamente por bloqueos cruzados. La BD detecta y mata a una. Prevención: transacciones cortas y mismo orden.'},
+  {es:'MongoDB',en:'MongoDB',def:'Base de documentos tipo JSON con esquema flexible. El documento viaja completo: rápido de leer, torpe para consultas relacionales.'},
+  {es:'Colección / Documento',en:'Collection / Document',def:'En Mongo: la colección equivale a la tabla; el documento (JSON) a la fila — pero con estructura libre y anidada.'},
+  {es:'Redis',en:'Redis',def:'Base clave-valor EN MEMORIA: microsegundos de latencia. Estándar para caché, sesiones, contadores, rankings y pub/sub.'},
+  {es:'DynamoDB',en:'DynamoDB',def:'Base clave-valor administrada de AWS: escala masiva con latencia constante, pero exige diseñar alrededor de los patrones de acceso.'},
+  {es:'Persistencia Políglota',en:'Polyglot Persistence',def:'Usar varias bases a la vez, cada una para lo que es buena: Postgres + Redis + Mongo en el mismo sistema.'},
+  {es:'ORM',en:'ORM — Object-Relational Mapper',def:'Librería que mapea clases ↔ tablas generando el SQL: Entity Framework (C#), SQLAlchemy (Python), Prisma/TypeORM/Sequelize (JS/TS).'},
+  {es:'LINQ',en:'LINQ',def:'La sintaxis de consulta integrada de C# (.Where, .OrderBy) que EF Core traduce a SQL.'},
+  {es:'Lazy Loading',en:'Lazy Loading',def:'El ORM carga las relaciones "hasta que las tocas". Cómodo, pero dentro de un bucle causa el problema N+1.'},
+  {es:'Eager Loading',en:'Eager Loading',def:'Cargar las relaciones de una vez con JOIN (Include en EF, joinedload en SQLAlchemy). La cura del N+1.'},
+  {es:'Problema N+1',en:'N+1 Problem',def:'1 consulta por la lista + 1 consulta POR CADA elemento para su relación. 100 pedidos = 101 consultas. Se cura con eager loading.'},
+  {es:'Migración',en:'Migration',def:'Archivo versionado que describe un cambio de esquema. Mantiene dev/staging/producción sincronizados. El "Git del esquema".'},
+  {es:'Patrón de Acceso',en:'Access Pattern',def:'CÓMO se consulta el dato (por id, por rango, por relación). La base correcta se elige según los patrones de acceso.'}
+];
+
+const flashcards = [
+  {en:'Schema',es:'Esquema',def:'The structure of a database: tables, columns, keys, and relationships.',pron:'SKEE-mah'},
+  {en:'Normalization',es:'Normalización',def:'Organizing tables so each fact lives in exactly one place, linked by foreign keys.',pron:'nor-mal-ih-ZEY-shun'},
+  {en:'JOIN',es:'JOIN / Unión',def:'Combining rows from two tables by matching a condition, usually FK = PK.',pron:'joyn'},
+  {en:'Aggregate',es:'Agregación',def:'Summarizing groups of rows with COUNT, SUM, AVG, MAX, or MIN.',pron:'AG-greh-git'},
+  {en:'Index',es:'Índice',def:'An ordered structure (B-tree) that locates rows without scanning the whole table.',pron:'IN-deks'},
+  {en:'Query Plan',es:'Plan de Ejecución',def:'The database\'s strategy to answer a query, shown with EXPLAIN.',pron:'KWEER-ee plan'},
+  {en:'Transaction',es:'Transacción',def:'An all-or-nothing group of operations: COMMIT applies all, ROLLBACK undoes all.',pron:'tran-ZAK-shun'},
+  {en:'ACID',es:'ACID',def:'Atomicity, Consistency, Isolation, Durability — the four transactional guarantees.',pron:'AH-sid'},
+  {en:'Deadlock',es:'Abrazo Mortal',def:'Two transactions waiting on each other\'s locks forever; the database kills one.',pron:'DED-lok'},
+  {en:'Document Database',es:'Base de Documentos',def:'A NoSQL database storing flexible JSON-like documents, such as MongoDB.',pron:'DOK-yoo-ment DEY-tah-beys'},
+  {en:'Key-Value Store',es:'Almacén Clave-Valor',def:'A database that maps keys to values with extreme speed, like Redis or DynamoDB.',pron:'kee VAL-yoo stor'},
+  {en:'Migration',es:'Migración',def:'A versioned file describing a schema change, applied in order across environments.',pron:'my-GREY-shun'},
+  {en:'Lazy Loading',es:'Carga Perezosa',def:'Loading related data only when accessed — the usual cause of the N+1 problem.',pron:'LEY-zee LOH-ding'},
+  {en:'Eager Loading',es:'Carga Anticipada',def:'Loading related data upfront with a JOIN, fixing the N+1 problem.',pron:'EE-ger LOH-ding'},
+  {en:'Consistency',es:'Consistencia',def:'The guarantee that data always moves from one valid state to another.',pron:'kun-SIS-ten-see'}
+];
+
+const interviewQA = [
+  {q:'What is normalization and why does it matter? / ¿Qué es la normalización y por qué importa?',cat:'Conceptual',
+   ans:'Normalization organizes tables so each fact lives in exactly one place, linked by foreign keys. It prevents the three anomalies: update (fixing a fact in many rows), insertion (can\'t add a customer without an order), and deletion (deleting an order loses the customer). Third normal form is the practical target: every column depends on the key, the whole key, and nothing but the key.\n\n🇪🇸 Español: La normalización organiza las tablas para que cada dato viva en UN solo lugar, conectado por llaves foráneas. Evita las tres anomalías: de actualización (corregir un dato en muchas filas), de inserción (no poder registrar un cliente sin pedido) y de borrado (borrar un pedido y perder al cliente). La 3FN es la meta práctica: cada columna depende de la llave, de toda la llave y nada más que la llave.'},
+  {q:'Explain the difference between INNER JOIN and LEFT JOIN.',cat:'Técnica',
+   ans:'INNER JOIN returns only rows that have a match in both tables. LEFT JOIN returns ALL rows from the left table, filling with NULL when there\'s no match. Classic use: LEFT JOIN + WHERE right.id IS NULL finds "customers who never bought" — rows without a partner.\n\n🇪🇸 Español: INNER JOIN devuelve solo las filas que tienen pareja en ambas tablas. LEFT JOIN devuelve TODAS las filas de la tabla izquierda, rellenando con NULL cuando no hay pareja. Uso clásico: LEFT JOIN + WHERE derecha.id IS NULL encuentra "los clientes que nunca compraron" — las filas sin pareja.'},
+  {q:'A query got slow in production. What do you do? / Una consulta se volvió lenta en producción, ¿qué haces?',cat:'Técnica',
+   ans:'Run EXPLAIN to see the query plan. If it shows a full table scan, check whether the WHERE/JOIN columns are indexed. Also check: SELECT * pulling unneeded columns, functions wrapping indexed columns (YEAR(date) disables the index — use ranges), missing pagination, and N+1 patterns from the ORM. Fix one thing, measure again.\n\n🇪🇸 Español: Corro EXPLAIN para ver el plan de ejecución. Si muestra un escaneo completo de tabla, reviso si las columnas del WHERE/JOIN tienen índice. También reviso: SELECT * trayendo columnas de más, funciones envolviendo columnas indexadas (YEAR(fecha) anula el índice — usa rangos), falta de paginación, y patrones N+1 del ORM. Corrijo UNA cosa y vuelvo a medir.'},
+  {q:'Why not index every column? / ¿Por qué no indexar todas las columnas?',cat:'Técnica',
+   ans:'Indexes aren\'t free: they take disk space and slow down every INSERT/UPDATE/DELETE, because each write must also update every index. The rule: index what you query often (foreign keys, WHERE/JOIN/ORDER BY columns) and nothing "just in case". Write-heavy tables should carry few indexes.\n\n🇪🇸 Español: Los índices no son gratis: ocupan espacio y hacen más lentas TODAS las escrituras, porque cada INSERT/UPDATE/DELETE también debe actualizar cada índice. La regla: indexa lo que se consulta mucho (llaves foráneas, columnas de WHERE/JOIN/ORDER BY) y nada "por si acaso". Las tablas con mucha escritura deben llevar pocos índices.'},
+  {q:'What does ACID mean? / ¿Qué significa ACID?',cat:'Conceptual',
+   ans:'The four guarantees of a transaction. Atomicity: all or nothing — no half-transfers. Consistency: the database moves between valid states, respecting all rules. Isolation: concurrent transactions don\'t see each other\'s half-done work. Durability: after COMMIT, the change survives crashes. The bank transfer is the canonical example: subtracting from Ana and adding to Luis must be one atomic unit.\n\n🇪🇸 Español: Las cuatro garantías de una transacción. Atomicidad: todo o nada — no existen transferencias a medias. Consistencia: la base pasa de un estado válido a otro válido, respetando todas las reglas. Aislamiento: las transacciones simultáneas no se ven "a medio hacer" entre sí. Durabilidad: tras el COMMIT, el cambio sobrevive apagones. La transferencia bancaria es el ejemplo canónico: restar a Ana y sumar a Luis debe ser una unidad atómica.'},
+  {q:'When would you choose NoSQL over SQL? / ¿Cuándo elegirías NoSQL sobre SQL?',cat:'Técnica',
+   ans:'It depends on the data and access patterns, not fashion. SQL for business data with relationships and transactional integrity. MongoDB for variable-structure documents read as a whole. Redis for caching, sessions, counters (in-memory speed). DynamoDB for massive scale with fixed, known access patterns. Real systems combine them — polyglot persistence.\n\n🇪🇸 Español: Depende del dato y sus patrones de acceso, no de la moda. SQL para datos de negocio con relaciones e integridad transaccional. MongoDB para documentos de estructura variable que se leen completos. Redis para caché, sesiones y contadores (velocidad en memoria). DynamoDB para escala masiva con patrones de acceso fijos y conocidos. Los sistemas reales las combinan — persistencia políglota.'},
+  {q:'What is the N+1 problem? / ¿Qué es el problema N+1?',cat:'Técnica',
+   ans:'An ORM performance trap: you query a list (1 query) and then, inside a loop, access a relation on each item — the lazy loading fires one extra query PER item. 100 orders = 101 queries. The fix is eager loading: tell the ORM to fetch the relation upfront with a JOIN (Include in EF Core, joinedload in SQLAlchemy). It works fine with test data and collapses in production — that\'s why interviewers love it.\n\n🇪🇸 Español: Una trampa de rendimiento de los ORMs: consultas una lista (1 consulta) y luego, dentro de un bucle, accedes a una relación de cada elemento — el lazy loading dispara una consulta extra POR elemento. 100 pedidos = 101 consultas. La cura es el eager loading: decirle al ORM que traiga la relación de una vez con un JOIN (Include en EF Core, joinedload en SQLAlchemy). Funciona bien con datos de prueba y colapsa en producción — por eso encanta en entrevistas.'},
+  {q:'ORM or raw SQL? / ¿ORM o SQL directo?',cat:'Comportamental',
+   ans:'Both, by zones. ORM for ~90%: everyday CRUD and queries — productivity, automatic parameterization (protects against SQL injection), and migrations. Raw SQL for the ~10% where it wins: complex reports, fine-tuned optimizations, bulk operations. Every serious ORM lets you drop to raw SQL. A senior masters both and knows when to switch.\n\n🇪🇸 Español: Ambos, por zonas. ORM para el ~90%: el CRUD y las consultas del día a día — productividad, parametrización automática (protege contra inyección SQL) y migraciones. SQL directo para el ~10% donde gana: reportes complejos, optimizaciones finas, operaciones masivas. Todo ORM serio te deja bajar a SQL crudo. Un senior domina ambos y sabe cuándo cambiar.'}
+];
+
+const quizData = {
+  1:[{q:'¿Cuál NO es una anomalía causada por duplicar datos?',opts:['De actualización','De inserción','De borrado','De compilación'],ans:3},
+     {q:'La 1FN exige que...',opts:['Haya muchas tablas','Cada celda guarde UN solo valor atómico','Todo esté en mayúsculas','No haya llaves'],ans:1},
+     {q:'La regla "cada columna depende de la llave, toda la llave y nada más que la llave" resume...',opts:['La 1FN','El CRUD','La normalización hasta 3FN','Los índices'],ans:2},
+     {q:'Si guardas ciudad Y estado en Clientes, y el estado depende de la ciudad, violas...',opts:['1FN','3FN','ACID','El CRUD'],ans:1},
+     {q:'La desnormalización deliberada es típica en...',opts:['Toda base de datos','Sistemas de reportes/analítica que priorizan lectura','Formularios','APIs REST'],ans:1},
+     {q:'Normalizar optimiza principalmente...',opts:['La lectura','La escritura y la integridad (un dato, un lugar)','El CSS','La red'],ans:1}],
+  2:[{q:'¿Qué JOIN devuelve TODAS las filas de la izquierda con NULL si no hay pareja?',opts:['INNER JOIN','LEFT JOIN','CROSS JOIN','SELF JOIN'],ans:1},
+     {q:'¿Cómo encuentras clientes que NUNCA han comprado?',opts:['INNER JOIN','LEFT JOIN + WHERE pedido.id IS NULL','GROUP BY','DELETE'],ans:1},
+     {q:'La diferencia entre WHERE y HAVING es...',opts:['Ninguna','WHERE filtra filas antes de agrupar; HAVING filtra grupos ya agregados','HAVING es más rápido','WHERE es de MySQL'],ans:1},
+     {q:'Una CTE (WITH) sirve para...',opts:['Borrar tablas','Nombrar una subconsulta y hacer legible el SQL complejo','Crear índices','Hacer backups'],ans:1},
+     {q:'¿Qué función cuenta filas por grupo?',opts:['SUM','AVG','COUNT','MAX'],ans:2},
+     {q:'El orden real de evaluación empieza con...',opts:['SELECT','ORDER BY','FROM → WHERE → GROUP BY...','HAVING'],ans:2}],
+  3:[{q:'Un índice de BD es como...',opts:['Leer el libro completo','El índice alfabético del libro: te dice la página exacta','La portada','Un marcador'],ans:1},
+     {q:'"Seq Scan" o escaneo completo en el EXPLAIN significa...',opts:['Todo bien','La BD lee TODAS las filas: probable falta de índice','La tabla está vacía','Hay un deadlock'],ans:1},
+     {q:'El costo de los índices es...',opts:['Ninguno','Espacio en disco y escrituras más lentas','Solo dinero','Lecturas más lentas'],ans:1},
+     {q:'Un índice compuesto sobre (cliente_id, fecha) NO sirve para buscar por...',opts:['cliente_id solo','cliente_id + fecha','fecha sola','Nada, sirve para todo'],ans:2},
+     {q:'WHERE YEAR(fecha) = 2026 es problemático porque...',opts:['Es ilegal','Envolver la columna en una función anula el índice; usa rangos de fechas','2026 no existe','Falta GROUP BY'],ans:1},
+     {q:'Los candidatos naturales a indexar son...',opts:['Todas las columnas','Llaves foráneas y columnas frecuentes en WHERE/JOIN/ORDER BY','Columnas de texto largo','Ninguna'],ans:1}],
+  4:[{q:'Una transacción garantiza...',opts:['Velocidad','Todo o nada: COMMIT aplica todo, ROLLBACK deshace todo','Más espacio','Compresión'],ans:1},
+     {q:'La A de ACID (Atomicidad) evita...',opts:['Datos lentos','Transferencias "a medias": restar a Ana sin sumar a Luis','Índices duplicados','El polimorfismo'],ans:1},
+     {q:'La D de ACID (Durabilidad) significa...',opts:['La BD es dura de usar','Tras el COMMIT el cambio sobrevive apagones','Los datos duran 1 año','Nada'],ans:1},
+     {q:'Una "lectura sucia" es...',opts:['Leer datos viejos','Leer cambios NO confirmados de otra transacción','Un error de sintaxis','Leer sin índice'],ans:1},
+     {q:'Un deadlock ocurre cuando...',opts:['La BD se llena','Dos transacciones se esperan mutuamente por bloqueos cruzados','Hay muchos usuarios','Falta un índice'],ans:1},
+     {q:'Para prevenir deadlocks conviene...',opts:['Transacciones largas','Transacciones cortas y tocar las tablas en el mismo orden','No usar transacciones','Más índices'],ans:1}],
+  5:[{q:'MongoDB guarda...',opts:['Tablas con columnas fijas','Documentos tipo JSON con estructura flexible','Solo texto','Solo números'],ans:1},
+     {q:'La gran fortaleza de Redis es...',opts:['Almacenar terabytes baratos','Velocidad de microsegundos por vivir EN MEMORIA','Los JOINs','Los reportes'],ans:1},
+     {q:'Redis normalmente...',opts:['Reemplaza a la base principal','Complementa a la base principal (caché, sesiones, contadores)','Es una base relacional','No se usa en producción'],ans:1},
+     {q:'El precio de DynamoDB por su escala infinita es...',opts:['Es carísima siempre','Debes diseñar las tablas alrededor de patrones de acceso conocidos','No tiene precio','Requiere Windows'],ans:1},
+     {q:'"Persistencia políglota" significa...',opts:['Hablar varios idiomas','Usar varias bases a la vez, cada una para lo que es buena','Traducir SQL','Usar solo NoSQL'],ans:1},
+     {q:'La respuesta senior a "¿SQL o NoSQL?" es...',opts:['SQL siempre','NoSQL siempre','Depende del dato y sus patrones de acceso; suelen combinarse','Ninguna'],ans:2}],
+  6:[{q:'Un ORM es...',opts:['Una base de datos','El traductor entre objetos de tu código y tablas de la BD','Un lenguaje','Un servidor'],ans:1},
+     {q:'El ORM de C#/.NET es...',opts:['SQLAlchemy','Prisma','Entity Framework Core','Sequelize'],ans:2},
+     {q:'En el problema N+1, mostrar 100 pedidos con su cliente genera...',opts:['1 consulta','2 consultas','101 consultas','0 consultas'],ans:2},
+     {q:'La cura del N+1 es...',opts:['Más RAM','Eager loading: Include / joinedload para traer la relación con JOIN','Borrar el bucle','Cambiar de lenguaje'],ans:1},
+     {q:'Las migraciones sirven para...',opts:['Migrar de país','Versionar los cambios de esquema y aplicarlos en orden en cada ambiente','Hacer backups','Acelerar consultas'],ans:1},
+     {q:'¿ORM o SQL directo?',opts:['Solo ORM','Solo SQL','ORM para el CRUD diario; SQL directo para reportes complejos y optimización fina','Ninguno'],ans:2}]
+};
+
+// ===== RENDER =====
+function setLang(lang){
+  localStorage.setItem('cp_lang',lang);
+  document.querySelectorAll('.code-wrap').forEach(w=>{
+    w.querySelectorAll('.ct-btn').forEach(b=>b.classList.toggle('ct-active',b.dataset.lang===lang));
+    w.querySelectorAll('.code-block').forEach(p=>{if(!p.classList.contains('code-single'))p.classList.toggle('hidden',!p.classList.contains('code-'+lang));});
+  });
+}
+
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-sky-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp6_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp6_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp6_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-sky-600 text-white">'+
+      '<p class="text-xs text-sky-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-sky-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-sky-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-sky-100 text-sky-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-orange-100 text-orange-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp6_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp6_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp6_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp6_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-sky-100 text-sky-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+  setLang(localStorage.getItem('cp_lang')||'py');
+});
+</script>
+</body>
+</html>

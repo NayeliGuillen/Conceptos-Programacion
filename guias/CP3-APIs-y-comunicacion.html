@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APIs y Comunicación entre Sistemas — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(5,150,105,0.12); color: #059669; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #059669; cursor: help; position: relative; color: #047857; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #064e3b; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .ct-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px 8px 0 0; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; }
+  .ct-btn.ct-active { background: #0f172a; color: #6ee7b7; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 0 10px 10px 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .code-single { border-radius: 10px; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; } .tok-f { color: #7dd3fc; } .tok-n { color: #fbbf24; } .tok-t { color: #f0abfc; } .tok-nd { color: #fb923c; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <a href="CP1-Fundamentos-de-programacion.html" title="Fundamentos de Programación" style="color:#2dd4bf;text-decoration:none;">CP1</a>
+  <a href="CP2-Programacion-orientada-a-objetos.html" title="POO" style="color:#c4b5fd;text-decoration:none;">CP2</a>
+  <span style="color:#6ee7b7;font-weight:700;border-bottom:2px solid #6ee7b7;">CP3</span>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <a href="CP6-Bases-de-datos-avanzado.html" title="Bases de Datos Avanzado" style="color:#7dd3fc;text-decoration:none;">CP6</a>
+  <a href="CP7-DevOps-e-infraestructura.html" title="DevOps" style="color:#fdba74;text-decoration:none;">CP7</a>
+  <a href="CP8-Seguridad.html" title="Seguridad" style="color:#f87171;text-decoration:none;">CP8</a>
+  <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" title="Diseño de Sistemas y Liderazgo" style="color:#bef264;text-decoration:none;">CP9</a>
+  <a href="CP10-Servicios-de-red-e-infraestructura.html" title="Servicios de Red e Infraestructura TI" style="color:#a5b4fc;text-decoration:none;">CP10</a>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-700 font-bold text-lg">CP3</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">APIs y Comunicación entre Sistemas</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">¿Qué es?</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">HTTP</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">REST/JSON</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">Consumir</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">Seguridad</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">Más allá</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: ¿Qué es una API?</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: Cliente-Servidor y HTTP</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: REST y JSON</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: Consumir APIs con Código</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: Autenticación y Seguridad</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: Más allá de REST</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-emerald-900 to-teal-800 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-emerald-300/70 text-sm mb-4">Guía de Estudio Completa · Curso 3 de 4</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">APIs y Comunicación<br>entre Sistemas</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">Qué es una API y para qué sirve, HTTP, REST, JSON, autenticación y cómo consumir servicios reales con Python 🐍 y C# #️⃣. El lenguaje con el que se hablan las aplicaciones del mundo.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-emerald-700">GET</div><div class="text-sm text-gray-500 mt-1">El verbo HTTP más usado</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-500">404</div><div class="text-sm text-gray-500 mt-1">El código de estado más famoso</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">JSON</div><div class="text-sm text-gray-500 mt-1">El formato universal de datos</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-emerald-500"><span class="text-xs font-bold text-emerald-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">¿Qué es una API?</h3><p class="text-sm text-gray-500 mt-1">La analogía del mesero y por qué las APIs mueven el mundo.</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">Cliente-Servidor y HTTP</h3><p class="text-sm text-gray-500 mt-1">Peticiones, respuestas, métodos y códigos de estado.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">REST y JSON</h3><p class="text-sm text-gray-500 mt-1">El estilo y el formato con que se diseñan las APIs modernas.</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">Consumir APIs con Código</h3><p class="text-sm text-gray-500 mt-1">requests, HttpClient, Postman y curl en acción.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">Autenticación y Seguridad</h3><p class="text-sm text-gray-500 mt-1">API keys, tokens, JWT, OAuth y HTTPS.</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">Más allá de REST</h3><p class="text-sm text-gray-500 mt-1">Webhooks, GraphQL, SOAP y crear tu propia API.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">El vocabulario completo del mundo API.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">Preguntas de APIs y HTTP en inglés y español.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: QUÉ ES UNA API ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-emerald-700 to-emerald-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-emerald-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">¿Qué es una API?</h1>
+    <p class="text-lg text-emerald-200 max-w-3xl">La pieza que permite que aplicaciones que no se conocen trabajen juntas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-emerald-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🍽️ La analogía del mesero</h2>
+      <p class="text-sm text-gray-600 mb-4">Estás en un restaurante. Tú (la <strong>aplicación cliente</strong>) no entras a la cocina (el <strong>servidor</strong>) a prepararte la comida. Le pides al <strong>mesero</strong> — la <span class="gterm">API<span class="gtooltip">🇺🇸 API — Application Programming Interface / 🇪🇸 Interfaz de Programación de Aplicaciones — Conjunto de reglas y puntos de acceso que permite que dos programas se comuniquen sin conocer sus detalles internos.</span></span> — usando el <strong>menú</strong> (la documentación). El mesero lleva tu orden a la cocina, y te trae el platillo (la <strong>respuesta</strong>). Nunca ves cómo cocinan, ni necesitas hacerlo.</p>
+      <div class="grid md:grid-cols-4 gap-3 text-center text-sm mb-4">
+        <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200"><div class="text-2xl mb-1">🙋</div><strong class="text-emerald-800">Tú</strong><br><span class="text-xs text-gray-500">App cliente</span></div>
+        <div class="bg-teal-50 rounded-lg p-3 border border-teal-200"><div class="text-2xl mb-1">📋</div><strong class="text-teal-800">Menú</strong><br><span class="text-xs text-gray-500">Documentación de la API</span></div>
+        <div class="bg-cyan-50 rounded-lg p-3 border border-cyan-200"><div class="text-2xl mb-1">🤵</div><strong class="text-cyan-800">Mesero</strong><br><span class="text-xs text-gray-500">La API</span></div>
+        <div class="bg-blue-50 rounded-lg p-3 border border-blue-200"><div class="text-2xl mb-1">👨‍🍳</div><strong class="text-blue-800">Cocina</strong><br><span class="text-xs text-gray-500">Servidor / sistema</span></div>
+      </div>
+      <p class="text-sm text-gray-600"><strong>API = Application Programming Interface</strong> (Interfaz de Programación de Aplicaciones). Es un <strong>contrato</strong>: "si me pides ESTO en ESTE formato, te respondo AQUELLO en AQUEL formato". Punto. No importa en qué lenguaje esté hecho cada lado.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-emerald-600 rounded-full"></span>¿Para qué sirve una API?</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-emerald-400">
+        <h3 class="font-bold text-emerald-700 text-sm uppercase mb-2">🔌 No reinventar la rueda</h3>
+        <p class="text-sm text-gray-600">¿Tu app necesita mapas? No construyes un sistema de mapas: usas la API de Google Maps. ¿Pagos? La API de Stripe o PayPal. Le delegas a expertos lo que no es tu negocio.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-teal-400">
+        <h3 class="font-bold text-teal-700 text-sm uppercase mb-2">🌉 Conectar sistemas distintos</h3>
+        <p class="text-sm text-gray-600">Una app móvil en Swift, un sistema de inventario en C# y una web en JavaScript pueden hablar entre sí porque la API define un idioma común, sin importar el lenguaje interno de cada uno.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-cyan-400">
+        <h3 class="font-bold text-cyan-700 text-sm uppercase mb-2">🛡️ Exponer solo lo permitido</h3>
+        <p class="text-sm text-gray-600">El banco te deja consultar TU saldo vía API, pero jamás tocar su base de datos directa. La API es la puerta con reglas: qué se puede pedir, quién puede pedirlo y cuántas veces.</p>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-emerald-600 rounded-full"></span>APIs que usas todos los días sin saberlo</h2>
+    <div class="bg-white rounded-xl shadow p-6 mb-10">
+      <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+        <ul class="space-y-2">
+          <li>📱 <strong>Abres Uber:</strong> API de mapas (ubicación), API de pagos (cobro), API de SMS (código de verificación).</li>
+          <li>🌦️ <strong>Ves el clima en tu celular:</strong> tu app le pregunta a una API meteorológica (como OpenWeather).</li>
+          <li>🔑 <strong>"Iniciar sesión con Google":</strong> la app usa la API de Google para verificar tu identidad sin conocer tu contraseña.</li>
+        </ul>
+        <ul class="space-y-2">
+          <li>✈️ <strong>Buscas vuelos en un comparador:</strong> el sitio consulta las APIs de decenas de aerolíneas y junta los resultados.</li>
+          <li>💬 <strong>Un bot te responde en WhatsApp:</strong> la empresa usa la API de WhatsApp Business.</li>
+          <li>🛒 <strong>Rastreas tu paquete:</strong> la tienda consulta la API de la paquetería (DHL, FedEx) y te muestra el estado.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-emerald-600 rounded-full"></span>No todas las APIs son de internet</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-10">
+      <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4"><p class="text-sm font-semibold text-emerald-800 mb-1">🌐 APIs Web (las de esta guía)</p><p class="text-sm text-gray-600">Se consumen por internet vía HTTP: la API del clima, de Stripe, de tu propio backend. Son las que más escucharás.</p></div>
+      <div class="bg-teal-50 border border-teal-200 rounded-xl p-4"><p class="text-sm font-semibold text-teal-800 mb-1">📚 APIs de librerías</p><p class="text-sm text-gray-600">Los métodos públicos de una librería también son "su API": cuando usas <code class="bg-teal-100 px-1 rounded text-xs">math.sqrt()</code> usas la API del módulo math.</p></div>
+      <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-4"><p class="text-sm font-semibold text-cyan-800 mb-1">💻 APIs del sistema operativo</p><p class="text-sm text-gray-600">Windows expone APIs para que los programas abran ventanas, lean archivos o accedan a la cámara.</p></div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-emerald-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">¿Qué es una API?</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-emerald-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-emerald-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-emerald-800 transition text-sm font-semibold">Siguiente: HTTP →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: CLIENTE-SERVIDOR Y HTTP ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Cliente-Servidor y HTTP</h1>
+    <p class="text-lg text-blue-200">El protocolo con el que pide y responde toda la web.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔄 El ciclo petición → respuesta</h2>
+      <p class="text-sm text-gray-600 mb-4">Toda la comunicación web sigue el mismo baile: el <span class="gterm">cliente<span class="gtooltip">🇪🇸 Cliente / 🇺🇸 Client — El programa que INICIA la comunicación y pide datos: un navegador, una app móvil, tu script de Python.</span></span> (navegador, app, tu script) envía una <span class="gterm">petición<span class="gtooltip">🇺🇸 Request / 🇪🇸 Petición — Mensaje HTTP que el cliente envía al servidor: incluye método (GET, POST...), URL, headers y a veces un cuerpo con datos.</span></span> y el <span class="gterm">servidor<span class="gtooltip">🇪🇸 Servidor / 🇺🇸 Server — Programa (y la máquina donde corre) que ESCUCHA peticiones, las procesa y devuelve respuestas. Nunca inicia la conversación.</span></span> devuelve una <span class="gterm">respuesta<span class="gtooltip">🇺🇸 Response / 🇪🇸 Respuesta — Mensaje que el servidor devuelve: código de estado, headers y normalmente un cuerpo con los datos (JSON, HTML...).</span></span>. El protocolo que da formato a esos mensajes es <span class="gterm">HTTP<span class="gtooltip">🇺🇸 HTTP — HyperText Transfer Protocol — El protocolo estándar de comunicación de la web: define cómo se estructuran las peticiones y respuestas. HTTPS es su versión cifrada.</span></span>.</p>
+      <div class="bg-slate-800 rounded-xl p-5 text-center text-sm mb-4">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-3 text-white">
+          <div class="bg-blue-600 rounded-lg px-4 py-3 font-semibold">📱 CLIENTE<br><span class="text-xs font-normal text-blue-200">"Dame el clima de Monterrey"</span></div>
+          <div class="text-emerald-300 font-mono text-xs">— petición (request) →<br>← respuesta (response) —</div>
+          <div class="bg-emerald-600 rounded-lg px-4 py-3 font-semibold">🖥️ SERVIDOR<br><span class="text-xs font-normal text-emerald-200">"29°C, soleado" (JSON)</span></div>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600">📮 <strong>Analogía del correo:</strong> la petición es una carta con destinatario (URL), tipo de trámite (método), datos del remitente (headers) y a veces un paquete adjunto (body). La respuesta siempre regresa con un sello de resultado (código de estado).</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Los métodos HTTP: los verbos de la web</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-6">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Método</th><th class="p-3 text-left">Acción</th><th class="p-3 text-left">Ejemplo real</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3"><span class="font-mono font-bold text-emerald-600">GET</span></td><td class="p-3"><strong>Leer</strong> datos (no modifica nada)</td><td class="p-3 text-gray-500">Ver la lista de productos</td></tr>
+          <tr class="bg-gray-50"><td class="p-3"><span class="font-mono font-bold text-blue-600">POST</span></td><td class="p-3"><strong>Crear</strong> un recurso nuevo</td><td class="p-3 text-gray-500">Registrar un usuario nuevo</td></tr>
+          <tr><td class="p-3"><span class="font-mono font-bold text-amber-600">PUT</span></td><td class="p-3"><strong>Reemplazar</strong> un recurso completo</td><td class="p-3 text-gray-500">Actualizar todo el perfil</td></tr>
+          <tr class="bg-gray-50"><td class="p-3"><span class="font-mono font-bold text-orange-600">PATCH</span></td><td class="p-3"><strong>Modificar</strong> solo una parte</td><td class="p-3 text-gray-500">Cambiar solo el teléfono</td></tr>
+          <tr><td class="p-3"><span class="font-mono font-bold text-rose-600">DELETE</span></td><td class="p-3"><strong>Eliminar</strong> un recurso</td><td class="p-3 text-gray-500">Borrar un comentario</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-10 text-sm text-blue-900">
+      💡 ¿Notas el patrón? GET-POST-PUT/PATCH-DELETE ≈ <strong>Leer, Crear, Actualizar, Eliminar</strong> — el famoso <span class="font-semibold">CRUD</span> (Create, Read, Update, Delete) que verás en CP4 con bases de datos. La web entera funciona con estas 4 operaciones.
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Códigos de estado: el sello de la respuesta</h2>
+    <p class="text-sm text-gray-600 mb-4">Toda respuesta trae un número de 3 dígitos que resume el resultado. La primera cifra dice la familia:</p>
+    <div class="grid md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-green-400">
+        <h3 class="font-bold text-green-700 mb-2">2xx — Todo bien ✅</h3>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li><strong class="font-mono">200</strong> OK — éxito general</li>
+          <li><strong class="font-mono">201</strong> Created — recurso creado (tras un POST)</li>
+          <li><strong class="font-mono">204</strong> No Content — éxito, sin nada que devolver</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-amber-400">
+        <h3 class="font-bold text-amber-700 mb-2">4xx — Tú te equivocaste 🙈</h3>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li><strong class="font-mono">400</strong> Bad Request — petición mal formada</li>
+          <li><strong class="font-mono">401</strong> Unauthorized — no te identificaste</li>
+          <li><strong class="font-mono">403</strong> Forbidden — te identificaste, pero no tienes permiso</li>
+          <li><strong class="font-mono">404</strong> Not Found — eso no existe</li>
+          <li><strong class="font-mono">429</strong> Too Many Requests — pediste demasiado, espera</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-rose-400">
+        <h3 class="font-bold text-rose-700 mb-2">5xx — El servidor falló 💥</h3>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li><strong class="font-mono">500</strong> Internal Server Error — algo tronó del lado del servidor</li>
+          <li><strong class="font-mono">502</strong> Bad Gateway — un intermediario falló</li>
+          <li><strong class="font-mono">503</strong> Service Unavailable — servidor saturado o en mantenimiento</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-10 text-sm text-amber-900">
+      🧠 <strong>Regla mnemotécnica:</strong> 4xx = "el error es del que pide" (tú); 5xx = "el error es del que responde" (el servidor). Distinguirlos es lo primero al depurar una integración: te dice de qué lado buscar el problema.
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Anatomía de una URL</h2>
+    <div class="bg-white rounded-xl shadow p-6 mb-10">
+      <div class="bg-slate-800 rounded-lg p-4 font-mono text-xs md:text-sm text-white mb-4 overflow-x-auto whitespace-nowrap">
+        <span class="text-purple-300">https://</span><span class="text-emerald-300">api.tienda.com</span><span class="text-amber-300">/productos/42</span><span class="text-cyan-300">?moneda=mxn&detalle=full</span>
+      </div>
+      <div class="grid md:grid-cols-4 gap-3 text-sm">
+        <div><span class="inline-block w-3 h-3 bg-purple-300 rounded mr-1"></span><strong>Protocolo</strong><p class="text-xs text-gray-500 mt-1">https = HTTP cifrado. Nunca uses APIs con datos sensibles sin la S.</p></div>
+        <div><span class="inline-block w-3 h-3 bg-emerald-300 rounded mr-1"></span><strong>Dominio (host)</strong><p class="text-xs text-gray-500 mt-1">La dirección del servidor que atiende.</p></div>
+        <div><span class="inline-block w-3 h-3 bg-amber-300 rounded mr-1"></span><strong>Ruta (path)</strong><p class="text-xs text-gray-500 mt-1">QUÉ recurso pides: el producto con id 42.</p></div>
+        <div><span class="inline-block w-3 h-3 bg-cyan-300 rounded mr-1"></span><strong>Query params</strong><p class="text-xs text-gray-500 mt-1">Opciones extra en pares clave=valor, tras el signo ?</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">Cliente-Servidor y HTTP.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← ¿Qué es una API?</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-emerald-800 transition text-sm font-semibold">Siguiente: REST y JSON →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: REST Y JSON ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">REST y JSON</h1>
+    <p class="text-lg text-purple-200">El estilo de diseño y el formato de datos que dominan las APIs modernas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🏛️ ¿Qué es REST?</h2>
+      <p class="text-sm text-gray-600 mb-4"><span class="gterm">REST<span class="gtooltip">🇺🇸 REST — Representational State Transfer — Estilo de arquitectura para diseñar APIs web: recursos identificados por URLs, verbos HTTP estándar y comunicación sin estado. Una API que lo sigue es "RESTful".</span></span> (Representational State Transfer) no es una tecnología ni un lenguaje: es un <strong>estilo de diseño</strong> con reglas simples que hacen las APIs predecibles. Si conoces una API REST, "adivinas" cómo funcionan las demás:</p>
+      <div class="grid md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-purple-50 rounded-xl p-4 border border-purple-200"><p class="text-sm font-semibold text-purple-800 mb-1">1. Todo es un recurso</p><p class="text-sm text-gray-600">Usuarios, productos, pedidos... cada cosa tiene su URL: <code class="bg-purple-100 px-1 rounded text-xs">/usuarios/15</code> es el usuario 15. Los recursos son <strong>sustantivos</strong>, no verbos.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="text-sm font-semibold text-blue-800 mb-1">2. Los verbos son de HTTP</p><p class="text-sm text-gray-600">No inventes <code class="bg-blue-100 px-1 rounded text-xs">/borrarUsuario15</code>: se usa <code class="bg-blue-100 px-1 rounded text-xs">DELETE /usuarios/15</code>. La acción la dice el método, no la URL.</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="text-sm font-semibold text-teal-800 mb-1">3. Sin estado (stateless)</p><p class="text-sm text-gray-600">Cada petición es independiente y lleva TODO lo necesario (incluida tu identificación). El servidor no "recuerda" la petición anterior.</p></div>
+      </div>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Quiero...</th><th class="p-3 text-left">Petición REST</th></tr></thead>
+          <tbody class="divide-y divide-gray-100 font-mono text-xs">
+            <tr><td class="p-3 font-sans text-sm">Ver todos los productos</td><td class="p-3"><span class="text-emerald-600 font-bold">GET</span> /productos</td></tr>
+            <tr class="bg-gray-50"><td class="p-3 font-sans text-sm">Ver el producto 42</td><td class="p-3"><span class="text-emerald-600 font-bold">GET</span> /productos/42</td></tr>
+            <tr><td class="p-3 font-sans text-sm">Crear un producto</td><td class="p-3"><span class="text-blue-600 font-bold">POST</span> /productos <span class="text-gray-400">(+ datos en el body)</span></td></tr>
+            <tr class="bg-gray-50"><td class="p-3 font-sans text-sm">Actualizar el producto 42</td><td class="p-3"><span class="text-amber-600 font-bold">PUT</span> /productos/42 <span class="text-gray-400">(+ datos en el body)</span></td></tr>
+            <tr><td class="p-3 font-sans text-sm">Eliminar el producto 42</td><td class="p-3"><span class="text-rose-600 font-bold">DELETE</span> /productos/42</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-amber-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📦 JSON: el idioma de los datos</h2>
+      <p class="text-sm text-gray-600 mb-4"><span class="gterm">JSON<span class="gtooltip">🇺🇸 JSON — JavaScript Object Notation — Formato de texto ligero para intercambiar datos estructurados. Usa pares clave-valor y listas; todos los lenguajes lo leen y escriben.</span></span> (JavaScript Object Notation) es el formato en que las APIs REST envían y reciben datos. Es texto plano, legible por humanos, y ¿te suena familiar? — se parece muchísimo a los <strong>diccionarios</strong> de CP1:</p>
+      <pre class="code-block code-single mb-4"><code>{
+  <span class="tok-s">"nombre"</span>: <span class="tok-s">"Laptop Dell XPS"</span>,        <span class="tok-c">← texto entre comillas dobles</span>
+  <span class="tok-s">"precio"</span>: <span class="tok-n">24999.90</span>,                  <span class="tok-c">← números sin comillas</span>
+  <span class="tok-s">"disponible"</span>: <span class="tok-k">true</span>,                  <span class="tok-c">← booleanos: true / false</span>
+  <span class="tok-s">"categorias"</span>: [<span class="tok-s">"computo"</span>, <span class="tok-s">"oficina"</span>], <span class="tok-c">← listas entre corchetes</span>
+  <span class="tok-s">"vendedor"</span>: {                        <span class="tok-c">← objetos anidados entre llaves</span>
+    <span class="tok-s">"id"</span>: <span class="tok-n">7</span>,
+    <span class="tok-s">"ciudad"</span>: <span class="tok-s">"Monterrey"</span>
+  },
+  <span class="tok-s">"descuento"</span>: <span class="tok-k">null</span>                    <span class="tok-c">← null = sin valor</span>
+}</code></pre>
+      <div class="grid md:grid-cols-2 gap-4 text-sm">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900">📌 <strong>Reglas de oro del JSON:</strong> claves SIEMPRE entre comillas dobles, sin comas finales, sin comentarios. Un JSON inválido por una coma es el clásico error de integración.</div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-purple-900">🔄 <strong>Serializar</strong> = convertir tu objeto (Python/C#) a texto JSON para enviarlo. <strong>Deserializar</strong> = convertir el JSON recibido de vuelta a un objeto usable en tu lenguaje.</div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-purple-600 rounded-full"></span>Una respuesta real, diseccionada</h2>
+    <p class="text-sm text-gray-600 mb-3">Así se ve la conversación completa cuando pides <code class="bg-gray-100 px-1 rounded">GET https://api.tienda.com/productos/42</code>:</p>
+    <pre class="code-block code-single mb-10"><code><span class="tok-c">── RESPUESTA DEL SERVIDOR ──────────────────────────</span>
+<span class="tok-k">HTTP/1.1 200 OK</span>                      <span class="tok-c">← código de estado: éxito</span>
+<span class="tok-f">Content-Type:</span> application/json       <span class="tok-c">← header: "el body es JSON"</span>
+<span class="tok-f">Cache-Control:</span> max-age=3600          <span class="tok-c">← header: "puedes guardarlo 1 hora"</span>
+
+{                                     <span class="tok-c">← el body: los datos que pediste</span>
+  <span class="tok-s">"id"</span>: <span class="tok-n">42</span>,
+  <span class="tok-s">"nombre"</span>: <span class="tok-s">"Laptop Dell XPS"</span>,
+  <span class="tok-s">"precio"</span>: <span class="tok-n">24999.90</span>,
+  <span class="tok-s">"disponible"</span>: <span class="tok-k">true</span>
+}</code></pre>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">REST y JSON.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← HTTP</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-emerald-800 transition text-sm font-semibold">Siguiente: Consumir APIs →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: CONSUMIR APIS ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consumir APIs con Código</h1>
+    <p class="text-lg text-cyan-200">Manos al teclado: pide datos reales desde Python y C#.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🌦️ Ejemplo completo: consultar una API pública</h2>
+      <p class="text-sm text-gray-600 mb-4">Vamos a pedir un usuario de prueba a <code class="bg-gray-100 px-1 rounded">jsonplaceholder.typicode.com</code>, una API pública y gratuita para practicar (¡pruébala!). El flujo siempre es el mismo: <strong>armar la petición → enviarla → revisar el estado → deserializar el JSON</strong>.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-k">import</span> requests    <span class="tok-c"># librería estándar de facto: pip install requests</span>
+
+<span class="tok-c"># 1. Enviar la petición GET</span>
+respuesta = requests.<span class="tok-f">get</span>(<span class="tok-s">"https://jsonplaceholder.typicode.com/users/1"</span>)
+
+<span class="tok-c"># 2. Revisar el código de estado</span>
+<span class="tok-k">if</span> respuesta.status_code == <span class="tok-n">200</span>:
+    <span class="tok-c"># 3. Deserializar: JSON → diccionario de Python</span>
+    usuario = respuesta.<span class="tok-f">json</span>()
+    <span class="tok-f">print</span>(usuario[<span class="tok-s">"name"</span>])       <span class="tok-c"># Leanne Graham</span>
+    <span class="tok-f">print</span>(usuario[<span class="tok-s">"email"</span>])      <span class="tok-c"># Sincere@april.biz</span>
+<span class="tok-k">else</span>:
+    <span class="tok-f">print</span>(<span class="tok-s">f"Error: {respuesta.status_code}"</span>)
+
+<span class="tok-c"># POST: crear un recurso enviando JSON en el body</span>
+nuevo = {<span class="tok-s">"title"</span>: <span class="tok-s">"Aprender APIs"</span>, <span class="tok-s">"completed"</span>: <span class="tok-k">False</span>}
+r = requests.<span class="tok-f">post</span>(<span class="tok-s">"https://jsonplaceholder.typicode.com/todos"</span>, json=nuevo)
+<span class="tok-f">print</span>(r.status_code)             <span class="tok-c"># 201 Created</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">using</span> System.Net.Http;
+<span class="tok-k">using</span> System.Net.Http.Json;   <span class="tok-c">// helpers para JSON</span>
+
+<span class="tok-c">// HttpClient: el "requests" de C#. Se crea UNA vez y se reutiliza</span>
+<span class="tok-k">var</span> http = <span class="tok-k">new</span> <span class="tok-t">HttpClient</span>();
+
+<span class="tok-c">// 1. Enviar la petición GET (async: no congela la app mientras espera)</span>
+<span class="tok-k">var</span> respuesta = <span class="tok-k">await</span> http.<span class="tok-f">GetAsync</span>(<span class="tok-s">"https://jsonplaceholder.typicode.com/users/1"</span>);
+
+<span class="tok-c">// 2. Revisar el código de estado</span>
+<span class="tok-k">if</span> (respuesta.IsSuccessStatusCode)
+{
+    <span class="tok-c">// 3. Deserializar: JSON → objeto C#</span>
+    <span class="tok-k">var</span> usuario = <span class="tok-k">await</span> respuesta.Content.<span class="tok-f">ReadFromJsonAsync</span>&lt;<span class="tok-t">Usuario</span>&gt;();
+    Console.<span class="tok-f">WriteLine</span>(usuario.Name);    <span class="tok-c">// Leanne Graham</span>
+    Console.<span class="tok-f">WriteLine</span>(usuario.Email);   <span class="tok-c">// Sincere@april.biz</span>
+}
+
+<span class="tok-c">// POST: crear un recurso enviando JSON en el body</span>
+<span class="tok-k">var</span> nuevo = <span class="tok-k">new</span> { title = <span class="tok-s">"Aprender APIs"</span>, completed = <span class="tok-k">false</span> };
+<span class="tok-k">var</span> r = <span class="tok-k">await</span> http.<span class="tok-f">PostAsJsonAsync</span>(<span class="tok-s">"https://jsonplaceholder.typicode.com/todos"</span>, nuevo);
+Console.<span class="tok-f">WriteLine</span>((<span class="tok-k">int</span>)r.StatusCode);   <span class="tok-c">// 201</span>
+
+<span class="tok-c">// La clase que "recibe" el JSON (sus propiedades = claves del JSON)</span>
+<span class="tok-k">record</span> <span class="tok-t">Usuario</span>(<span class="tok-k">string</span> Name, <span class="tok-k">string</span> Email);</code></pre>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">💡 Nota la diferencia de estilo: Python deserializa a un <strong>diccionario</strong> flexible; C# suele deserializar a una <strong>clase tipada</strong> (aquí un record). Mismo concepto, filosofías distintas — dinámico vs. estático, como viste en CP1.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-cyan-600 rounded-full"></span>Herramientas para explorar APIs sin programar</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-orange-400">
+        <h3 class="font-bold text-orange-700 mb-2">📬 Postman</h3>
+        <p class="text-sm text-gray-600 mb-2">App gráfica para armar y enviar peticiones con clics: eliges método, URL, headers y body, y ves la respuesta formateada. Es <strong>la herramienta estándar</strong> para probar una API antes (y después) de escribir código.</p>
+        <p class="text-xs text-gray-500 italic">Ideal para: explorar una API nueva, reproducir errores, compartir colecciones de peticiones con tu equipo.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-slate-400">
+        <h3 class="font-bold text-slate-700 mb-2">⌨️ curl</h3>
+        <p class="text-sm text-gray-600 mb-2">El clásico de línea de comandos, disponible en casi cualquier máquina:</p>
+        <pre class="code-block code-single text-xs"><code><span class="tok-c"># GET simple</span>
+curl https://jsonplaceholder.typicode.com/users/1
+
+<span class="tok-c"># POST con JSON</span>
+curl -X POST -H <span class="tok-s">"Content-Type: application/json"</span> \
+     -d <span class="tok-s">'{"title":"Aprender APIs"}'</span> \
+     https://jsonplaceholder.typicode.com/todos</code></pre>
+      </div>
+    </div>
+
+    <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-5 mb-10 text-sm text-cyan-900">
+      🎯 <strong>Flujo profesional al integrar una API nueva:</strong> 1) Lee la documentación (el "menú"). 2) Prueba los endpoints en Postman hasta que respondan lo esperado. 3) Ya que entiendes la API, escribe el código. 4) Maneja SIEMPRE los casos de error (4xx/5xx, timeouts) — la red falla más de lo que crees.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">Consumir APIs con Código.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← REST y JSON</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-emerald-800 transition text-sm font-semibold">Siguiente: Seguridad →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: AUTENTICACIÓN Y SEGURIDAD ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Autenticación y Seguridad</h1>
+    <p class="text-lg text-green-200">¿Quién eres y qué tienes permitido hacer?</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔑 Los métodos de autenticación, del más simple al más robusto</h2>
+      <div class="space-y-4">
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+          <h3 class="font-bold text-slate-800 mb-1">1. API Key — la llave sencilla</h3>
+          <p class="text-sm text-gray-600 mb-2">Una cadena secreta que te da el proveedor y envías en cada petición (en un header o query param). Como la clave de acceso de un gimnasio: identifica tu cuenta y mide tu consumo.</p>
+          <pre class="code-block code-single text-xs"><code>GET /clima?ciudad=Monterrey
+<span class="tok-f">X-Api-Key:</span> <span class="tok-s">tu_clave_secreta_aqui</span></code></pre>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+          <h3 class="font-bold text-slate-800 mb-1">2. Token Bearer / JWT — el gafete temporal</h3>
+          <p class="text-sm text-gray-600 mb-2">Te identificas UNA vez (login) y recibes un <span class="gterm">token<span class="gtooltip">🇺🇸 Token — Credencial temporal que el cliente presenta en cada petición tras iniciar sesión. El JWT (JSON Web Token) es el formato más común: lleva datos firmados y fecha de expiración.</span></span> con expiración que presentas en cada petición. Como el gafete de visitante de un edificio: te lo dan en recepción y lo muestras en cada piso, hasta que expira.</p>
+          <pre class="code-block code-single text-xs"><code>GET /mis-pedidos
+<span class="tok-f">Authorization:</span> <span class="tok-s">Bearer eyJhbGciOiJIUzI1NiIs...</span></code></pre>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+          <h3 class="font-bold text-slate-800 mb-1">3. OAuth 2.0 — el permiso delegado</h3>
+          <p class="text-sm text-gray-600">El estándar detrás de "Iniciar sesión con Google/Facebook". Permite que una app acceda a TUS datos en otro servicio <strong>sin darle tu contraseña</strong>: autorizas en Google, y la app recibe un token limitado a lo que aceptaste. Como el valet parking: le das una llave que solo enciende el coche, no abre la cajuela.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-green-600 rounded-full"></span>Autenticación vs. Autorización (no son lo mismo)</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-green-400">
+        <h3 class="font-bold text-green-700 mb-2">🪪 Autenticación — ¿QUIÉN eres?</h3>
+        <p class="text-sm text-gray-600">Probar tu identidad: usuario/contraseña, API key, huella. Si falla → <strong class="font-mono">401 Unauthorized</strong>.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-emerald-400">
+        <h3 class="font-bold text-emerald-700 mb-2">🚪 Autorización — ¿QUÉ puedes hacer?</h3>
+        <p class="text-sm text-gray-600">Ya sé quién eres; ¿tienes permiso para ESTO? Un usuario normal no puede borrar cuentas ajenas. Si falla → <strong class="font-mono">403 Forbidden</strong>.</p>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-green-600 rounded-full"></span>Reglas de seguridad que nadie te perdona romper</h2>
+    <div class="bg-white rounded-xl shadow p-6 mb-10">
+      <ul class="space-y-3 text-sm text-gray-600">
+        <li class="flex gap-3"><span class="text-rose-500 font-bold text-lg">🚫</span><span><strong>NUNCA pongas API keys en el código fuente</strong> ni las subas a GitHub. Van en variables de entorno o en un gestor de secretos. (Hay bots escaneando GitHub 24/7 buscando llaves filtradas para abusarlas.)</span></li>
+        <li class="flex gap-3"><span class="text-rose-500 font-bold text-lg">🔒</span><span><strong>Siempre HTTPS:</strong> sin la S, cualquiera en la red puede leer tus peticiones — incluidos tus tokens.</span></li>
+        <li class="flex gap-3"><span class="text-amber-500 font-bold text-lg">⏳</span><span><strong>Tokens con expiración corta:</strong> si se filtra uno, el daño dura minutos, no meses.</span></li>
+        <li class="flex gap-3"><span class="text-amber-500 font-bold text-lg">🤏</span><span><strong>Principio de mínimo privilegio:</strong> pide (y otorga) solo los permisos necesarios. Si tu app solo lee, no pidas permiso de escritura.</span></li>
+        <li class="flex gap-3"><span class="text-blue-500 font-bold text-lg">🧪</span><span><strong>Valida todo lo que recibes:</strong> nunca confíes en que el cliente envía datos correctos o bien intencionados.</span></li>
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">Autenticación y Seguridad.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← Consumir APIs</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-emerald-800 transition text-sm font-semibold">Siguiente: Más allá de REST →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: MÁS ALLÁ DE REST ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Más allá de REST</h1>
+    <p class="text-lg text-rose-200">Webhooks, GraphQL, SOAP... y tu primera API propia.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-rose-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔔 Webhooks: la API al revés</h2>
+      <p class="text-sm text-gray-600 mb-4">Con una API normal, TÚ preguntas ("¿ya pagaron?, ¿ya pagaron?..."). Con un <span class="gterm">webhook<span class="gtooltip">🇺🇸 Webhook — Mecanismo donde el SERVIDOR te avisa a ti: registras una URL tuya y el servicio la llama automáticamente cuando ocurre un evento (pago recibido, pedido enviado...).</span></span>, el servicio TE AVISA: registras una URL tuya y cuando ocurre el evento (pago recibido), ellos llaman a tu URL con los datos. Es el <strong>timbre de la casa</strong>: en vez de asomarte a la puerta cada minuto, el visitante toca cuando llega.</p>
+      <div class="grid md:grid-cols-2 gap-4 text-sm">
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200"><p class="font-semibold text-slate-800 mb-1">🔄 Polling (sin webhook)</p><p class="text-gray-600">Preguntar cada X segundos "¿ya?". Simple pero desperdicia recursos y se entera tarde.</p></div>
+        <div class="bg-rose-50 rounded-xl p-4 border border-rose-200"><p class="font-semibold text-rose-800 mb-1">🔔 Webhook</p><p class="text-gray-600">Te notifican al instante, solo cuando pasa algo. Así te avisa Stripe de un pago o GitHub de un push.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-rose-600 rounded-full"></span>Otros estilos de API que debes ubicar</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Estilo</th><th class="p-3 text-left">Idea central</th><th class="p-3 text-left">Cuándo lo verás</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-semibold">REST</td><td class="p-3">Recursos + verbos HTTP + JSON. El estándar de facto.</td><td class="p-3 text-gray-500">La gran mayoría de las APIs modernas</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">GraphQL</td><td class="p-3">El cliente pide EXACTAMENTE los campos que necesita en una sola consulta. Un solo endpoint.</td><td class="p-3 text-gray-500">Facebook, GitHub, Shopify; apps con datos muy anidados</td></tr>
+          <tr><td class="p-3 font-semibold">SOAP</td><td class="p-3">Protocolo estricto basado en XML, con contratos formales (WSDL). Pesado pero muy formal.</td><td class="p-3 text-gray-500">Bancos, gobierno, sistemas legados empresariales</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">gRPC</td><td class="p-3">Binario y ultrarrápido, con contratos (.proto). No es legible por humanos.</td><td class="p-3 text-gray-500">Comunicación interna entre microservicios</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-rose-600 rounded-full"></span>Conceptos de API que preguntan en entrevistas</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-rose-700 text-sm uppercase mb-2">⏱️ Rate Limiting</h3>
+        <p class="text-sm text-gray-600">Límite de peticiones por minuto/hora para proteger al servidor ("100 peticiones/min"). Si lo excedes: <strong class="font-mono">429</strong>. Por eso las APIs serias piden identificarte hasta para leer.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 text-sm uppercase mb-2">🏷️ Versionado</h3>
+        <p class="text-sm text-gray-600">Las APIs evolucionan sin romper a sus clientes viejos: <code class="bg-gray-100 px-1 rounded text-xs">/v1/productos</code> sigue viva mientras <code class="bg-gray-100 px-1 rounded text-xs">/v2/productos</code> agrega cambios. Nunca cambies un contrato publicado: crea versión nueva.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-emerald-700 text-sm uppercase mb-2">📄 Paginación</h3>
+        <p class="text-sm text-gray-600">Nadie devuelve 1 millón de registros de golpe: se sirven por páginas (<code class="bg-gray-100 px-1 rounded text-xs">?page=2&limit=50</code>). Al consumir APIs, revisa siempre si hay "página siguiente".</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-teal-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🏗️ Bonus: así de fácil es CREAR una API</h2>
+      <p class="text-sm text-gray-600 mb-4">No solo se consumen: tarde o temprano crearás la tuya. Mira lo poco que se necesita para un endpoint funcional:</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python (Flask)</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C# (ASP.NET Core)</button></div>
+        <pre class="code-block code-py"><code><span class="tok-k">from</span> flask <span class="tok-k">import</span> Flask, jsonify    <span class="tok-c"># pip install flask</span>
+
+app = <span class="tok-t">Flask</span>(__name__)
+
+<span class="tok-nd">@app.route</span>(<span class="tok-s">"/api/saludo/&lt;nombre&gt;"</span>)   <span class="tok-c"># define el endpoint</span>
+<span class="tok-k">def</span> <span class="tok-f">saludar</span>(nombre):
+    <span class="tok-k">return</span> <span class="tok-f">jsonify</span>({<span class="tok-s">"mensaje"</span>: <span class="tok-s">f"¡Hola, {nombre}!"</span>})
+
+app.<span class="tok-f">run</span>()   <span class="tok-c"># ya tienes una API en http://localhost:5000</span>
+<span class="tok-c"># GET /api/saludo/Nayeli → {"mensaje": "¡Hola, Nayeli!"}</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-c">// ASP.NET Core Minimal API (Program.cs completo)</span>
+<span class="tok-k">var</span> builder = WebApplication.<span class="tok-f">CreateBuilder</span>(args);
+<span class="tok-k">var</span> app = builder.<span class="tok-f">Build</span>();
+
+<span class="tok-c">// define el endpoint</span>
+app.<span class="tok-f">MapGet</span>(<span class="tok-s">"/api/saludo/{nombre}"</span>,
+    (<span class="tok-k">string</span> nombre) =&gt; <span class="tok-k">new</span> { mensaje = <span class="tok-s">$"¡Hola, {nombre}!"</span> });
+
+app.<span class="tok-f">Run</span>();   <span class="tok-c">// ya tienes una API en http://localhost:5000</span>
+<span class="tok-c">// GET /api/saludo/Nayeli → {"mensaje": "¡Hola, Nayeli!"}</span></code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">Más allá de REST.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← Seguridad</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-emerald-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← Más allá</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">Las APIs aparecen en toda entrevista de backend, integración o fullstack.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 Cómo brillar en preguntas de APIs</h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><strong class="text-amber-700">Domina el ciclo request/response:</strong><p class="text-gray-600 mt-1">Métodos, códigos de estado y JSON. Con eso respondes el 70% de las preguntas de APIs.</p></div>
+        <div><strong class="text-amber-700">Menciona el manejo de errores:</strong><p class="text-gray-600 mt-1">Decir "y manejaría el 429 con reintentos" te distingue de inmediato de quien solo conoce el happy path.</p></div>
+        <div><strong class="text-amber-700">Ten un ejemplo real:</strong><p class="text-gray-600 mt-1">Integra una API pública (clima, películas, pokémon) en un proyecto personal y cuéntalo en la entrevista.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de APIs</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-emerald-700 mb-3 text-sm uppercase">Hablar de integraciones</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-emerald-600 font-mono text-xs">"I consumed a third-party REST API to..."</p><p class="text-gray-500 text-xs">Consumí una API REST de terceros para...</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-emerald-600 font-mono text-xs">"The endpoint returns a JSON payload with..."</p><p class="text-gray-500 text-xs">El endpoint devuelve un JSON con...</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-emerald-600 font-mono text-xs">"I tested the endpoints in Postman first."</p><p class="text-gray-500 text-xs">Primero probé los endpoints en Postman.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-emerald-600 font-mono text-xs">"We authenticated using a bearer token."</p><p class="text-gray-500 text-xs">Nos autenticamos con un token bearer.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Hablar de robustez</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"I handled 4xx and 5xx responses gracefully."</p><p class="text-gray-500 text-xs">Manejé las respuestas 4xx y 5xx con elegancia.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"We added retries with exponential backoff."</p><p class="text-gray-500 text-xs">Agregamos reintentos con espera exponencial.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"The API is rate-limited to 100 requests per minute."</p><p class="text-gray-500 text-xs">La API tiene un límite de 100 peticiones por minuto.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Secrets are stored in environment variables, never in code."</p><p class="text-gray-500 text-xs">Los secretos van en variables de entorno, nunca en el código.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-emerald-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-emerald-600" value="1"><span class="text-sm">Módulo 1: ¿Qué es?</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-emerald-600" value="2"><span class="text-sm">Módulo 2: HTTP</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-emerald-600" value="3"><span class="text-sm">Módulo 3: REST/JSON</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-emerald-600" value="4"><span class="text-sm">Módulo 4: Consumir</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-emerald-600" value="5"><span class="text-sm">Módulo 5: Seguridad</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-emerald-600" value="6"><span class="text-sm">Módulo 6: Más allá</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-emerald-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-emerald-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-emerald-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · APIs y Comunicación entre Sistemas · Conceptos de Programación CP3</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'API',en:'API — Application Programming Interface',def:'Conjunto de reglas y puntos de acceso que permite que dos programas se comuniquen sin conocer sus detalles internos. El "mesero" entre el cliente y la cocina.'},
+  {es:'Cliente',en:'Client',def:'El programa que INICIA la comunicación y pide datos: navegador, app móvil, script.'},
+  {es:'Servidor',en:'Server',def:'El programa que escucha peticiones, las procesa y devuelve respuestas. Nunca inicia la conversación.'},
+  {es:'Petición',en:'Request',def:'Mensaje HTTP del cliente al servidor: método, URL, headers y a veces body con datos.'},
+  {es:'Respuesta',en:'Response',def:'Mensaje del servidor al cliente: código de estado, headers y normalmente un body con los datos.'},
+  {es:'HTTP',en:'HTTP — HyperText Transfer Protocol',def:'El protocolo estándar de comunicación de la web. Define el formato de peticiones y respuestas.'},
+  {es:'HTTPS',en:'HTTPS',def:'HTTP cifrado con TLS. Nadie en la red puede leer el contenido. Obligatorio para datos sensibles.'},
+  {es:'Endpoint',en:'Endpoint',def:'URL específica de una API que ofrece una operación: /productos/42, /api/usuarios. Cada endpoint es una "ventanilla".'},
+  {es:'Método HTTP',en:'HTTP Method / Verb',def:'La acción de la petición: GET (leer), POST (crear), PUT (reemplazar), PATCH (modificar parte), DELETE (eliminar).'},
+  {es:'Código de Estado',en:'Status Code',def:'Número de 3 dígitos que resume el resultado: 2xx éxito, 4xx error del cliente, 5xx error del servidor.'},
+  {es:'404 No Encontrado',en:'404 Not Found',def:'El recurso pedido no existe. El código de estado más famoso de internet.'},
+  {es:'Encabezados',en:'Headers',def:'Metadatos de la petición/respuesta: tipo de contenido, autenticación, caché... Van antes del body.'},
+  {es:'Cuerpo',en:'Body / Payload',def:'Los datos que viajan en la petición (POST/PUT) o en la respuesta. Normalmente JSON.'},
+  {es:'Parámetros de Consulta',en:'Query Parameters',def:'Opciones extra en la URL tras el signo ?: /productos?categoria=laptops&orden=precio.'},
+  {es:'REST',en:'REST — Representational State Transfer',def:'Estilo de arquitectura: recursos con URLs, verbos HTTP estándar y comunicación sin estado. Una API que lo sigue es RESTful.'},
+  {es:'Recurso',en:'Resource',def:'Cada "cosa" que la API expone: usuarios, productos, pedidos. Se nombran con sustantivos en la URL.'},
+  {es:'Sin Estado',en:'Stateless',def:'Cada petición es independiente y lleva todo lo necesario. El servidor no recuerda peticiones anteriores.'},
+  {es:'JSON',en:'JSON — JavaScript Object Notation',def:'Formato de texto ligero para intercambiar datos: pares clave-valor y listas. El idioma universal de las APIs.'},
+  {es:'Serializar',en:'Serialize',def:'Convertir un objeto de tu lenguaje a texto JSON para enviarlo.'},
+  {es:'Deserializar',en:'Deserialize / Parse',def:'Convertir el JSON recibido de vuelta a un objeto usable: diccionario en Python, clase en C#.'},
+  {es:'CRUD',en:'CRUD — Create, Read, Update, Delete',def:'Las 4 operaciones básicas sobre datos. En REST: POST, GET, PUT/PATCH, DELETE.'},
+  {es:'Autenticación',en:'Authentication',def:'Probar QUIÉN eres: API key, usuario/contraseña, token. Si falla: 401 Unauthorized.'},
+  {es:'Autorización',en:'Authorization',def:'Verificar QUÉ puedes hacer una vez identificado. Si falla: 403 Forbidden.'},
+  {es:'Clave de API',en:'API Key',def:'Cadena secreta que identifica tu cuenta ante la API. Va en un header y NUNCA en el código fuente público.'},
+  {es:'Token',en:'Token (Bearer)',def:'Credencial temporal recibida tras el login, presentada en cada petición en el header Authorization.'},
+  {es:'JWT',en:'JWT — JSON Web Token',def:'Formato de token más común: contiene datos firmados digitalmente y fecha de expiración.'},
+  {es:'OAuth 2.0',en:'OAuth 2.0',def:'Estándar de permiso delegado: una app accede a tus datos en otro servicio sin conocer tu contraseña ("Iniciar sesión con Google").'},
+  {es:'Variable de Entorno',en:'Environment Variable',def:'Valor de configuración que vive fuera del código (en el sistema). El lugar correcto para las API keys.'},
+  {es:'Webhook',en:'Webhook',def:'La API al revés: registras una URL tuya y el servicio la llama automáticamente cuando ocurre un evento.'},
+  {es:'Sondeo',en:'Polling',def:'Preguntar repetidamente "¿ya hay algo nuevo?". La alternativa menos eficiente al webhook.'},
+  {es:'GraphQL',en:'GraphQL',def:'Estilo de API donde el cliente pide exactamente los campos que necesita en una sola consulta, a un solo endpoint.'},
+  {es:'SOAP',en:'SOAP',def:'Protocolo formal basado en XML con contratos estrictos (WSDL). Común en banca, gobierno y sistemas legados.'},
+  {es:'gRPC',en:'gRPC',def:'Protocolo binario ultrarrápido con contratos .proto. Usado para comunicación interna entre microservicios.'},
+  {es:'Límite de Peticiones',en:'Rate Limiting',def:'Máximo de peticiones permitidas por periodo. Al excederlo: 429 Too Many Requests.'},
+  {es:'Versionado',en:'API Versioning',def:'Mantener versiones (/v1/, /v2/) para evolucionar la API sin romper a los clientes existentes.'},
+  {es:'Paginación',en:'Pagination',def:'Servir resultados grandes por páginas (?page=2&limit=50) en vez de todos de golpe.'},
+  {es:'Postman',en:'Postman',def:'Herramienta gráfica estándar para armar, enviar y documentar peticiones HTTP sin escribir código.'},
+  {es:'curl',en:'curl',def:'Herramienta de línea de comandos para hacer peticiones HTTP. Disponible en casi cualquier sistema.'},
+  {es:'Documentación de API',en:'API Documentation',def:'El "menú": describe endpoints, parámetros, formatos y errores. Swagger/OpenAPI es el formato estándar.'},
+  {es:'Tiempo de Espera',en:'Timeout',def:'Tiempo máximo que esperas una respuesta antes de rendirte. Toda integración seria define timeouts.'}
+];
+
+const flashcards = [
+  {en:'API',es:'Interfaz de Programación',def:'A set of rules that lets two programs communicate without knowing each other\'s internals.',pron:'EY-pee-ay'},
+  {en:'Request',es:'Petición',def:'The HTTP message a client sends to a server: method, URL, headers, and optional body.',pron:'ree-KWEST'},
+  {en:'Response',es:'Respuesta',def:'The message a server returns: status code, headers, and usually a JSON body.',pron:'ree-SPONS'},
+  {en:'Endpoint',es:'Punto de Acceso',def:'A specific URL of an API that offers one operation, like /products/42.',pron:'END-point'},
+  {en:'Status Code',es:'Código de Estado',def:'A 3-digit number summarizing the result: 2xx success, 4xx client error, 5xx server error.',pron:'STAT-us kohd'},
+  {en:'JSON',es:'JSON',def:'A lightweight text format for exchanging structured data using key-value pairs and lists.',pron:'JEY-son'},
+  {en:'REST',es:'REST',def:'An architectural style: resources as URLs, standard HTTP verbs, stateless communication.',pron:'rest'},
+  {en:'Header',es:'Encabezado',def:'Metadata sent with a request or response, like Content-Type or Authorization.',pron:'HED-er'},
+  {en:'Payload',es:'Carga / Cuerpo',def:'The actual data carried in the body of a request or response.',pron:'PEY-lohd'},
+  {en:'Authentication',es:'Autenticación',def:'Proving WHO you are: API keys, tokens, credentials. Fails with 401.',pron:'aw-then-tih-KEY-shun'},
+  {en:'Authorization',es:'Autorización',def:'Checking WHAT you are allowed to do once identified. Fails with 403.',pron:'aw-thor-ih-ZEY-shun'},
+  {en:'Token',es:'Token',def:'A temporary credential presented on each request after logging in.',pron:'TOH-ken'},
+  {en:'Webhook',es:'Webhook',def:'A reverse API: the service calls YOUR URL automatically when an event happens.',pron:'WEB-huk'},
+  {en:'Rate Limiting',es:'Límite de Peticiones',def:'A cap on requests per time period. Exceeding it returns 429 Too Many Requests.',pron:'reyt LIM-it-ing'},
+  {en:'Serialize',es:'Serializar',def:'To convert an object in your language into JSON text so it can be sent.',pron:'SEER-ee-uh-lyz'}
+];
+
+const interviewQA = [
+  {q:'What is an API and why are they useful? / ¿Qué es una API y para qué sirve?',cat:'Conceptual',
+   ans:'An API (Application Programming Interface) is a contract that lets two programs communicate without knowing each other\'s internal details: "if you ask THIS in THIS format, I answer THAT". Why useful: reuse services instead of rebuilding them (maps, payments), connect systems written in different languages, and expose data with rules (who, what, how often).\n\n🇪🇸 Español: Una API (Interfaz de Programación de Aplicaciones) es un contrato que permite que dos programas se comuniquen sin conocer sus detalles internos: "si me pides ESTO en ESTE formato, te respondo AQUELLO". Su utilidad: reutilizar servicios en vez de reconstruirlos (mapas, pagos), conectar sistemas escritos en distintos lenguajes, y exponer datos con reglas (quién, qué, cada cuánto). Cierra con la analogía del mesero: cliente = comensal, API = mesero, servidor = cocina, documentación = menú.'},
+  {q:'Explain the main HTTP methods. / Explica los métodos HTTP principales.',cat:'Técnica',
+   ans:'GET reads data (no side effects), POST creates a new resource, PUT replaces a resource completely, PATCH modifies part of it, DELETE removes it. Senior bonus: GET must be "safe" (never modify data) and idempotent — repeating a GET or PUT gives the same result; repeating a POST creates duplicates.\n\n🇪🇸 Español: GET lee datos (sin efectos secundarios), POST crea un recurso nuevo, PUT reemplaza un recurso completo, PATCH modifica solo una parte, DELETE lo elimina. Bonus senior: GET debe ser "seguro" (nunca modificar datos) e idempotente — repetir un GET o un PUT da el mismo resultado; repetir un POST crea duplicados.'},
+  {q:'What is the difference between 401 and 403? / ¿Cuál es la diferencia entre 401 y 403?',cat:'Técnica',
+   ans:'401 Unauthorized: you did NOT prove who you are (missing or invalid credentials) — authentication failed. 403 Forbidden: I know who you are, but you don\'t have permission for this action — authorization failed.\n\n🇪🇸 Español: 401 Unauthorized: NO probaste quién eres (credenciales faltantes o inválidas) — falló la autenticación. 403 Forbidden: sé quién eres, pero no tienes permiso para esta acción — falló la autorización. Es la pregunta trampa favorita para ver si distingues autenticación de autorización.'},
+  {q:'What is REST? What makes an API RESTful? / ¿Qué es REST y qué hace RESTful a una API?',cat:'Conceptual',
+   ans:'REST is an architectural style: resources identified by URLs (nouns, not verbs), standard HTTP methods as actions, stateless communication (each request carries everything needed), and typically JSON. Example: GET /products/42 to read, DELETE /products/42 to remove — never /getProduct or /deleteProduct42.\n\n🇪🇸 Español: REST es un estilo de arquitectura: recursos identificados por URLs (sustantivos, no verbos), los métodos HTTP estándar como acciones, comunicación sin estado (cada petición lleva todo lo necesario), y típicamente JSON. Ejemplo: GET /productos/42 para leer, DELETE /productos/42 para eliminar — nunca /obtenerProducto ni /borrarProducto42.'},
+  {q:'What is JSON and why did it win over XML? / ¿Qué es JSON y por qué le ganó a XML?',cat:'Técnica',
+   ans:'JSON is a lightweight text format with key-value pairs and arrays. It won because it\'s less verbose than XML, maps directly to native structures (dicts in Python, objects in C#/JS), and every language parses it natively.\n\n🇪🇸 Español: JSON es un formato de texto ligero con pares clave-valor y listas. Ganó porque es menos verboso que XML, se traduce directo a estructuras nativas (diccionarios en Python, objetos en C#/JS), y todos los lenguajes lo procesan de forma nativa. Menciona: serializar (objeto → JSON) y deserializar (JSON → objeto).'},
+  {q:'How do you keep API keys secure? / ¿Cómo proteges las API keys?',cat:'Técnica',
+   ans:'Never hardcode them or commit them to Git. Store them in environment variables or a secrets manager, use HTTPS always, rotate them periodically, and give each key the minimum permissions needed.\n\n🇪🇸 Español: Nunca las escribas en el código ni las subas a Git. Guárdalas en variables de entorno o en un gestor de secretos, usa siempre HTTPS, rótalas periódicamente y dale a cada llave los permisos mínimos necesarios. Si te preguntan qué harías si una key se filtró: revocarla INMEDIATAMENTE, emitir una nueva y revisar los logs de uso.'},
+  {q:'What is a webhook and when would you use one instead of polling? / ¿Qué es un webhook y cuándo usarlo en vez de polling?',cat:'Técnica',
+   ans:'Polling: you repeatedly ask "anything new?" — simple but wasteful and slow to react. Webhook: you register YOUR URL and the service calls you when the event happens — instant and efficient. Use webhooks for events (payment received, order shipped); polling only when the provider doesn\'t offer webhooks.\n\n🇪🇸 Español: Polling: preguntas repetidamente "¿hay algo nuevo?" — simple pero desperdicia recursos y reacciona tarde. Webhook: registras TU URL y el servicio te llama cuando ocurre el evento — instantáneo y eficiente. Usa webhooks para eventos (pago recibido, pedido enviado); polling solo cuando el proveedor no ofrece webhooks.'},
+  {q:'Tell me about an API integration you built. / Cuéntame de una integración de API que hayas hecho.',cat:'Comportamental',
+   ans:'Structure: WHAT service and why → HOW (auth method, endpoints used, how you tested with Postman first) → PROBLEMS you handled (4xx/5xx errors, rate limits, timeouts) → RESULT.\n\n🇪🇸 Español: Estructura: QUÉ servicio y por qué → CÓMO (método de autenticación, endpoints usados, cómo probaste primero en Postman) → PROBLEMAS que manejaste (errores 4xx/5xx, límites de peticiones, timeouts) → RESULTADO. Si aún no tienes experiencia laboral: integra una API pública (clima, películas) en un proyecto personal y preséntalo con esta misma estructura — cuenta como experiencia real.'}
+];
+
+const quizData = {
+  1:[{q:'En la analogía del restaurante, la API es...',opts:['La cocina','El mesero','El comensal','La comida'],ans:1},
+     {q:'API significa...',opts:['Advanced Programming Internet','Application Programming Interface','Automatic Process Integration','App Protocol Interface'],ans:1},
+     {q:'Una API es fundamentalmente...',opts:['Una base de datos','Un contrato: pides ESTO en este formato, respondo AQUELLO','Un lenguaje de programación','Un servidor físico'],ans:1},
+     {q:'¿Cuál es una razón clave para usar APIs de terceros?',opts:['Son gratis siempre','No reinventar la rueda: delegar mapas, pagos, etc. a expertos','Evitan escribir código','Son más bonitas'],ans:1},
+     {q:'"Iniciar sesión con Google" en una app es un ejemplo de...',opts:['Una base de datos compartida','El uso de la API de Google para verificar identidad','Un virus','Un webhook'],ans:1}],
+  2:[{q:'En el modelo cliente-servidor, ¿quién inicia SIEMPRE la comunicación?',opts:['El servidor','El cliente','Ambos a la vez','Ninguno'],ans:1},
+     {q:'¿Qué método HTTP se usa para LEER datos sin modificarlos?',opts:['POST','DELETE','GET','PUT'],ans:2},
+     {q:'¿Qué método usarías para crear un usuario nuevo?',opts:['GET','POST','DELETE','PATCH'],ans:1},
+     {q:'Un código 404 significa...',opts:['Éxito','Error del servidor','El recurso no existe','Sin permisos'],ans:2},
+     {q:'Los códigos 5xx indican que el error fue de...',opts:['El cliente','El servidor','La URL','El JSON'],ans:1},
+     {q:'En la URL api.tienda.com/productos/42?moneda=mxn, "?moneda=mxn" es...',opts:['El protocolo','El dominio','La ruta','Un query parameter'],ans:3}],
+  3:[{q:'REST es...',opts:['Un lenguaje de programación','Un estilo de diseño de APIs','Una base de datos','Un servidor'],ans:1},
+     {q:'En REST, para eliminar el producto 42 se usa...',opts:['GET /borrarProducto42','POST /productos/eliminar','DELETE /productos/42','REMOVE /productos/42'],ans:2},
+     {q:'"Stateless" (sin estado) significa que...',opts:['El servidor guarda tu sesión','Cada petición es independiente y lleva todo lo necesario','No hay datos','El cliente no existe'],ans:1},
+     {q:'En JSON, las claves van...',opts:['Sin comillas','Entre comillas simples','Entre comillas dobles','En mayúsculas'],ans:2},
+     {q:'JSON se parece a cuál estructura de CP1?',opts:['La lista','El diccionario (pares clave-valor)','El bucle for','La función'],ans:1},
+     {q:'Deserializar significa...',opts:['Borrar el JSON','Convertir JSON recibido a un objeto usable en tu lenguaje','Cifrar los datos','Comprimir la respuesta'],ans:1}],
+  4:[{q:'En Python, la librería más usada para consumir APIs es...',opts:['flask','pandas','requests','numpy'],ans:2},
+     {q:'En C#, la clase para hacer peticiones HTTP es...',opts:['WebForm','HttpClient','ApiCaller','RestSharp'],ans:1},
+     {q:'respuesta.json() en Python convierte la respuesta a...',opts:['Texto plano','Un diccionario de Python','Un archivo','Una clase de C#'],ans:1},
+     {q:'¿Qué es Postman?',opts:['Un lenguaje','Una herramienta gráfica para probar APIs sin programar','Un servidor','Una API de correos'],ans:1},
+     {q:'El flujo profesional para integrar una API nueva empieza por...',opts:['Escribir todo el código de una vez','Leer la documentación y probar en Postman','Pedir ayuda','Copiar de Stack Overflow'],ans:1},
+     {q:'Un POST exitoso que crea un recurso suele devolver...',opts:['200','201 Created','404','500'],ans:1}],
+  5:[{q:'¿Cuál es la diferencia entre autenticación y autorización?',opts:['Son lo mismo','Autenticación = quién eres; Autorización = qué puedes hacer','Autorización = quién eres','Ninguna es de seguridad'],ans:1},
+     {q:'401 vs 403: el 403 significa...',opts:['No te identificaste','Te identificaste pero NO tienes permiso para esa acción','El servidor falló','La URL no existe'],ans:1},
+     {q:'¿Dónde deben guardarse las API keys?',opts:['En el código fuente','En GitHub','En variables de entorno o gestor de secretos','En un comentario'],ans:2},
+     {q:'OAuth 2.0 permite...',opts:['Compartir tu contraseña con apps','Que una app acceda a tus datos en otro servicio SIN tu contraseña','Cifrar discos duros','Crear APIs'],ans:1},
+     {q:'Un JWT normalmente incluye...',opts:['Tu contraseña en texto plano','Datos firmados y fecha de expiración','El código del servidor','Imágenes'],ans:1},
+     {q:'¿Por qué siempre HTTPS y no HTTP para APIs?',opts:['Es más rápido','Sin la S, cualquiera en la red puede leer tus datos y tokens','Es más barato','Por moda'],ans:1}],
+  6:[{q:'Un webhook es...',opts:['Una petición GET','El servicio llama a TU URL cuando ocurre un evento','Un tipo de token','Un error 500'],ans:1},
+     {q:'La alternativa ineficiente al webhook (preguntar cada X segundos) se llama...',opts:['Streaming','Polling','Caching','Batching'],ans:1},
+     {q:'En GraphQL, el cliente...',opts:['No puede pedir datos','Pide EXACTAMENTE los campos que necesita en una consulta','Solo usa XML','Necesita 10 endpoints'],ans:1},
+     {q:'SOAP se caracteriza por...',opts:['Ser el más moderno','XML y contratos formales; común en banca y gobierno','No usar red','Ser binario'],ans:1},
+     {q:'Si excedes el límite de peticiones recibes el código...',opts:['200','301','429 Too Many Requests','503'],ans:2},
+     {q:'¿Para qué sirve versionar una API (/v1/, /v2/)?',opts:['Por estética','Evolucionar sin romper a los clientes que usan la versión anterior','Para cobrar más','Es obligatorio por ley'],ans:1}]
+};
+
+// ===== RENDER =====
+function setLang(lang){
+  localStorage.setItem('cp_lang',lang);
+  document.querySelectorAll('.code-wrap').forEach(w=>{
+    w.querySelectorAll('.ct-btn').forEach(b=>b.classList.toggle('ct-active',b.dataset.lang===lang));
+    w.querySelectorAll('.code-block').forEach(p=>{if(!p.classList.contains('code-single'))p.classList.toggle('hidden',!p.classList.contains('code-'+lang));});
+  });
+}
+
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-emerald-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp3_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp3_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp3_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-emerald-600 text-white">'+
+      '<p class="text-xs text-emerald-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-emerald-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-emerald-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-emerald-100 text-emerald-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-orange-100 text-orange-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp3_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp3_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp3_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp3_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+  setLang(localStorage.getItem('cp_lang')||'py');
+});
+</script>
+</body>
+</html>

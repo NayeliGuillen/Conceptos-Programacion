@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps e Infraestructura — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(234,88,12,0.12); color: #ea580c; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #ea580c; cursor: help; position: relative; color: #c2410c; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #431407; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 900px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; } .tok-f { color: #7dd3fc; } .tok-n { color: #fbbf24; } .tok-t { color: #f0abfc; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <a href="CP1-Fundamentos-de-programacion.html" title="Fundamentos de Programación" style="color:#2dd4bf;text-decoration:none;">CP1</a>
+  <a href="CP2-Programacion-orientada-a-objetos.html" title="POO" style="color:#c4b5fd;text-decoration:none;">CP2</a>
+  <a href="CP3-APIs-y-comunicacion.html" title="APIs" style="color:#6ee7b7;text-decoration:none;">CP3</a>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <a href="CP6-Bases-de-datos-avanzado.html" title="Bases de Datos Avanzado" style="color:#7dd3fc;text-decoration:none;">CP6</a>
+  <span style="color:#fdba74;font-weight:700;border-bottom:2px solid #fdba74;">CP7</span>
+  <a href="CP8-Seguridad.html" title="Seguridad" style="color:#f87171;text-decoration:none;">CP8</a>
+  <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" title="Diseño de Sistemas y Liderazgo" style="color:#bef264;text-decoration:none;">CP9</a>
+  <a href="CP10-Servicios-de-red-e-infraestructura.html" title="Servicios de Red e Infraestructura TI" style="color:#a5b4fc;text-decoration:none;">CP10</a>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-orange-700 font-bold text-lg">CP7</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">DevOps e Infraestructura</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-orange-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">Git Pro</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">CI/CD</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">Docker</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">Cloud</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">IaC</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">Monitoreo</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: Git Avanzado</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: CI/CD</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: Docker y Kubernetes</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: La Nube</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: Infraestructura como Código</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: Monitoreo, Logging y Nginx</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-orange-900 to-amber-800 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-orange-300/70 text-sm mb-4">Guía de Estudio Completa · Nivel Avanzado · Curso 7 de 9</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">DevOps e<br>Infraestructura</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">Git avanzado, CI/CD, Docker, Kubernetes, la nube, Terraform, monitoreo y Nginx. Todo lo que pasa entre "funciona en mi máquina" y "funciona para millones de usuarios".</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-700">🐳</div><div class="text-sm text-gray-500 mt-1">Docker: el contenedor universal</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-amber-500">YAML</div><div class="text-sm text-gray-500 mt-1">El idioma de los pipelines</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">☁️</div><div class="text-sm text-gray-500 mt-1">AWS · Azure · GCP</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-500"><span class="text-xs font-bold text-orange-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">Git Avanzado</h3><p class="text-sm text-gray-500 mt-1">Rebase, cherry-pick, stash, bisect y conflictos sin miedo.</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">CI/CD</h3><p class="text-sm text-gray-500 mt-1">GitHub Actions, GitLab CI y Jenkins: la línea de ensamblaje.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">Docker y Kubernetes</h3><p class="text-sm text-gray-500 mt-1">Contenedores: el fin de "funciona en mi máquina".</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">La Nube (AWS/Azure/GCP)</h3><p class="text-sm text-gray-500 mt-1">Los servicios equivalentes y cuál aprender a fondo.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">Infraestructura como Código</h3><p class="text-sm text-gray-500 mt-1">Terraform: tu infraestructura en un repositorio.</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">Monitoreo, Logging y Nginx</h3><p class="text-sm text-gray-500 mt-1">Prometheus, Grafana, Sentry, ELK y balanceo de carga.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">El vocabulario DevOps completo.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">En inglés y español, con traducción completa.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: GIT AVANZADO ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-orange-700 to-orange-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Git Avanzado</h1>
+    <p class="text-lg text-orange-200 max-w-3xl">Rebase, cherry-pick y compañía: las herramientas que separan al usuario de Git del que lo domina.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-orange-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔀 Merge vs. Rebase: la pregunta eterna</h2>
+      <p class="text-sm text-gray-600 mb-4">Ambos integran cambios de una rama a otra, pero cuentan la historia de forma distinta:</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-orange-50 rounded-xl p-4 border border-orange-200">
+          <p class="text-sm font-semibold text-orange-800 mb-2">🔗 MERGE — historia fiel</p>
+          <pre class="code-block text-xs mb-2"><code>main:    A---B---C-------M
+                  \     /
+tu rama:           D---E</code></pre>
+          <p class="text-sm text-gray-600">Crea un commit de fusión (M) que une las dos líneas. La historia muestra <strong>lo que realmente pasó</strong>, con sus bifurcaciones. Seguro pero el historial se "enreda" con muchos merges.</p>
+        </div>
+        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200">
+          <p class="text-sm font-semibold text-amber-800 mb-2">📏 REBASE — historia lineal</p>
+          <pre class="code-block text-xs mb-2"><code>main:    A---B---C---D'---E'
+
+(tus commits D y E se "replantan"
+ encima del main actualizado)</code></pre>
+          <p class="text-sm text-gray-600">Toma tus commits y los <strong>re-aplica</strong> sobre la punta de main, como si hubieras empezado hoy. Historia limpia y lineal... pero REESCRIBE los commits (D→D').</p>
+        </div>
+      </div>
+      <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-900">
+        🚨 <strong>LA regla de oro del rebase:</strong> nunca hagas rebase de commits que YA compartiste (pusheados a una rama que otros usan). Reescribir historia compartida rompe el repositorio de tus compañeros. Rebase en tu rama local privada: ✅. Rebase de main: ❌❌❌.
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-orange-600 rounded-full"></span>La caja de herramientas avanzada</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-orange-700 text-sm uppercase mb-2">🍒 cherry-pick — "solo ese commit"</h3>
+        <p class="text-sm text-gray-600 mb-2">Copia UN commit específico de otra rama a la tuya. Caso típico: un hotfix hecho en main que necesitas también en la rama de release.</p>
+        <pre class="code-block text-xs"><code>git cherry-pick a1b2c3d   <span class="tok-c"># trae solo ese commit</span></code></pre>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-amber-700 text-sm uppercase mb-2">📦 stash — "guárdame esto tantito"</h3>
+        <p class="text-sm text-gray-600 mb-2">Guarda tus cambios sin commitear para cambiar de rama con las manos limpias, y recupéralos después.</p>
+        <pre class="code-block text-xs"><code>git stash          <span class="tok-c"># guarda el trabajo a medias</span>
+git stash pop      <span class="tok-c"># recupéralo donde ibas</span></code></pre>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-yellow-700 text-sm uppercase mb-2">🕵️ bisect — el detective binario</h3>
+        <p class="text-sm text-gray-600 mb-2">¿Un bug apareció "en algún momento de los últimos 200 commits"? Bisect hace búsqueda binaria (¡O(log n) de CP4!): te va dando commits intermedios para probar hasta aislar el culpable en ~8 pasos.</p>
+        <pre class="code-block text-xs"><code>git bisect start
+git bisect bad            <span class="tok-c"># el actual está roto</span>
+git bisect good v2.1      <span class="tok-c"># esa versión funcionaba</span></code></pre>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-orange-700 text-sm uppercase mb-2">✏️ rebase interactivo — pulir antes de publicar</h3>
+        <p class="text-sm text-gray-600 mb-2">Antes de abrir el PR, limpia tu rama: une commits pequeños (squash), renombra mensajes, reordena. Tu PR llega con 3 commits claros en vez de 14 "fix typo".</p>
+        <pre class="code-block text-xs"><code>git rebase -i HEAD~5   <span class="tok-c"># edita tus últimos 5 commits</span></code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-amber-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">⚔️ Resolver conflictos como profesional (paso a paso)</h2>
+      <pre class="code-block mb-4"><code><span class="tok-c"># Al hacer merge/rebase, Git marca los conflictos así en el archivo:</span>
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+precio_final = subtotal * 1.16        <span class="tok-c"># tu versión</span>
+=======
+precio_final = subtotal * (1 + IVA)   <span class="tok-c"># la versión de tu colega</span>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/impuestos</code></pre>
+      <ol class="space-y-2 text-sm text-gray-600">
+        <li><strong>1.</strong> <code class="bg-gray-100 px-1 rounded">git status</code> — lista los archivos en conflicto. Respira: es normal.</li>
+        <li><strong>2.</strong> Abre cada archivo y decide: ¿tu versión, la suya, o una combinación? <strong>Entiende ambas antes de borrar</strong> — el error clásico es pisar el trabajo del colega sin leerlo.</li>
+        <li><strong>3.</strong> Borra los marcadores <code class="bg-gray-100 px-1 rounded">&lt;&lt;&lt;&lt; ==== &gt;&gt;&gt;&gt;</code> y deja el código final.</li>
+        <li><strong>4.</strong> ¡Corre las pruebas! Que "compile" no significa que la combinación funcione.</li>
+        <li><strong>5.</strong> <code class="bg-gray-100 px-1 rounded">git add .</code> y <code class="bg-gray-100 px-1 rounded">git commit</code> (o <code class="bg-gray-100 px-1 rounded">git rebase --continue</code>). Si te enredaste: <code class="bg-gray-100 px-1 rounded">git merge --abort</code> deshace todo y vuelves a empezar.</li>
+      </ol>
+      <p class="text-xs text-gray-500 mt-3">💡 Prevención: ramas cortas que viven pocos días + <code class="bg-gray-100 px-1 rounded">git pull</code> frecuente = conflictos chiquitos y fáciles. Las ramas de 3 semanas producen conflictos de terror.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-orange-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">Git Avanzado.</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-orange-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-orange-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-orange-800 transition text-sm font-semibold">Siguiente: CI/CD →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: CI/CD ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">CI/CD</h1>
+    <p class="text-lg text-blue-200">La línea de ensamblaje: del push al despliegue sin manos humanas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🏭 Anatomía de un pipeline</h2>
+      <p class="text-sm text-gray-600 mb-4">Un <span class="gterm">pipeline<span class="gtooltip">🇺🇸 Pipeline — Secuencia automatizada de pasos (compilar, probar, desplegar) que se dispara con cada push. Si un paso falla, la línea se detiene y nada roto llega a producción.</span></span> es una línea de ensamblaje con control de calidad: cada push pasa por estaciones, y si UNA falla, el producto no avanza. <strong>CI</strong> (Integración Continua) = compilar + probar cada cambio automáticamente. <strong>CD</strong> (Despliegue Continuo) = si todo pasó, publicar automáticamente.</p>
+      <div class="bg-slate-800 rounded-xl p-4 text-center text-xs md:text-sm text-white font-mono mb-4 overflow-x-auto whitespace-nowrap">
+        push → <span class="text-blue-300">🔨 Build</span> → <span class="text-teal-300">🧪 Tests</span> → <span class="text-amber-300">🔍 Lint/Análisis</span> → <span class="text-purple-300">📦 Empaquetar</span> → <span class="text-green-300">🚀 Deploy</span>
+      </div>
+      <p class="text-sm text-gray-600 mb-3">Así se ve un pipeline real de <strong>GitHub Actions</strong> (vive en <code class="bg-gray-100 px-1 rounded">.github/workflows/ci.yml</code> dentro de tu repo):</p>
+      <pre class="code-block"><code><span class="tok-t">name:</span> CI
+<span class="tok-t">on:</span>
+  <span class="tok-t">push:</span>                          <span class="tok-c"># se dispara con cada push...</span>
+    <span class="tok-t">branches:</span> [main]
+  <span class="tok-t">pull_request:</span>                 <span class="tok-c"># ...y con cada PR</span>
+
+<span class="tok-t">jobs:</span>
+  <span class="tok-t">build-and-test:</span>
+    <span class="tok-t">runs-on:</span> ubuntu-latest      <span class="tok-c"># una máquina limpia por corrida</span>
+    <span class="tok-t">steps:</span>
+      - <span class="tok-t">uses:</span> actions/checkout@v4          <span class="tok-c"># 1. clona el código</span>
+      - <span class="tok-t">uses:</span> actions/setup-dotnet@v4      <span class="tok-c"># 2. instala .NET (o setup-python)</span>
+        <span class="tok-t">with:</span> { <span class="tok-t">dotnet-version:</span> <span class="tok-s">'8.0'</span> }
+      - <span class="tok-t">run:</span> dotnet build                   <span class="tok-c"># 3. compila</span>
+      - <span class="tok-t">run:</span> dotnet test                    <span class="tok-c"># 4. corre TODAS las pruebas</span>
+        <span class="tok-c"># si algo falla aquí, el PR se marca en rojo y no se puede unir</span></code></pre>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Las herramientas y los matices</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-slate-800 text-sm mb-2">🐙 GitHub Actions</h3>
+        <p class="text-sm text-gray-600">Integrado a GitHub, YAML simple, gratis para repos públicos. <strong>El punto de entrada recomendado</strong> — configúralo en tus proyectos personales hoy mismo.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-slate-800 text-sm mb-2">🦊 GitLab CI</h3>
+        <p class="text-sm text-gray-600">Equivalente para GitLab (<code class="bg-gray-100 px-1 rounded text-xs">.gitlab-ci.yml</code>). Muy usado en empresas que alojan su propio GitLab.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-slate-800 text-sm mb-2">🎩 Jenkins</h3>
+        <p class="text-sm text-gray-600">El veterano auto-hospedado: flexible pero exige mantenimiento. Lo verás en empresas grandes con procesos establecidos.</p>
+      </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-900">
+        📖 <strong>Delivery vs. Deployment:</strong> Continuous <em>Delivery</em> = todo queda LISTO para desplegar, pero un humano aprueba el botón final. Continuous <em>Deployment</em> = ni botón: si las pruebas pasan, sale a producción solo. La mayoría de las empresas hace Delivery.
+      </div>
+      <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-sm text-indigo-900">
+        🛡️ <strong>El pipeline es tu guardián:</strong> conecta todo lo aprendido — corre las pruebas (CP4), aplica las migraciones (CP6), construye la imagen Docker (módulo 3) y despliega a la nube (módulo 4). Sin pruebas buenas, el CD es solo una forma más rápida de romper producción.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">CI/CD.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← Git Pro</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-orange-800 transition text-sm font-semibold">Siguiente: Docker →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: DOCKER Y K8S ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Docker y Kubernetes</h1>
+    <p class="text-lg text-purple-200">El fin definitivo de "en mi máquina sí funciona".</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📦 El contenedor de barco</h2>
+      <p class="text-sm text-gray-600 mb-4">Antes de los contenedores marítimos, cargar un barco era un caos: cada mercancía con su forma. El contenedor estandarizó TODO: no importa qué haya adentro, todos se apilan y transportan igual. <span class="gterm">Docker<span class="gtooltip">🇺🇸 Docker — Plataforma de contenedores: empaqueta tu app CON todas sus dependencias (runtime, librerías, configuración) en una unidad estándar que corre idéntica en cualquier máquina.</span></span> hace eso con software: empaqueta tu app <strong>con todo lo que necesita</strong> (versión exacta de Python/.NET, librerías, configuración) en un contenedor que corre <strong>idéntico</strong> en tu laptop, el servidor del colega y la nube.</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-purple-50 rounded-xl p-4 border border-purple-200"><p class="text-sm font-semibold text-purple-800 mb-1">🍪 Imagen = la receta congelada</p><p class="text-sm text-gray-600">Plantilla inmutable con tu app y sus dependencias. Se construye UNA vez y se comparte en un registro (Docker Hub, ECR). ¿Te suena? Es el patrón clase→objeto de CP2.</p></div>
+        <div class="bg-fuchsia-50 rounded-xl p-4 border border-fuchsia-200"><p class="text-sm font-semibold text-fuchsia-800 mb-1">🏃 Contenedor = la instancia corriendo</p><p class="text-sm text-gray-600">Una imagen en ejecución. Puedes correr 1 o 50 contenedores de la misma imagen. Ligeros (comparten el kernel del sistema, no son máquinas virtuales completas) y desechables.</p></div>
+      </div>
+      <pre class="code-block mb-4"><code><span class="tok-c"># Dockerfile: la "receta" de tu imagen, paso a paso</span>
+<span class="tok-k">FROM</span> python:3.12-slim          <span class="tok-c"># parte de una imagen base oficial</span>
+<span class="tok-k">WORKDIR</span> /app
+<span class="tok-k">COPY</span> requirements.txt .
+<span class="tok-k">RUN</span> pip install -r requirements.txt   <span class="tok-c"># instala dependencias</span>
+<span class="tok-k">COPY</span> . .                       <span class="tok-c"># copia tu código</span>
+<span class="tok-k">CMD</span> [<span class="tok-s">"python"</span>, <span class="tok-s">"app.py"</span>]      <span class="tok-c"># qué ejecutar al arrancar</span>
+
+<span class="tok-c"># En la terminal:</span>
+<span class="tok-c"># docker build -t mi-api .        ← construye la imagen</span>
+<span class="tok-c"># docker run -p 8000:8000 mi-api  ← corre el contenedor</span></code></pre>
+      <p class="text-sm text-gray-600">🧩 <strong>docker-compose</strong> orquesta VARIOS contenedores locales de una vez: tu API + PostgreSQL + Redis levantados con un solo <code class="bg-gray-100 px-1 rounded">docker compose up</code>. Todo el entorno de desarrollo, reproducible, en un archivo YAML del repo.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-indigo-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">☸️ Kubernetes: el director de orquesta</h2>
+      <p class="text-sm text-gray-600 mb-4">Un contenedor está bien. ¿Pero 300 contenedores en 20 servidores, que deben reiniciarse si mueren, escalar si hay tráfico y actualizarse sin downtime? Eso es <span class="gterm">orquestación<span class="gtooltip">🇺🇸 Orchestration — Gestionar automáticamente muchos contenedores: dónde corren, cuántas réplicas hay, reinicios ante fallos y actualizaciones sin downtime. Kubernetes es el estándar.</span></span>, y <strong>Kubernetes (K8s)</strong> es el estándar. Tú le declaras el estado deseado ("quiero 5 réplicas de mi API siempre vivas") y él lo mantiene: si un contenedor muere a las 3 AM, K8s lo revive solo.</p>
+      <div class="grid md:grid-cols-4 gap-3 text-sm mb-4">
+        <div class="bg-indigo-50 rounded-lg p-3 border border-indigo-200 text-center"><strong class="text-indigo-800">Pod</strong><br><span class="text-xs text-gray-500">La unidad mínima: 1+ contenedores juntos</span></div>
+        <div class="bg-blue-50 rounded-lg p-3 border border-blue-200 text-center"><strong class="text-blue-800">Deployment</strong><br><span class="text-xs text-gray-500">"Mantén N réplicas de este pod vivas"</span></div>
+        <div class="bg-sky-50 rounded-lg p-3 border border-sky-200 text-center"><strong class="text-sky-800">Service</strong><br><span class="text-xs text-gray-500">La puerta estable que balancea entre pods</span></div>
+        <div class="bg-cyan-50 rounded-lg p-3 border border-cyan-200 text-center"><strong class="text-cyan-800">Ingress</strong><br><span class="text-xs text-gray-500">La entrada HTTP desde el exterior</span></div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+        ⚖️ <strong>Honestidad senior:</strong> Kubernetes es poderoso y COMPLEJO. Para una app mediana, un servicio administrado simple (App Service, Cloud Run, ECS) suele bastar. Aprende los conceptos de K8s para las entrevistas y para leer arquitecturas — pero no lo metas a tu proyecto personal "porque se ve pro".
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">Docker y Kubernetes.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← CI/CD</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-orange-800 transition text-sm font-semibold">Siguiente: Cloud →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: CLOUD ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">La Nube: AWS, Azure y GCP</h1>
+    <p class="text-lg text-cyan-200">Tres nubes, los mismos conceptos. Domina una a fondo.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🗺️ El diccionario de las 3 nubes</h2>
+      <p class="text-sm text-gray-600 mb-4">Los tres gigantes ofrecen los MISMOS servicios con nombres distintos. Aprende los conceptos una vez y "traduce" entre nubes con esta tabla:</p>
+      <div class="overflow-x-auto mb-4">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Necesito...</th><th class="p-3 text-left">🟧 AWS</th><th class="p-3 text-left">🟦 Azure</th><th class="p-3 text-left">🟥 GCP</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3">Máquinas virtuales</td><td class="p-3 font-mono text-xs">EC2</td><td class="p-3 font-mono text-xs">Virtual Machines</td><td class="p-3 font-mono text-xs">Compute Engine</td></tr>
+          <tr class="bg-gray-50"><td class="p-3">Guardar archivos/objetos</td><td class="p-3 font-mono text-xs">S3</td><td class="p-3 font-mono text-xs">Blob Storage</td><td class="p-3 font-mono text-xs">Cloud Storage</td></tr>
+          <tr><td class="p-3">Base de datos SQL administrada</td><td class="p-3 font-mono text-xs">RDS</td><td class="p-3 font-mono text-xs">Azure SQL</td><td class="p-3 font-mono text-xs">Cloud SQL</td></tr>
+          <tr class="bg-gray-50"><td class="p-3">Funciones serverless</td><td class="p-3 font-mono text-xs">Lambda</td><td class="p-3 font-mono text-xs">Azure Functions</td><td class="p-3 font-mono text-xs">Cloud Functions</td></tr>
+          <tr><td class="p-3">Contenedores administrados</td><td class="p-3 font-mono text-xs">ECS / EKS</td><td class="p-3 font-mono text-xs">Container Apps / AKS</td><td class="p-3 font-mono text-xs">Cloud Run / GKE</td></tr>
+          <tr class="bg-gray-50"><td class="p-3">Colas de mensajes</td><td class="p-3 font-mono text-xs">SQS</td><td class="p-3 font-mono text-xs">Service Bus</td><td class="p-3 font-mono text-xs">Pub/Sub</td></tr>
+          <tr><td class="p-3">Gestor de secretos</td><td class="p-3 font-mono text-xs">Secrets Manager</td><td class="p-3 font-mono text-xs">Key Vault</td><td class="p-3 font-mono text-xs">Secret Manager</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-4 text-sm text-cyan-900">
+        🎯 <strong>¿Cuál aprender a fondo?</strong> La que use tu empresa o tu mercado objetivo. Sin contexto: <strong>AWS</strong> tiene la mayor cuota y demanda laboral; <strong>Azure</strong> domina el mundo corporativo/.NET (¡natural si vienes de C#!); <strong>GCP</strong> brilla en datos/ML. Los conceptos se transfieren en un 80% — lo importante es dominar UNA de verdad.
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-cyan-600 rounded-full"></span>Conceptos transversales que sí o sí debes manejar</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-cyan-700 text-sm uppercase mb-2">⚡ Serverless</h3>
+        <p class="text-sm text-gray-600">Subes una FUNCIÓN, no un servidor: la nube la ejecuta cuando llega el evento y cobra por milisegundo de ejecución. Cero servidores que administrar; ideal para tareas esporádicas (procesar un archivo subido, un webhook). Trade-off: arranque en frío y límites de tiempo.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-teal-700 text-sm uppercase mb-2">🌍 Regiones y zonas de disponibilidad</h3>
+        <p class="text-sm text-gray-600">Región = ubicación geográfica (Virginia, São Paulo). Zona = centro de datos independiente dentro de la región. Desplegar en 2+ zonas = sobrevivir a que un centro de datos entero se caiga.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-blue-700 text-sm uppercase mb-2">💸 El modelo de costos</h3>
+        <p class="text-sm text-gray-600">Pagas por lo que usas... y por lo que OLVIDASTE apagar. La historia de terror universal: la instancia de pruebas que corrió 8 meses. Regla: presupuestos con alertas desde el día uno, y apagar todo lo que no sirve.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 text-sm uppercase mb-2">🔑 IAM (identidad y permisos)</h3>
+        <p class="text-sm text-gray-600">QUIÉN puede hacer QUÉ sobre CUÁL recurso. El principio de menor privilegio (CP8) aplicado a la nube: la app que solo lee de S3 no necesita permiso de borrar buckets. La mayoría de los hackeos de nube empiezan por permisos flojos.</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">La Nube.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← Docker</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-orange-800 transition text-sm font-semibold">Siguiente: IaC →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: IAC ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Infraestructura como Código</h1>
+    <p class="text-lg text-green-200">Tu infraestructura en un repositorio, no en la memoria de alguien.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🏗️ El problema del "ClickOps"</h2>
+      <p class="text-sm text-gray-600 mb-4">Crear infraestructura a clics en la consola web funciona... hasta que: nadie recuerda qué se configuró, el ambiente de staging es "parecido pero no igual" a producción, y reconstruir todo tras un desastre toma semanas. <span class="gterm">IaC<span class="gtooltip">🇺🇸 IaC — Infrastructure as Code — Definir servidores, redes y bases de datos en archivos de código versionados. La infraestructura se crea, modifica y reconstruye ejecutando el código, no a clics.</span></span> (Infraestructura como Código) lo resuelve: describes tu infraestructura en <strong>archivos versionados en Git</strong>, y una herramienta la crea por ti — idéntica cada vez. Los planos del arquitecto en lugar de instrucciones verbales al albañil.</p>
+      <pre class="code-block mb-4"><code><span class="tok-c"># main.tf — Terraform (lenguaje HCL): describe QUÉ quieres, no CÓMO crearlo</span>
+<span class="tok-k">resource</span> <span class="tok-s">"aws_instance"</span> <span class="tok-s">"api_server"</span> {
+  <span class="tok-t">ami</span>           = <span class="tok-s">"ami-0abc123"</span>       <span class="tok-c"># imagen del sistema</span>
+  <span class="tok-t">instance_type</span> = <span class="tok-s">"t3.small"</span>          <span class="tok-c"># tamaño de la máquina</span>
+  <span class="tok-t">tags</span> = { <span class="tok-t">Name</span> = <span class="tok-s">"api-produccion"</span> }
+}
+
+<span class="tok-k">resource</span> <span class="tok-s">"aws_s3_bucket"</span> <span class="tok-s">"reportes"</span> {
+  <span class="tok-t">bucket</span> = <span class="tok-s">"reportes-empresa-2026"</span>
+}
+
+<span class="tok-c"># Flujo de trabajo:</span>
+<span class="tok-c"># terraform plan   ← te MUESTRA qué va a crear/cambiar/destruir (revisas)</span>
+<span class="tok-c"># terraform apply  ← lo ejecuta</span></code></pre>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-green-50 rounded-xl p-4 border border-green-200"><p class="text-sm font-semibold text-green-800 mb-1">📜 Declarativo</p><p class="text-sm text-gray-600">Describes el estado FINAL deseado; Terraform calcula los pasos. Si ya existe, no hace nada (idempotencia — ¿te suena de CP5?).</p></div>
+        <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200"><p class="text-sm font-semibold text-emerald-800 mb-1">🗂️ El estado (state)</p><p class="text-sm text-gray-600">Terraform guarda un registro de lo que creó, para calcular diferencias. En equipo, el state vive compartido y con bloqueo (ej. en S3).</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="text-sm font-semibold text-teal-800 mb-1">🔁 Reproducible</p><p class="text-sm text-gray-600">¿Nuevo ambiente? ¿Región nueva? ¿Desastre? Corres el código y renace TODO, idéntico, en minutos.</p></div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">🛠️ El ecosistema</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><strong>Terraform</strong> — el estándar multi-nube (AWS, Azure, GCP con la misma herramienta). Por aquí se empieza.</li>
+          <li><strong>CloudFormation</strong> — el nativo de AWS; <strong>Bicep</strong> — el nativo de Azure. Solo funcionan en su nube.</li>
+          <li><strong>Ansible</strong> — pariente: configura lo que hay DENTRO de los servidores (paquetes, archivos).</li>
+        </ul>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-sm text-green-900">
+        <h3 class="font-bold mb-2">🧠 Por qué a los seniors les importa tanto</h3>
+        <p class="mb-2">La IaC convierte la infraestructura en algo <strong>revisable</strong> (¡pull requests para cambios de servidores!), <strong>auditable</strong> (Git dice quién cambió qué y cuándo) y <strong>recuperable</strong> (el plan de desastres es "terraform apply").</p>
+        <p>Además, elimina el "servidor mascota" que solo Juan sabe configurar... y Juan renunció.</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">Infraestructura como Código.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← Cloud</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-orange-800 transition text-sm font-semibold">Siguiente: Monitoreo →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: MONITOREO Y NGINX ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Monitoreo, Logging y Nginx</h1>
+    <p class="text-lg text-rose-200">Si producción se enferma, ¿cómo te enteras? ¿Y quién reparte el tráfico?</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-rose-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🩺 Los 3 signos vitales de un sistema (observabilidad)</h2>
+      <div class="grid md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-rose-50 rounded-xl p-4 border border-rose-200">
+          <p class="text-sm font-semibold text-rose-800 mb-1">📜 Logs — el diario</p>
+          <p class="text-sm text-gray-600 mb-2">Cada evento registrado: "usuario 7 inició sesión", "error al cobrar pedido 1001". La clave profesional: <strong>logs estructurados</strong> (JSON con campos) en vez de texto suelto — así se filtran y buscan.</p>
+          <p class="text-xs text-gray-500">Herramientas: ELK (Elasticsearch + Logstash + Kibana), Grafana Loki, CloudWatch Logs.</p>
+        </div>
+        <div class="bg-orange-50 rounded-xl p-4 border border-orange-200">
+          <p class="text-sm font-semibold text-orange-800 mb-1">📈 Métricas — los números vitales</p>
+          <p class="text-sm text-gray-600 mb-2">Valores en el tiempo: peticiones/segundo, latencia p95, % de CPU, errores por minuto. <strong>Prometheus</strong> las recolecta; <strong>Grafana</strong> las grafica en dashboards; las alertas te despiertan si algo se sale de rango.</p>
+          <p class="text-xs text-gray-500">La pregunta que responden: "¿está sano el sistema AHORA y hacia dónde va?"</p>
+        </div>
+        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200">
+          <p class="text-sm font-semibold text-amber-800 mb-1">🚨 Errores — el radar de excepciones</p>
+          <p class="text-sm text-gray-600 mb-2"><strong>Sentry</strong> captura cada excepción no manejada en producción CON su stack trace, usuario afectado y frecuencia. Te enteras del bug antes que los usuarios lo reporten.</p>
+          <p class="text-xs text-gray-500">Agrupa errores repetidos: "este NullReference pasó 3,400 veces desde el deploy de ayer" → rollback.</p>
+        </div>
+      </div>
+      <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 text-sm text-rose-900">
+        🧠 <strong>Regla senior:</strong> si no se puede medir, no está en producción. El deploy sin monitoreo es manejar de noche sin faros: quizá no choques hoy, pero no lo sabrás hasta el golpe.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-slate-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🚪 Nginx: el recepcionista del edificio</h2>
+      <p class="text-sm text-gray-600 mb-4"><strong>Nginx</strong> es un servidor web que casi siempre actúa como <span class="gterm">reverse proxy<span class="gtooltip">🇺🇸 Reverse Proxy — Servidor intermedio que recibe TODAS las peticiones del exterior y las reenvía a tus servidores internos. Centraliza TLS, balanceo, caché y protección.</span></span>: el único que da la cara a internet. Como el recepcionista de un edificio corporativo: recibe a todos, revisa a dónde van, y los dirige al piso correcto — nadie deambula directo a las oficinas.</p>
+      <pre class="code-block mb-4"><code><span class="tok-c"># nginx.conf — balanceo de carga entre 3 servidores de tu API</span>
+<span class="tok-k">upstream</span> mi_api {
+    <span class="tok-f">server</span> 10.0.0.11:8000;    <span class="tok-c"># servidor 1</span>
+    <span class="tok-f">server</span> 10.0.0.12:8000;    <span class="tok-c"># servidor 2</span>
+    <span class="tok-f">server</span> 10.0.0.13:8000;    <span class="tok-c"># servidor 3</span>
+    <span class="tok-c"># por defecto: round-robin (turnos rotativos)</span>
+}
+
+<span class="tok-k">server</span> {
+    <span class="tok-f">listen</span> 443 ssl;               <span class="tok-c"># HTTPS terminado aquí (ver CP8)</span>
+    <span class="tok-f">server_name</span> api.miempresa.com;
+
+    <span class="tok-k">location</span> / {
+        <span class="tok-f">proxy_pass</span> http://mi_api;  <span class="tok-c"># reparte a los 3 servidores</span>
+    }
+}</code></pre>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200"><p class="text-sm font-semibold text-slate-800 mb-1">⚖️ Balanceo de carga</p><p class="text-sm text-gray-600">Reparte el tráfico entre N servidores (round-robin, menos conexiones...). Si uno muere, deja de enviarle tráfico (health checks). Es el ingrediente básico de la escalabilidad horizontal (CP9).</p></div>
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200"><p class="text-sm font-semibold text-gray-800 mb-1">🧰 Los otros roles de Nginx</p><p class="text-sm text-gray-600">Terminar TLS/HTTPS en un solo punto, servir archivos estáticos ultrarrápido, cachear respuestas, comprimir, y aplicar rate limiting antes de que el tráfico toque tu app.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">Monitoreo, Logging y Nginx.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← IaC</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-orange-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← Monitoreo</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">DevOps es de las habilidades mejor pagadas. Cada respuesta con traducción al español.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 Cómo demostrar DevOps sin años de experiencia</h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><strong class="text-amber-700">Hazlo en tus proyectos:</strong><p class="text-gray-600 mt-1">Un repo personal con Dockerfile + GitHub Actions + deploy a la nube demuestra el ciclo completo. Vale más que cualquier certificado.</p></div>
+        <div><strong class="text-amber-700">Cuenta historias de proceso:</strong><p class="text-gray-600 mt-1">"Cada push corre pruebas y despliega solo" es una historia que puedes contar aunque el proyecto sea chico.</p></div>
+        <div><strong class="text-amber-700">Conoce los porqués:</strong><p class="text-gray-600 mt-1">No preguntan solo "¿qué es Docker?" sino "¿qué problema resuelve?". Las analogías de esta guía son tus respuestas.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de DevOps</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-orange-700 mb-3 text-sm uppercase">Hablar del flujo de despliegue</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-orange-600 font-mono text-xs">"Every push triggers the pipeline: build, test, deploy."</p><p class="text-gray-500 text-xs">Cada push dispara el pipeline: compilar, probar, desplegar.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-orange-600 font-mono text-xs">"The app is containerized, so it runs the same everywhere."</p><p class="text-gray-500 text-xs">La app está en contenedores, así que corre igual en todos lados.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-orange-600 font-mono text-xs">"Infrastructure is managed with Terraform and reviewed in PRs."</p><p class="text-gray-500 text-xs">La infraestructura se maneja con Terraform y se revisa en PRs.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-orange-600 font-mono text-xs">"We rolled back within minutes thanks to versioned releases."</p><p class="text-gray-500 text-xs">Revertimos en minutos gracias a los releases versionados.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Hablar de operación</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Grafana dashboards track latency and error rates."</p><p class="text-gray-500 text-xs">Los dashboards de Grafana siguen la latencia y la tasa de errores.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Sentry alerted us before users noticed the bug."</p><p class="text-gray-500 text-xs">Sentry nos alertó antes de que los usuarios notaran el bug.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"Nginx sits in front as a reverse proxy and load balancer."</p><p class="text-gray-500 text-xs">Nginx va al frente como reverse proxy y balanceador de carga.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"I never rebase shared branches."</p><p class="text-gray-500 text-xs">Nunca hago rebase de ramas compartidas.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-amber-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-orange-600" value="1"><span class="text-sm">Módulo 1: Git Pro</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-orange-600" value="2"><span class="text-sm">Módulo 2: CI/CD</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-orange-600" value="3"><span class="text-sm">Módulo 3: Docker</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-orange-600" value="4"><span class="text-sm">Módulo 4: Cloud</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-orange-600" value="5"><span class="text-sm">Módulo 5: IaC</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-orange-600" value="6"><span class="text-sm">Módulo 6: Monitoreo</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-orange-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-orange-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-orange-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · DevOps e Infraestructura · Conceptos de Programación CP7</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'Rebase',en:'Rebase',def:'Re-aplicar tus commits sobre la punta actualizada de otra rama, creando historia lineal. NUNCA sobre commits ya compartidos.'},
+  {es:'Merge',en:'Merge',def:'Unir dos ramas creando un commit de fusión. Preserva la historia real, con sus bifurcaciones.'},
+  {es:'Cherry-pick',en:'Cherry-pick',def:'Copiar UN commit específico de otra rama a la tuya. Típico para llevar un hotfix a varias ramas.'},
+  {es:'Stash',en:'Stash',def:'Guardar temporalmente cambios sin commitear para cambiar de rama, y recuperarlos después con stash pop.'},
+  {es:'Bisect',en:'Bisect',def:'Búsqueda binaria en el historial para encontrar el commit exacto que introdujo un bug, en ~log(n) pasos.'},
+  {es:'Rebase Interactivo',en:'Interactive Rebase',def:'Editar tus últimos commits antes de publicar: unir (squash), renombrar, reordenar. Pulir el PR.'},
+  {es:'Squash',en:'Squash',def:'Combinar varios commits pequeños en uno solo con mensaje claro. Común al hacer merge de un PR.'},
+  {es:'Conflicto de Merge',en:'Merge Conflict',def:'Dos ramas cambiaron la misma línea; Git marca ambas versiones entre <<<< y >>>> y tú decides el resultado final.'},
+  {es:'Hotfix',en:'Hotfix',def:'Corrección urgente aplicada directo sobre producción/main, que luego se propaga a las demás ramas.'},
+  {es:'Integración Continua (CI)',en:'Continuous Integration',def:'Compilar y probar automáticamente cada cambio subido al repositorio. Nada roto avanza.'},
+  {es:'Despliegue Continuo (CD)',en:'Continuous Deployment',def:'Si el pipeline pasa, se despliega a producción automáticamente. Continuous Delivery = igual pero con aprobación humana final.'},
+  {es:'Pipeline',en:'Pipeline',def:'Secuencia automatizada de pasos (build → test → deploy) disparada por cada push. Si un paso falla, se detiene.'},
+  {es:'GitHub Actions',en:'GitHub Actions',def:'El CI/CD integrado de GitHub: workflows en YAML dentro de .github/workflows/. El punto de entrada recomendado.'},
+  {es:'Jenkins',en:'Jenkins',def:'Servidor de CI/CD veterano y auto-hospedado. Flexible pero exige mantenimiento; común en empresas grandes.'},
+  {es:'YAML',en:'YAML',def:'Formato de configuración legible basado en indentación. El idioma de los pipelines, docker-compose y Kubernetes.'},
+  {es:'Docker',en:'Docker',def:'Plataforma de contenedores: empaqueta la app con TODAS sus dependencias para que corra idéntica en cualquier máquina.'},
+  {es:'Imagen',en:'Image',def:'Plantilla inmutable con tu app y dependencias. Se construye del Dockerfile y se comparte en un registro.'},
+  {es:'Contenedor',en:'Container',def:'Una imagen en ejecución. Ligero (comparte kernel, no es una VM completa) y desechable. Imagen:contenedor :: clase:objeto.'},
+  {es:'Dockerfile',en:'Dockerfile',def:'La "receta" de la imagen: imagen base, dependencias, código y comando de arranque, paso a paso.'},
+  {es:'Docker Compose',en:'Docker Compose',def:'Levantar varios contenedores locales (API + BD + Redis) con un solo comando y un archivo YAML.'},
+  {es:'Registro de Imágenes',en:'Container Registry',def:'Donde se publican las imágenes: Docker Hub, AWS ECR, Azure ACR, GitHub Container Registry.'},
+  {es:'Kubernetes (K8s)',en:'Kubernetes',def:'El orquestador estándar: mantiene el estado deseado de tus contenedores (réplicas, reinicios, actualizaciones sin downtime).'},
+  {es:'Pod',en:'Pod',def:'La unidad mínima de Kubernetes: uno o más contenedores que se despliegan juntos.'},
+  {es:'Deployment (K8s)',en:'Deployment',def:'Objeto de K8s que declara "mantén N réplicas de este pod vivas" y gestiona las actualizaciones.'},
+  {es:'Serverless',en:'Serverless',def:'Subes funciones, no servidores: la nube ejecuta al llegar el evento y cobra por milisegundo. Lambda, Azure Functions.'},
+  {es:'Región / Zona',en:'Region / Availability Zone',def:'Región = ubicación geográfica; zona = centro de datos independiente dentro de ella. 2+ zonas = alta disponibilidad.'},
+  {es:'IAM',en:'IAM — Identity and Access Management',def:'Quién puede hacer qué sobre qué recurso en la nube. Menor privilegio siempre.'},
+  {es:'Infraestructura como Código',en:'IaC — Infrastructure as Code',def:'Definir servidores, redes y BDs en archivos versionados. Se crea/reconstruye ejecutando código, no a clics.'},
+  {es:'Terraform',en:'Terraform',def:'La herramienta IaC estándar multi-nube (lenguaje HCL). plan muestra los cambios; apply los ejecuta.'},
+  {es:'CloudFormation / Bicep',en:'CloudFormation / Bicep',def:'Las herramientas IaC nativas de AWS y Azure respectivamente. Solo funcionan en su nube.'},
+  {es:'Estado (Terraform)',en:'State',def:'El registro de lo que Terraform creó, usado para calcular diferencias. En equipo se comparte con bloqueo.'},
+  {es:'Declarativo',en:'Declarative',def:'Describes el estado FINAL deseado y la herramienta calcula los pasos. Lo opuesto a scripts imperativos paso a paso.'},
+  {es:'Observabilidad',en:'Observability',def:'Poder responder "¿qué está pasando adentro?" con logs (eventos), métricas (números) y trazas.'},
+  {es:'Logs Estructurados',en:'Structured Logging',def:'Registrar eventos como JSON con campos (usuario, acción, duración) en vez de texto suelto: filtrables y buscables.'},
+  {es:'Prometheus',en:'Prometheus',def:'El recolector de métricas estándar del mundo cloud-native: series de tiempo + lenguaje de consultas + alertas.'},
+  {es:'Grafana',en:'Grafana',def:'La herramienta de dashboards: grafica métricas de Prometheus y otros orígenes. El "tablero del avión".'},
+  {es:'Sentry',en:'Sentry',def:'Radar de errores: captura cada excepción de producción con stack trace, usuario y frecuencia. Te enteras antes que los usuarios.'},
+  {es:'ELK',en:'ELK Stack',def:'Elasticsearch + Logstash + Kibana: recolectar, indexar y explorar logs a gran escala.'},
+  {es:'Nginx',en:'Nginx',def:'Servidor web/reverse proxy: da la cara a internet, termina TLS, balancea carga, cachea y sirve estáticos.'},
+  {es:'Reverse Proxy',en:'Reverse Proxy',def:'Intermediario que recibe TODAS las peticiones del exterior y las reenvía a los servidores internos. El "recepcionista".'},
+  {es:'Balanceador de Carga',en:'Load Balancer',def:'Reparte el tráfico entre N servidores (round-robin, menos conexiones) y deja de enviar a los que fallan (health checks).'},
+  {es:'Health Check',en:'Health Check',def:'Verificación periódica de que un servidor responde. Si falla, el balanceador lo saca de la rotación.'},
+  {es:'Rollback',en:'Rollback',def:'Volver a la versión anterior desplegada cuando la nueva falla. Con versiones e imágenes etiquetadas, toma minutos.'}
+];
+
+const flashcards = [
+  {en:'Rebase',es:'Rebase',def:'Replaying your commits on top of an updated branch for linear history. Never on shared commits.',pron:'REE-beys'},
+  {en:'Cherry-pick',es:'Cherry-pick',def:'Copying one specific commit from another branch into yours.',pron:'CHEH-ree pik'},
+  {en:'Pipeline',es:'Pipeline',def:'An automated sequence — build, test, deploy — triggered by every push.',pron:'PYP-lyn'},
+  {en:'Build',es:'Compilación',def:'The step that compiles and packages the code, failing fast on errors.',pron:'bild'},
+  {en:'Container',es:'Contenedor',def:'A running instance of an image: the app plus everything it needs, isolated and portable.',pron:'kun-TEY-ner'},
+  {en:'Image',es:'Imagen',def:'An immutable template built from a Dockerfile, shared through a registry.',pron:'IH-mij'},
+  {en:'Orchestration',es:'Orquestación',def:'Automatically managing many containers: placement, replicas, restarts, rolling updates.',pron:'or-kes-TREY-shun'},
+  {en:'Serverless',es:'Serverless',def:'Running functions without managing servers; billed per execution.',pron:'SER-ver-les'},
+  {en:'Provisioning',es:'Aprovisionamiento',def:'Creating infrastructure resources — with IaC, by running code.',pron:'pro-VIH-zhun-ing'},
+  {en:'Deployment',es:'Despliegue',def:'Publishing a new version of the application to an environment.',pron:'deh-PLOY-ment'},
+  {en:'Rollback',es:'Reversión',def:'Returning to the previous working version after a bad release.',pron:'ROHL-bak'},
+  {en:'Monitoring',es:'Monitoreo',def:'Tracking system health through metrics, dashboards, and alerts.',pron:'MON-ih-tor-ing'},
+  {en:'Alert',es:'Alerta',def:'An automatic notification when a metric crosses a threshold.',pron:'uh-LERT'},
+  {en:'Load Balancer',es:'Balanceador de Carga',def:'Distributes traffic across multiple servers and skips unhealthy ones.',pron:'lohd BAL-an-ser'},
+  {en:'Uptime',es:'Tiempo Activo',def:'The percentage of time a system is available — the famous "nines".',pron:'UP-taym'}
+];
+
+const interviewQA = [
+  {q:'Merge vs rebase — when do you use each? / ¿Cuándo usas merge y cuándo rebase?',cat:'Técnica',
+   ans:'Merge preserves real history with a merge commit — always safe, especially on shared branches. Rebase replays my commits on top of the updated base for a clean linear history — I use it only on my LOCAL branch before opening a PR. Golden rule: never rebase commits that were already pushed and shared, because rewriting shared history breaks everyone else\'s repo.\n\n🇪🇸 Español: Merge preserva la historia real con un commit de fusión — siempre seguro, especialmente en ramas compartidas. Rebase re-aplica mis commits sobre la base actualizada para una historia lineal limpia — lo uso solo en mi rama LOCAL antes de abrir el PR. Regla de oro: nunca hacer rebase de commits ya pusheados y compartidos, porque reescribir historia compartida rompe el repositorio de los demás.'},
+  {q:'How do you resolve a merge conflict? / ¿Cómo resuelves un conflicto de merge?',cat:'Técnica',
+   ans:'git status lists the conflicted files. In each one, Git marks both versions between <<<< and >>>>. I read BOTH versions to understand the intent — the classic mistake is deleting a colleague\'s work without reading it. I keep the right combination, remove the markers, RUN THE TESTS (compiling isn\'t enough), then add and commit. Prevention: short-lived branches and frequent pulls make conflicts small.\n\n🇪🇸 Español: git status lista los archivos en conflicto. En cada uno, Git marca ambas versiones entre <<<< y >>>>. Leo AMBAS versiones para entender la intención — el error clásico es borrar el trabajo del colega sin leerlo. Dejo la combinación correcta, quito los marcadores, CORRO LAS PRUEBAS (compilar no basta), y hago add y commit. Prevención: ramas de vida corta y pulls frecuentes hacen los conflictos pequeños.'},
+  {q:'What is CI/CD and why does it matter? / ¿Qué es CI/CD y por qué importa?',cat:'Conceptual',
+   ans:'CI (Continuous Integration): every push automatically builds and runs all tests — broken code never advances. CD (Continuous Deployment): if everything passes, it deploys automatically; Continuous Delivery leaves a final human approval. It matters because it removes slow, error-prone manual releases and gives fast feedback — you find out in minutes, not weeks, that something broke.\n\n🇪🇸 Español: CI (Integración Continua): cada push compila y corre todas las pruebas automáticamente — el código roto no avanza. CD (Despliegue Continuo): si todo pasa, despliega automáticamente; Continuous Delivery deja una aprobación humana final. Importa porque elimina los releases manuales lentos y propensos a error, y da retroalimentación rápida — te enteras en minutos, no en semanas, de que algo se rompió.'},
+  {q:'What problem does Docker solve? / ¿Qué problema resuelve Docker?',cat:'Conceptual',
+   ans:'"It works on my machine." Docker packages the app WITH its exact dependencies — runtime version, libraries, configuration — into a container that runs identically on any machine: my laptop, a teammate\'s, CI, and production. The image is the immutable template; containers are running instances (like class vs object). Bonus: docker-compose brings up the whole dev environment — API, database, cache — with one command.\n\n🇪🇸 Español: El "en mi máquina sí funciona". Docker empaqueta la app CON sus dependencias exactas — versión del runtime, librerías, configuración — en un contenedor que corre idéntico en cualquier máquina: mi laptop, la del colega, el CI y producción. La imagen es la plantilla inmutable; los contenedores son instancias corriendo (como clase vs objeto). Bonus: docker-compose levanta todo el entorno de desarrollo — API, base de datos, caché — con un comando.'},
+  {q:'What is Kubernetes and when do you actually need it?',cat:'Técnica',
+   ans:'Kubernetes orchestrates many containers: you declare the desired state ("5 replicas always alive") and it maintains it — restarting dead containers, scaling, rolling updates without downtime. You need it at real scale with many services. For a medium app, a managed service (Cloud Run, App Service, ECS) is usually enough — Kubernetes adds a lot of operational complexity. Saying that shows judgment.\n\n🇪🇸 Español: Kubernetes orquesta muchos contenedores: declaras el estado deseado ("5 réplicas siempre vivas") y él lo mantiene — reinicia contenedores muertos, escala, actualiza sin downtime. Lo necesitas a escala real con muchos servicios. Para una app mediana, un servicio administrado (Cloud Run, App Service, ECS) suele bastar — Kubernetes agrega mucha complejidad operativa. Decir eso demuestra criterio.'},
+  {q:'What is Infrastructure as Code? / ¿Qué es la Infraestructura como Código?',cat:'Conceptual',
+   ans:'Defining servers, networks and databases in versioned code files (Terraform, CloudFormation) instead of clicking consoles. Benefits: reproducible environments (staging really equals production), reviewable changes (PRs for infrastructure!), full audit trail in Git, and disaster recovery = re-run the code. Terraform is declarative: you describe the desired end state and it computes the steps, idempotently.\n\n🇪🇸 Español: Definir servidores, redes y bases de datos en archivos de código versionados (Terraform, CloudFormation) en lugar de dar clics en consolas. Beneficios: ambientes reproducibles (staging realmente igual a producción), cambios revisables (¡PRs para infraestructura!), auditoría completa en Git, y recuperación ante desastres = volver a ejecutar el código. Terraform es declarativo: describes el estado final deseado y calcula los pasos, de forma idempotente.'},
+  {q:'How do you know production is healthy? / ¿Cómo sabes que producción está sana?',cat:'Técnica',
+   ans:'Three signals. Structured logs (JSON events) centralized in something like ELK or Loki. Metrics — request rate, latency percentiles, error rate, CPU — collected by Prometheus and visualized in Grafana, with alerts on thresholds. And error tracking with Sentry: every unhandled exception with its stack trace and affected users. The senior rule: if it\'s not measured, it\'s not in production.\n\n🇪🇸 Español: Tres señales. Logs estructurados (eventos en JSON) centralizados en algo como ELK o Loki. Métricas — peticiones por segundo, percentiles de latencia, tasa de errores, CPU — recolectadas por Prometheus y visualizadas en Grafana, con alertas por umbrales. Y rastreo de errores con Sentry: cada excepción no manejada con su stack trace y usuarios afectados. La regla senior: si no se mide, no está en producción.'},
+  {q:'What does Nginx do in a typical architecture? / ¿Qué hace Nginx en una arquitectura típica?',cat:'Técnica',
+   ans:'It\'s the reverse proxy at the front door: the only thing facing the internet. It terminates TLS/HTTPS in one place, load-balances traffic across the app servers (round-robin with health checks), serves static files fast, caches responses, and can apply rate limiting before traffic reaches the app. Analogy: the building receptionist — everyone goes through them and gets directed to the right floor.\n\n🇪🇸 Español: Es el reverse proxy en la puerta: lo único que da la cara a internet. Termina TLS/HTTPS en un solo lugar, balancea el tráfico entre los servidores de la app (round-robin con health checks), sirve archivos estáticos rapidísimo, cachea respuestas y puede aplicar rate limiting antes de que el tráfico llegue a la app. Analogía: el recepcionista del edificio — todos pasan por él y los dirige al piso correcto.'}
+];
+
+const quizData = {
+  1:[{q:'La diferencia clave entre merge y rebase es...',opts:['Ninguna','Merge crea commit de fusión preservando la historia; rebase re-aplica commits creando historia lineal','Rebase es más viejo','Merge borra código'],ans:1},
+     {q:'La regla de oro del rebase es...',opts:['Usarlo siempre','NUNCA hacer rebase de commits ya compartidos/pusheados','Solo usarlo en main','Hacerlo los viernes'],ans:1},
+     {q:'cherry-pick sirve para...',opts:['Borrar commits','Copiar UN commit específico de otra rama','Crear ramas','Comprimir el repo'],ans:1},
+     {q:'git stash es útil cuando...',opts:['Quieres borrar todo','Tienes trabajo a medias y necesitas cambiar de rama','El repo está lleno','Quieres hacer deploy'],ans:1},
+     {q:'git bisect encuentra el commit culpable usando...',opts:['Suerte','Búsqueda binaria: te da commits intermedios para probar','Inteligencia artificial','Los mensajes de commit'],ans:1},
+     {q:'Tras resolver un conflicto, ANTES de commitear debes...',opts:['Nada más','Correr las pruebas: que compile no significa que funcione','Borrar la rama','Avisar a RRHH'],ans:1}],
+  2:[{q:'CI significa que cada push...',opts:['Se ignora','Se compila y prueba automáticamente','Va directo a producción','Envía un correo'],ans:1},
+     {q:'La diferencia entre Continuous Delivery y Deployment es...',opts:['Ninguna','Delivery deja aprobación humana final; Deployment despliega solo','Delivery es más rápido','Deployment es manual'],ans:1},
+     {q:'Los workflows de GitHub Actions viven en...',opts:['La nube de Google','.github/workflows/ dentro del repo','Un servidor aparte','El correo'],ans:1},
+     {q:'Si las pruebas fallan en el pipeline de un PR...',opts:['Se ignora','El PR se marca en rojo y no debe unirse','Se despliega igual','Se borra el repo'],ans:1},
+     {q:'¿Qué herramienta de CI es veterana y auto-hospedada?',opts:['GitHub Actions','GitLab CI','Jenkins','Postman'],ans:2},
+     {q:'"El CD sin buenas pruebas es..."',opts:['Perfecto','Una forma más rápida de romper producción','Imposible','Gratis'],ans:1}],
+  3:[{q:'Docker resuelve principalmente...',opts:['La lentitud del código','El "funciona en mi máquina": la app corre idéntica en todos lados','El precio de los servidores','Los bugs de lógica'],ans:1},
+     {q:'La relación imagen : contenedor equivale a...',opts:['Tabla : columna','Clase : objeto (plantilla : instancia corriendo)','Rama : commit','API : endpoint'],ans:1},
+     {q:'El Dockerfile es...',opts:['Un contenedor','La receta paso a paso para construir la imagen','Una base de datos','Un lenguaje'],ans:1},
+     {q:'docker-compose sirve para...',opts:['Comprimir imágenes','Levantar varios contenedores locales (API+BD+Redis) con un comando','Escribir música','Hacer backups'],ans:1},
+     {q:'En Kubernetes, tú declaras...',opts:['Cada paso manual','El estado deseado ("5 réplicas vivas") y K8s lo mantiene','El precio','El horario'],ans:1},
+     {q:'La recomendación honesta sobre K8s es...',opts:['Úsalo en todo','Conoce los conceptos, pero para apps medianas un servicio administrado suele bastar','Nunca lo aprendas','Es obligatorio por ley'],ans:1}],
+  4:[{q:'El equivalente de AWS S3 en Azure es...',opts:['EC2','Blob Storage','Lambda','RDS'],ans:1},
+     {q:'AWS Lambda, Azure Functions y Cloud Functions son servicios...',opts:['De bases de datos','Serverless: funciones que corren por evento y cobran por ejecución','De correo','De diseño'],ans:1},
+     {q:'Desplegar en 2+ zonas de disponibilidad sirve para...',opts:['Pagar más','Sobrevivir a la caída de un centro de datos completo','Ir más lento','Nada'],ans:1},
+     {q:'IAM controla...',opts:['El clima','Quién puede hacer qué sobre qué recurso','La velocidad de la red','Los colores de la consola'],ans:1},
+     {q:'La historia de terror clásica de costos cloud es...',opts:['Pagar por adelantado','La instancia de pruebas que nadie apagó durante meses','Los impuestos','El dominio caro'],ans:1},
+     {q:'El consejo sobre las 3 nubes es...',opts:['Aprender las 3 a fondo a la vez','Dominar UNA a fondo; los conceptos se transfieren en gran parte','Ignorarlas','Solo usar servidores propios'],ans:1}],
+  5:[{q:'El "ClickOps" es problemático porque...',opts:['Los clics son caros','Nadie recuerda qué se configuró y nada es reproducible','Es ilegal','Es muy lento'],ans:1},
+     {q:'Terraform es declarativo: eso significa que...',opts:['Escribes cada paso','Describes el estado FINAL deseado y él calcula los pasos','Solo funciona en AWS','No usa archivos'],ans:1},
+     {q:'terraform plan sirve para...',opts:['Ejecutar los cambios','MOSTRAR qué va a crear/cambiar/destruir antes de ejecutar','Borrar el estado','Hacer diagramas'],ans:1},
+     {q:'La ventaja de Terraform sobre CloudFormation/Bicep es...',opts:['Es más bonito','Es multi-nube: la misma herramienta para AWS, Azure y GCP','Es de Microsoft','No usa código'],ans:1},
+     {q:'El "estado" (state) de Terraform es...',opts:['Un país','El registro de lo que creó, para calcular diferencias','Una contraseña','Un servidor'],ans:1},
+     {q:'Con IaC, el plan de recuperación ante desastres se convierte en...',opts:['Rezar','Volver a ejecutar el código y reconstruir todo idéntico','Llamar al proveedor','Semanas de trabajo manual'],ans:1}],
+  6:[{q:'Los 3 pilares de la observabilidad son...',opts:['CPU, RAM, disco','Logs, métricas y rastreo de errores','HTML, CSS, JS','Git, Docker, nube'],ans:1},
+     {q:'Los logs estructurados son mejores porque...',opts:['Son más cortos','Al ser JSON con campos, se filtran y buscan fácilmente','Usan menos espacio','Son secretos'],ans:1},
+     {q:'Prometheus y Grafana se encargan de...',opts:['Los correos','Recolectar métricas y graficarlas en dashboards con alertas','El código fuente','Las contraseñas'],ans:1},
+     {q:'Sentry te avisa de...',opts:['Las visitas','Cada excepción no manejada en producción, con stack trace y frecuencia','Los pagos','El clima'],ans:1},
+     {q:'Un reverse proxy como Nginx es...',opts:['Una base de datos','El intermediario que recibe todo el tráfico exterior y lo reenvía a los servidores internos','Un lenguaje','Un framework de CSS'],ans:1},
+     {q:'El balanceo round-robin consiste en...',opts:['Elegir siempre el mismo servidor','Repartir las peticiones por turnos rotativos entre los servidores','Apagar servidores','Duplicar el tráfico'],ans:1}]
+};
+
+// ===== RENDER =====
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-orange-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp7_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp7_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp7_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-orange-600 text-white">'+
+      '<p class="text-xs text-orange-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-orange-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-orange-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-orange-100 text-orange-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-amber-100 text-amber-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp7_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp7_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp7_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp7_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+});
+</script>
+</body>
+</html>

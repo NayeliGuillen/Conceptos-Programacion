@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servicios de Red e Infraestructura TI — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(79,70,229,0.12); color: #4f46e5; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #4f46e5; cursor: help; position: relative; color: #4338ca; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #1e1b4b; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 900px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .ct-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px 8px 0 0; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; }
+  .ct-btn.ct-active { background: #0f172a; color: #a5b4fc; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 0 10px 10px 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .code-single { border-radius: 10px; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; } .tok-f { color: #7dd3fc; } .tok-n { color: #fbbf24; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <a href="CP1-Fundamentos-de-programacion.html" title="Fundamentos de Programación" style="color:#2dd4bf;text-decoration:none;">CP1</a>
+  <a href="CP2-Programacion-orientada-a-objetos.html" title="POO" style="color:#c4b5fd;text-decoration:none;">CP2</a>
+  <a href="CP3-APIs-y-comunicacion.html" title="APIs" style="color:#6ee7b7;text-decoration:none;">CP3</a>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <a href="CP6-Bases-de-datos-avanzado.html" title="Bases de Datos Avanzado" style="color:#7dd3fc;text-decoration:none;">CP6</a>
+  <a href="CP7-DevOps-e-infraestructura.html" title="DevOps" style="color:#fdba74;text-decoration:none;">CP7</a>
+  <a href="CP8-Seguridad.html" title="Seguridad" style="color:#f87171;text-decoration:none;">CP8</a>
+  <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" title="Diseño de Sistemas y Liderazgo" style="color:#bef264;text-decoration:none;">CP9</a>
+  <span style="color:#a5b4fc;font-weight:700;border-bottom:2px solid #a5b4fc;">CP10</span>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-indigo-700 font-bold text-lg">CP10</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">Servicios de Red e Infraestructura TI</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">Servicios TI</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">Acceso Remoto</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">DNS</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">DHCP</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">Servicios</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">Troubleshoot</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: Servicios de Infraestructura TI</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: Acceso Remoto, FTP y NTP</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: DNS a Fondo</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: DHCP</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: Gestionar Servicios (Linux/Windows)</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: Troubleshooting y Dnsmasq</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-indigo-900 to-blue-900 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-indigo-300/70 text-sm mb-4">Guía de Estudio Completa · Infraestructura · Curso 10</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">Servicios de Red e<br>Infraestructura TI</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">Servidores, virtualización, SSH, FTP, NTP, DNS, DHCP y la gestión de servicios en Linux 🐧 y Windows 🪟. Lo invisible que mantiene funcionando a toda organización — el mundo del sysadmin.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-indigo-700">:53</div><div class="text-sm text-gray-500 mt-1">El puerto del DNS</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-500">DORA</div><div class="text-sm text-gray-500 mt-1">El baile de 4 pasos del DHCP</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">🐧🪟</div><div class="text-sm text-gray-500 mt-1">Comandos en Linux y Windows</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-500"><span class="text-xs font-bold text-indigo-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">Servicios de Infraestructura TI</h3><p class="text-sm text-gray-500 mt-1">Qué son, el rol del sysadmin, servidores y virtualización.</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">Acceso Remoto, FTP y NTP</h3><p class="text-sm text-gray-500 mt-1">SSH, RDP, FTP/SFTP/TFTP y por qué la hora exacta importa.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">DNS a Fondo</h3><p class="text-sm text-gray-500 mt-1">Resolución, tipos de registros, DNS público e interno.</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">DHCP</h3><p class="text-sm text-gray-500 mt-1">El proceso DORA, leases, rangos y reservas.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">Gestionar Servicios</h3><p class="text-sm text-gray-500 mt-1">systemctl en Linux, PowerShell/services.msc en Windows.</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">Troubleshooting y Dnsmasq</h3><p class="text-sm text-gray-500 mt-1">"No resuelve el hostname" y montar tu propio DNS/DHCP.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">El vocabulario de redes e infraestructura.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">En inglés y español, con traducción completa.</p></div>
+    </div>
+    <div class="mt-8 bg-indigo-50 border border-indigo-200 rounded-xl p-5 text-sm text-indigo-900">
+      💡 <strong>Novedad de esta guía:</strong> los ejemplos de comandos tienen pestañas <strong>🐧 Linux</strong> y <strong>🪟 Windows (PowerShell)</strong> — elige tu sistema y toda la guía cambia. Esta guía conecta con <a href="CP3-APIs-y-comunicacion.html" class="underline font-semibold">CP3</a> (HTTP/redes), <a href="CP7-DevOps-e-infraestructura.html" class="underline font-semibold">CP7</a> (servidores/nube) y <a href="CP8-Seguridad.html" class="underline font-semibold">CP8</a> (seguridad).
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: SERVICIOS TI ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Servicios de Infraestructura TI</h1>
+    <p class="text-lg text-indigo-200 max-w-3xl">Los servicios invisibles que toda organización necesita para operar — y el sysadmin que los mantiene vivos.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-indigo-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🏢 ¿Qué son y quién los cuida?</h2>
+      <p class="text-sm text-gray-600 mb-4">Los <span class="gterm">servicios de infraestructura TI<span class="gtooltip">🇺🇸 IT Infrastructure Services — Los servicios que una organización necesita para operar: red, servidores, DNS, correo, archivos compartidos, seguridad... La "plomería" tecnológica de la empresa.</span></span> son la plomería tecnológica de una empresa: nadie los nota cuando funcionan, y TODO se detiene cuando fallan. Internet, los archivos compartidos, el correo, la impresora, el "nombre de la intranet que sí abre" — todo eso son servicios que alguien configuró y mantiene: el <span class="gterm">sysadmin<span class="gtooltip">🇺🇸 System Administrator — Responsable de mantener la infraestructura TI: configurar servidores y servicios, dar soporte, respaldar, asegurar y planear la capacidad de los sistemas de la organización.</span></span> (administrador de sistemas).</p>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-200"><p class="text-sm font-semibold text-indigo-800 mb-1">🌐 Servicios de red</p><p class="text-sm text-gray-600">DNS, DHCP, NTP, acceso remoto, VPN. El tema de esta guía: hacen que las máquinas se encuentren y se hablen.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="text-sm font-semibold text-blue-800 mb-1">💬 Comunicación y archivos</p><p class="text-sm text-gray-600">Correo, chat (Slack/Teams), servidores de archivos compartidos, impresión. Lo que los usuarios SÍ ven.</p></div>
+        <div class="bg-violet-50 rounded-xl p-4 border border-violet-200"><p class="text-sm font-semibold text-violet-800 mb-1">🛡️ Plataforma y seguridad</p><p class="text-sm text-gray-600">Bases de datos (CP6), servidores web, autenticación/directorio (Active Directory), respaldos, monitoreo (CP7).</p></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-4">💡 ¿Y por qué le importa a una DEV? Porque tu aplicación VIVE sobre estos servicios: si el DNS falla, tu API "no existe"; si el NTP se desvía, tus tokens expiran mal; si el DHCP se agota, nadie se conecta. Entenderlos te hace mejor desarrolladora y mucho mejor depuradora.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-indigo-600 rounded-full"></span>Sistemas operativos de servidor</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <p class="text-sm text-gray-600 mb-3">Un <span class="gterm">SO de servidor<span class="gtooltip">🇺🇸 Server Operating System — Sistema operativo optimizado para servicios: permite más conexiones simultáneas, corre sin interfaz gráfica (headless) y soporta hardware de servidor. Ej: Windows Server, Ubuntu Server, RHEL.</span></span> es un sistema operativo afinado para DAR servicios, no para usarse de escritorio:</p>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li>🔌 <strong>Más conexiones simultáneas:</strong> los límites de red vienen ampliados de fábrica.</li>
+          <li>🖥️ <strong>Sin interfaz gráfica (headless):</strong> se administran por terminal/SSH — la GUI gasta recursos que el servicio necesita.</li>
+          <li>⏱️ <strong>Pensados para no apagarse:</strong> actualizaciones y parches diseñados para minimizar reinicios.</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">Los que verás en el trabajo</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><strong>🪟 Windows Server</strong> — el estándar corporativo: Active Directory, IIS, entornos .NET (¡tu mundo C#!).</li>
+          <li><strong>🐧 Linux server</strong> — Ubuntu Server, Debian, RHEL/Rocky: domina la web, la nube y los contenedores.</li>
+          <li>💡 La realidad: casi toda empresa es <strong>mixta</strong>. Saber moverte en ambos (módulo 5) es un súper diferenciador.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-violet-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📦 Virtualización: muchos servidores en uno</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">virtualización<span class="gtooltip">🇪🇸 Virtualización / 🇺🇸 Virtualization — Ejecutar varias "máquinas virtuales" (VMs) independientes sobre un mismo servidor físico, gracias a un hipervisor que reparte CPU, RAM y disco entre ellas.</span></span> permite que UN servidor físico corra varias <strong>máquinas virtuales (VMs)</strong> independientes — cada una con su propio sistema operativo — gracias a un <span class="gterm">hipervisor<span class="gtooltip">🇺🇸 Hypervisor — El software que crea y administra las máquinas virtuales, repartiendo el hardware físico entre ellas: KVM, VMware ESXi, Microsoft Hyper-V.</span></span> (KVM, VMware, Hyper-V). <strong>Analogía:</strong> en lugar de una casa por familia (un servidor físico por servicio), un edificio de departamentos: cada VM tiene su espacio privado, compartiendo la estructura.</p>
+      <div class="overflow-x-auto mb-4">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left"></th><th class="p-3 text-left">🖥️ Servidor físico dedicado</th><th class="p-3 text-left">📦 Máquinas virtuales</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-semibold">Aprovechamiento</td><td class="p-3 text-gray-600">Un servicio usa 10% del hardware; el resto se desperdicia</td><td class="p-3 text-gray-600">Varias VMs exprimen el mismo hardware</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Rendimiento</td><td class="p-3 text-gray-600">Máximo: todo el hardware para un servicio</td><td class="p-3 text-gray-600">Bueno, con una pequeña sobrecarga del hipervisor</td></tr>
+          <tr><td class="p-3 font-semibold">Mantenimiento</td><td class="p-3 text-gray-600">Migrar = mover fierros físicamente</td><td class="p-3 text-gray-600">Una VM se mueve, copia o restaura como archivo</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Puntos de fallo</td><td class="p-3 text-gray-600">Se quema el servidor = muere UN servicio</td><td class="p-3 text-gray-600">Se quema el host = mueren TODAS sus VMs (por eso: redundancia, CP9)</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="text-xs text-gray-500">🔗 <strong>Conexión con CP7:</strong> los contenedores (Docker) son el paso siguiente: en vez de virtualizar el hardware completo (cada VM con su SO entero), comparten el kernel y solo aíslan la app — más ligeros, pero con menos aislamiento. La nube (EC2, Azure VMs) es esencialmente virtualización rentada por hora.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-indigo-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">Servicios de Infraestructura TI.</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-indigo-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-indigo-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-indigo-800 transition text-sm font-semibold">Siguiente: Acceso Remoto →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: ACCESO REMOTO ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Acceso Remoto, FTP y NTP</h1>
+    <p class="text-lg text-blue-200">Administrar servidores sin levantarte de tu silla — y por qué la hora exacta salva sistemas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔑 SSH: la puerta de entrada del sysadmin</h2>
+      <p class="text-sm text-gray-600 mb-4"><span class="gterm">SSH<span class="gtooltip">🇺🇸 SSH — Secure Shell (puerto 22) — Protocolo para abrir una terminal CIFRADA en una máquina remota. La herramienta #1 para administrar servidores Linux; también transfiere archivos (SCP/SFTP) y crea túneles.</span></span> (Secure Shell, puerto 22) te da una <strong>terminal cifrada</strong> dentro de un servidor remoto: todo lo que harías sentada frente a él, desde tu casa. Su equivalente gráfico en el mundo Windows es <strong>RDP</strong> (Remote Desktop, puerto 3389), que transmite el escritorio completo.</p>
+      <div class="code-wrap mb-4">
+        <div class="flex"><button class="ct-btn ct-active" data-os="lx" onclick="setOS('lx')">🐧 Linux</button><button class="ct-btn" data-os="win" onclick="setOS('win')">🪟 Windows (PowerShell)</button></div>
+        <pre class="code-block code-lx"><code><span class="tok-c"># Conectarte a un servidor remoto</span>
+ssh nayeli@servidor01.empresa.com
+
+<span class="tok-c"># Mejor práctica: llaves SSH en vez de contraseñas</span>
+ssh-keygen -t ed25519              <span class="tok-c"># genera tu par de llaves (una vez)</span>
+ssh-copy-id nayeli@servidor01     <span class="tok-c"># instala tu llave pública en el servidor</span>
+<span class="tok-c"># A partir de aquí: entras sin contraseña, y puedes DESACTIVAR</span>
+<span class="tok-c"># el login por contraseña (adiós fuerza bruta — ¿recuerdas CP8?)</span>
+
+<span class="tok-c"># Copiar archivos por el mismo canal cifrado</span>
+scp reporte.pdf nayeli@servidor01:/home/nayeli/</code></pre>
+        <pre class="code-block code-win hidden"><code><span class="tok-c"># Windows moderno también trae cliente OpenSSH:</span>
+ssh nayeli@servidor01.empresa.com
+
+<span class="tok-c"># Para servidores WINDOWS, lo tradicional es RDP (escritorio remoto):</span>
+mstsc /v:servidor01.empresa.com    <span class="tok-c"># abre el cliente de Escritorio Remoto</span>
+
+<span class="tok-c"># Y para administrar por consola (el "SSH de Windows"):</span>
+Enter-PSSession -ComputerName servidor01   <span class="tok-c"># PowerShell Remoting (WinRM)</span>
+<span class="tok-c"># Ahora cada comando corre EN el servidor remoto</span></code></pre>
+      </div>
+      <p class="text-xs text-gray-500">🛡️ Nota de seguridad (CP8 aplicado): SSH con llaves > SSH con contraseña; nunca expongas RDP directo a internet (es de los puertos más atacados del mundo) — siempre detrás de una VPN.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-sky-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📁 La familia FTP: tres primos muy distintos</h2>
+      <div class="overflow-x-auto mb-4">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Protocolo</th><th class="p-3 text-left">Puerto</th><th class="p-3 text-left">¿Cifrado?</th><th class="p-3 text-left">Cuándo lo verás</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-semibold">FTP <span class="text-xs text-gray-400">(File Transfer Protocol)</span></td><td class="p-3 font-mono">21</td><td class="p-3 text-rose-600 font-semibold">❌ No — TODO viaja en texto plano, hasta la contraseña</td><td class="p-3 text-gray-600">Sistemas legados y hostings viejos. En 2026: evítalo</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">SFTP <span class="text-xs text-gray-400">(SSH File Transfer)</span></td><td class="p-3 font-mono">22</td><td class="p-3 text-green-600 font-semibold">✅ Sí — viaja dentro del túnel SSH</td><td class="p-3 text-gray-600">El estándar actual para transferir archivos a servidores. Clientes: FileZilla, WinSCP</td></tr>
+          <tr><td class="p-3 font-semibold">TFTP <span class="text-xs text-gray-400">(Trivial FTP)</span></td><td class="p-3 font-mono">69</td><td class="p-3 text-rose-600 font-semibold">❌ No — y ni siquiera pide usuario</td><td class="p-3 text-gray-600">Redes internas: arranque de equipos por red (PXE) y configuración de routers/switches</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="text-xs text-gray-500">🧠 Truco de examen: la T de TFTP es de "Trivial" — tan simple que no autentica ni cifra. Solo tiene sentido en redes internas controladas, para archivos que no son secretos (imágenes de arranque, configs de switches).</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🕐 NTP: el servicio más aburrido... hasta que falla</h2>
+      <p class="text-sm text-gray-600 mb-4"><span class="gterm">NTP<span class="gtooltip">🇺🇸 NTP — Network Time Protocol (puerto 123) — Sincroniza los relojes de todas las máquinas de la red contra servidores de tiempo de referencia. Milisegundos de precisión a través de internet.</span></span> (Network Time Protocol, puerto 123) mantiene los relojes de TODAS las máquinas sincronizados contra servidores de referencia. Suena trivial... hasta que ves lo que se rompe con relojes desviados unos minutos:</p>
+      <div class="grid md:grid-cols-3 gap-3 text-sm mb-4">
+        <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-200"><p class="font-semibold text-cyan-800 mb-1">🔐 La autenticación muere</p><p class="text-gray-600 text-xs">Kerberos (el corazón de Active Directory) rechaza tokens con más de 5 minutos de desfase: nadie puede iniciar sesión. Los JWT (CP3) expiran "antes de tiempo" o viven de más.</p></div>
+        <div class="bg-sky-50 rounded-xl p-4 border border-sky-200"><p class="font-semibold text-sky-800 mb-1">📜 Los logs mienten</p><p class="text-gray-600 text-xs">¿Cómo reconstruyes un incidente (CP7) si el servidor A dice 10:03 y el B dice 10:07 para el MISMO instante? El orden de los eventos se vuelve ficción.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="font-semibold text-blue-800 mb-1">🔒 HTTPS sospecha</p><p class="text-gray-600 text-xs">Los certificados TLS (CP8) tienen fechas de validez: un reloj muy desviado hace que el navegador rechace certificados perfectamente válidos.</p></div>
+      </div>
+      <p class="text-xs text-gray-500">En la práctica: los servidores se apuntan a pools públicos (pool.ntp.org) o al controlador de dominio, y el sysadmin solo verifica que el servicio esté sano (<code class="bg-gray-100 px-1 rounded">timedatectl</code> en Linux, <code class="bg-gray-100 px-1 rounded">w32tm /query /status</code> en Windows).</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">Acceso Remoto, FTP y NTP.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← Servicios TI</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-indigo-800 transition text-sm font-semibold">Siguiente: DNS →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: DNS ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">DNS a Fondo</h1>
+    <p class="text-lg text-purple-200">La agenda telefónica de internet: de nombre a dirección IP.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📖 El viaje de una consulta DNS</h2>
+      <p class="text-sm text-gray-600 mb-4">Las máquinas se hablan por direcciones IP (<code class="bg-gray-100 px-1 rounded">142.250.65.78</code>); los humanos recordamos nombres (<code class="bg-gray-100 px-1 rounded">google.com</code>). El <span class="gterm">DNS<span class="gtooltip">🇺🇸 DNS — Domain Name System (puerto 53) — El sistema jerárquico distribuido que traduce nombres de dominio a direcciones IP. Sin él, internet sería memorizar números.</span></span> (puerto 53) es el traductor. Cuando escribes miempresa.com, la resolución sigue una cadena de "¿tú sabes?":</p>
+      <div class="bg-slate-800 rounded-xl p-4 text-xs md:text-sm text-white font-mono mb-4 overflow-x-auto">
+        <p>1. <span class="text-teal-300">Caché local</span> de tu máquina — ¿ya lo busqué hace poco? (más /etc/hosts)</p>
+        <p>2. <span class="text-sky-300">Resolver recursivo</span> — el DNS de tu red o proveedor (o 8.8.8.8 / 1.1.1.1): busca por ti</p>
+        <p>3. <span class="text-amber-300">Servidores raíz</span> — "no sé miempresa.com, pero los .com los lleva aquel" →</p>
+        <p>4. <span class="text-orange-300">Servidores TLD (.com)</span> — "pregúntale a los servidores autoritativos del dominio" →</p>
+        <p>5. <span class="text-rose-300">Servidor autoritativo</span> — "miempresa.com es 203.0.113.10" ✅ (y todos lo cachean con su TTL)</p>
+      </div>
+      <p class="text-xs text-gray-500">El <strong>TTL</strong> de cada registro dice cuánto tiempo puede cachearse la respuesta — el mismo concepto del caché de CP5. Por eso los cambios de DNS "tardan en propagar": el mundo espera a que expiren los cachés.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-purple-600 rounded-full"></span>Los tipos de registro que debes reconocer</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Registro</th><th class="p-3 text-left">Traduce...</th><th class="p-3 text-left">Ejemplo</th></tr></thead>
+        <tbody class="divide-y divide-gray-100 font-mono text-xs">
+          <tr><td class="p-3 font-bold text-purple-600">A</td><td class="p-3 font-sans text-sm">Nombre → IPv4</td><td class="p-3">miempresa.com → 203.0.113.10</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-violet-600">AAAA</td><td class="p-3 font-sans text-sm">Nombre → IPv6 (la "cuádruple A")</td><td class="p-3">miempresa.com → 2001:db8::10</td></tr>
+          <tr><td class="p-3 font-bold text-indigo-600">CNAME</td><td class="p-3 font-sans text-sm">Alias → otro nombre (el "también conocido como")</td><td class="p-3">www.miempresa.com → miempresa.com</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-blue-600">MX</td><td class="p-3 font-sans text-sm">¿Quién recibe el CORREO del dominio?</td><td class="p-3">miempresa.com → mail.google.com (prioridad 10)</td></tr>
+          <tr><td class="p-3 font-bold text-sky-600">TXT</td><td class="p-3 font-sans text-sm">Texto libre: verificaciones y anti-spam (SPF/DKIM)</td><td class="p-3">"v=spf1 include:_spf.google.com ~all"</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-cyan-600">NS</td><td class="p-3 font-sans text-sm">¿Qué servidores son los autoritativos del dominio?</td><td class="p-3">miempresa.com → ns1.cloudflare.com</td></tr>
+          <tr><td class="p-3 font-bold text-teal-600">PTR</td><td class="p-3 font-sans text-sm">El inverso: IP → nombre (reverse DNS)</td><td class="p-3">203.0.113.10 → miempresa.com</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-purple-400">
+        <h3 class="font-bold text-purple-700 mb-2">🌍 DNS para servidores web (público)</h3>
+        <p class="text-sm text-gray-600 mb-2">Compras el dominio en un <strong>registrar</strong> (Namecheap, GoDaddy), apuntas sus NS a tu proveedor de DNS (Cloudflare, Route 53), y creas los registros A/CNAME hacia la IP de tu servidor o balanceador (CP7).</p>
+        <p class="text-xs text-gray-500">Es el mapa que conecta "miapp.com" con el backend que construiste en CP3-CP7. Truco pro: TTL bajo (300s) ANTES de una migración para poder cambiar rápido.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-indigo-400">
+        <h3 class="font-bold text-indigo-700 mb-2">🏠 DNS para redes internas</h3>
+        <p class="text-sm text-gray-600 mb-2">Dentro de la empresa hay OTRO DNS que internet no ve: <code class="bg-gray-100 px-1 rounded text-xs">impresora-piso2.empresa.local</code>, <code class="bg-gray-100 px-1 rounded text-xs">servidor-nomina.interno</code>. Nadie memoriza las IPs privadas de 500 equipos.</p>
+        <p class="text-xs text-gray-500">En el mundo Windows lo lleva el controlador de dominio (Active Directory); en redes pequeñas, un dnsmasq (módulo 6). Los nombres internos NUNCA deben resolverse desde fuera.</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">DNS a Fondo.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← Acceso Remoto</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-indigo-800 transition text-sm font-semibold">Siguiente: DHCP →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: DHCP ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">DHCP</h1>
+    <p class="text-lg text-cyan-200">Cómo tu laptop obtiene una IP sin que nadie la configure.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🎫 El problema que resuelve</h2>
+      <p class="text-sm text-gray-600 mb-4">Cada dispositivo en la red necesita: una IP única, la máscara de red, la puerta de enlace (gateway) y los servidores DNS. ¿Configurar eso A MANO en 500 laptops, teléfonos y visitantes? Imposible de mantener (y garantía de IPs duplicadas). El <span class="gterm">DHCP<span class="gtooltip">🇺🇸 DHCP — Dynamic Host Configuration Protocol (puertos 67/68) — Asigna automáticamente la configuración de red (IP, máscara, gateway, DNS) a cada dispositivo que se conecta, en préstamo (lease) temporal.</span></span> lo automatiza: te conectas, y en segundos tienes todo. <strong>Analogía:</strong> el hotel que al hacer check-in te asigna habitación disponible, te da la llave y el mapa — por un número de noches limitado.</p>
+      <h3 class="font-bold text-slate-800 mb-3">El baile de 4 pasos: DORA</h3>
+      <div class="grid md:grid-cols-4 gap-3 text-sm mb-4">
+        <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-200 text-center"><p class="font-black text-cyan-700 text-lg">D</p><p class="font-semibold text-cyan-800">Discover</p><p class="text-gray-600 text-xs mt-1">Tu equipo grita a toda la red: "¿hay algún servidor DHCP por aquí?" (broadcast)</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200 text-center"><p class="font-black text-teal-700 text-lg">O</p><p class="font-semibold text-teal-800">Offer</p><p class="text-gray-600 text-xs mt-1">El servidor responde: "te ofrezco la 192.168.1.47, con este gateway y estos DNS"</p></div>
+        <div class="bg-sky-50 rounded-xl p-4 border border-sky-200 text-center"><p class="font-black text-sky-700 text-lg">R</p><p class="font-semibold text-sky-800">Request</p><p class="text-gray-600 text-xs mt-1">Tu equipo: "¡acepto esa oferta!" (por si varios servidores ofrecieron)</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200 text-center"><p class="font-black text-blue-700 text-lg">A</p><p class="font-semibold text-blue-800">Acknowledge</p><p class="text-gray-600 text-xs mt-1">El servidor confirma: "es tuya por 24 horas" (el lease)</p></div>
+      </div>
+      <p class="text-xs text-gray-500">El <span class="gterm">lease<span class="gtooltip">🇺🇸 DHCP Lease — El "préstamo" de la IP por tiempo limitado (horas o días). El cliente lo renueva a la mitad del plazo; si no, la IP regresa al pool para otro dispositivo.</span></span> es un préstamo: a la mitad del plazo, el cliente lo renueva en silencio. Si el equipo se va (visitante del café), su IP regresa al pool para el siguiente.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-cyan-600 rounded-full"></span>Lo que configura el sysadmin</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-cyan-700 text-sm uppercase mb-2">📏 El rango (scope/pool)</h3>
+        <p class="text-sm text-gray-600">Qué IPs puede repartir: ej. de la .100 a la .200. Las de abajo (.1–.99) se reservan para asignación fija: routers, servidores, impresoras.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-teal-700 text-sm uppercase mb-2">📌 Reservas por MAC</h3>
+        <p class="text-sm text-gray-600">"A la impresora con MAC AA:BB:CC... dale SIEMPRE la .50". Lo mejor de ambos mundos: IP fija, pero administrada centralmente en el DHCP, no equipo por equipo.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-blue-700 text-sm uppercase mb-2">🎁 Las opciones que regala</h3>
+        <p class="text-sm text-gray-600">Junto con la IP entrega: gateway (por dónde salir a internet), servidores DNS (módulo 3) y máscara. Por eso DHCP mal configurado = "tengo red pero no internet".</p>
+      </div>
+    </div>
+    <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-4 mb-10 text-sm text-cyan-900">
+      🔗 <strong>DHCP + DNS, el dúo dinámico:</strong> en redes bien montadas, cuando el DHCP presta una IP también registra el nombre del equipo en el DNS interno (DNS dinámico): "laptop-nayeli" se vuelve resoluble al instante. Y el clásico del troubleshooting: si el pool se AGOTA (más dispositivos que IPs en el rango), los nuevos simplemente "no tienen red" — revisar el scope es de las primeras cosas que un sysadmin verifica.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">DHCP.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← DNS</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-indigo-800 transition text-sm font-semibold">Siguiente: Servicios →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: GESTIONAR SERVICIOS ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Gestionar Servicios en Linux y Windows</h1>
+    <p class="text-lg text-green-200">Arrancar, detener, habilitar y configurar los programas que corren solos.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">👻 ¿Qué es un servicio (daemon)?</h2>
+      <p class="text-sm text-gray-600 mb-4">Un <span class="gterm">servicio<span class="gtooltip">🇪🇸 Servicio / 🇺🇸 Service (daemon) — Programa que corre en segundo plano sin interfaz, normalmente desde el arranque: el servidor web, la base de datos, el DNS. En Linux se les llama daemons; en Windows, services.</span></span> es un programa que corre <strong>en segundo plano, sin ventana, desde el arranque</strong>: el servidor web, la base de datos, el SSH, el DNS. En Linux se llaman <em>daemons</em> (de ahí la "d" final en sshd, systemd); en Windows, <em>services</em>. Todo lo de esta guía — DNS, DHCP, NTP — vive como servicio en alguna máquina. Los verbos del oficio:</p>
+      <div class="code-wrap mb-4">
+        <div class="flex"><button class="ct-btn ct-active" data-os="lx" onclick="setOS('lx')">🐧 Linux (systemd)</button><button class="ct-btn" data-os="win" onclick="setOS('win')">🪟 Windows (PowerShell)</button></div>
+        <pre class="code-block code-lx"><code><span class="tok-c"># ¿Cómo está el servicio? (el comando que más usarás)</span>
+sudo systemctl status nginx
+
+<span class="tok-c"># Arrancar / detener / reiniciar</span>
+sudo systemctl start nginx
+sudo systemctl stop nginx
+sudo systemctl restart nginx     <span class="tok-c"># corta y vuelve a arrancar</span>
+sudo systemctl reload nginx      <span class="tok-c"># relee la config SIN cortar conexiones ✨</span>
+
+<span class="tok-c"># ¿Arranca solo al encender la máquina?</span>
+sudo systemctl enable nginx      <span class="tok-c"># sí, desde el próximo arranque</span>
+sudo systemctl disable nginx     <span class="tok-c"># no</span>
+<span class="tok-c"># OJO: enable NO lo arranca ahora; start NO lo habilita al arranque.</span>
+<span class="tok-c"># Son independientes: enable --now hace ambos.</span>
+
+<span class="tok-c"># Ver sus logs (¡la mina de oro del troubleshooting!)</span>
+journalctl -u nginx -f           <span class="tok-c"># -f = en vivo, como una cola</span></code></pre>
+        <pre class="code-block code-win hidden"><code><span class="tok-c"># ¿Cómo está el servicio?</span>
+Get-Service -Name W32Time        <span class="tok-c"># o spooler, WinRM, MSSQLSERVER...</span>
+
+<span class="tok-c"># Arrancar / detener / reiniciar</span>
+Start-Service W32Time
+Stop-Service W32Time
+Restart-Service W32Time
+
+<span class="tok-c"># ¿Arranca solo al encender? (tipo de inicio)</span>
+Set-Service W32Time -StartupType Automatic   <span class="tok-c"># o Manual / Disabled</span>
+
+<span class="tok-c"># Listar todos los que están corriendo</span>
+Get-Service | Where-Object { $_.Status -eq <span class="tok-s">"Running"</span> }
+
+<span class="tok-c"># La versión gráfica: services.msc (la consola de Servicios)</span>
+<span class="tok-c"># Y los logs viven en el Visor de Eventos (eventvwr) → Windows Logs</span></code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-emerald-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">⚙️ Configurar servicios: el ciclo sagrado</h2>
+      <p class="text-sm text-gray-600 mb-4">En Linux, la configuración vive en archivos de texto bajo <code class="bg-gray-100 px-1 rounded">/etc/</code> (ej. <code class="bg-gray-100 px-1 rounded">/etc/nginx/nginx.conf</code>, <code class="bg-gray-100 px-1 rounded">/etc/ssh/sshd_config</code>). En Windows, en la app del servicio, el Registro o archivos de config. El ritual profesional es SIEMPRE el mismo:</p>
+      <ol class="space-y-2 text-sm text-gray-600 mb-4">
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">1</span><span><strong>Respalda</strong> el archivo antes de tocarlo: <code class="bg-gray-100 px-1 rounded">sudo cp sshd_config sshd_config.bak</code>. Treinta segundos que un día te salvarán la noche.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">2</span><span><strong>Edita</strong> el cambio (nano/vim, o el editor que sea).</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">3</span><span><strong>Valida la sintaxis SIN reiniciar</strong> si el servicio lo permite: <code class="bg-gray-100 px-1 rounded">nginx -t</code>, <code class="bg-gray-100 px-1 rounded">sshd -t</code>, <code class="bg-gray-100 px-1 rounded">named-checkconf</code>. Detecta el typo ANTES de tumbar el servicio.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">4</span><span><strong>Aplica</strong> con <code class="bg-gray-100 px-1 rounded">reload</code> (si existe) o <code class="bg-gray-100 px-1 rounded">restart</code>, y <strong>verifica</strong>: status + logs + probar la función.</span></li>
+      </ol>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+        ⚠️ <strong>La trampa clásica del SSH:</strong> si editas <code class="bg-amber-100 px-1 rounded">sshd_config</code> en un servidor REMOTO y reinicias con un error de sintaxis... te quedas fuera del servidor. Por eso: valida con <code class="bg-amber-100 px-1 rounded">sshd -t</code>, y mantén una segunda sesión SSH abierta hasta confirmar que la nueva config deja entrar.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">Gestionar Servicios.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← DHCP</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-indigo-800 transition text-sm font-semibold">Siguiente: Troubleshoot →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: TROUBLESHOOTING Y DNSMASQ ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Troubleshooting y Dnsmasq</h1>
+    <p class="text-lg text-rose-200">"No abre la página": el diagnóstico paso a paso, y tu propio DNS/DHCP casero.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-rose-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🕵️ "No resuelve el hostname": el diagnóstico en capas</h2>
+      <p class="text-sm text-gray-600 mb-4">El reporte llega como "no abre tal página / no encuentra tal servidor". El error del novato: adivinar. El método pro: <strong>aislar la capa</strong> que falla, de abajo hacia arriba — exactamente el debugging sistemático de CP1, aplicado a redes:</p>
+      <div class="code-wrap mb-4">
+        <div class="flex"><button class="ct-btn ct-active" data-os="lx" onclick="setOS('lx')">🐧 Linux</button><button class="ct-btn" data-os="win" onclick="setOS('win')">🪟 Windows</button></div>
+        <pre class="code-block code-lx"><code><span class="tok-c"># PASO 1 — ¿Tengo red siquiera? Ping a una IP directa (sin DNS de por medio)</span>
+ping 8.8.8.8
+<span class="tok-c">#   ✅ responde → hay red; el problema es de NOMBRES (sigue al paso 2)</span>
+<span class="tok-c">#   ❌ no responde → problema de red/gateway/DHCP, no de DNS</span>
+
+<span class="tok-c"># PASO 2 — ¿Resuelve el nombre? Pregunta directa al DNS</span>
+nslookup miempresa.com           <span class="tok-c"># ¿qué IP devuelve? ¿quién respondió?</span>
+dig miempresa.com                <span class="tok-c"># la versión detallada (status, TTL, servidor)</span>
+
+<span class="tok-c"># PASO 3 — ¿Y con OTRO servidor DNS? (aísla si el problema es TU dns)</span>
+nslookup miempresa.com 8.8.8.8
+<span class="tok-c">#   ✅ con 8.8.8.8 sí resuelve → tu DNS local es el culpable</span>
+
+<span class="tok-c"># PASO 4 — Revisar la config local</span>
+cat /etc/hosts                   <span class="tok-c"># ¿alguien "hardcodeó" el nombre aquí?</span>
+cat /etc/resolv.conf             <span class="tok-c"># ¿qué DNS está usando la máquina?</span>
+sudo resolvectl flush-caches     <span class="tok-c"># limpiar el caché DNS local</span></code></pre>
+        <pre class="code-block code-win hidden"><code><span class="tok-c"># PASO 1 — ¿Tengo red siquiera? Ping a una IP directa (sin DNS de por medio)</span>
+ping 8.8.8.8
+<span class="tok-c">#   ✅ responde → hay red; el problema es de NOMBRES (sigue al paso 2)</span>
+<span class="tok-c">#   ❌ no responde → problema de red/gateway/DHCP, no de DNS</span>
+
+<span class="tok-c"># PASO 2 — ¿Resuelve el nombre? Pregunta directa al DNS</span>
+nslookup miempresa.com           <span class="tok-c"># ¿qué IP devuelve? ¿quién respondió?</span>
+Resolve-DnsName miempresa.com    <span class="tok-c"># la versión PowerShell, más detallada</span>
+
+<span class="tok-c"># PASO 3 — ¿Y con OTRO servidor DNS? (aísla si el problema es TU dns)</span>
+nslookup miempresa.com 8.8.8.8
+<span class="tok-c">#   ✅ con 8.8.8.8 sí resuelve → tu DNS local es el culpable</span>
+
+<span class="tok-c"># PASO 4 — Revisar la config local</span>
+type C:\Windows\System32\drivers\etc\hosts   <span class="tok-c"># ¿nombre hardcodeado?</span>
+ipconfig /all                    <span class="tok-c"># ¿qué DNS está usando la máquina?</span>
+ipconfig /flushdns               <span class="tok-c"># limpiar el caché DNS local</span></code></pre>
+      </div>
+      <p class="text-xs text-gray-500">🧠 La lógica: cada paso descarta una capa. ¿Ping a IP funciona pero el nombre no? → DNS. ¿Otro DNS sí resuelve? → tu servidor DNS. ¿El archivo hosts tiene una entrada vieja? → ahí está el fantasma (es la causa #1 de "solo a MÍ no me abre").</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-orange-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🧰 Dnsmasq: DNS + DHCP en un paquetito</h2>
+      <p class="text-sm text-gray-600 mb-4"><span class="gterm">Dnsmasq<span class="gtooltip">🇺🇸 dnsmasq — Servidor ligero que combina DNS (con caché y nombres locales) y DHCP en un solo servicio. Ideal para redes pequeñas, laboratorios y routers domésticos — muchos lo traen integrado.</span></span> es un servidor LIGERO que hace de <strong>DNS y DHCP a la vez</strong> — perfecto para redes pequeñas, laboratorios y para practicar todo lo de esta guía en tu propia máquina. De hecho, tu router de casa probablemente corre dnsmasq por dentro:</p>
+      <pre class="code-block code-single mb-4"><code><span class="tok-c"># /etc/dnsmasq.conf — un DNS + DHCP completo en 8 líneas</span>
+
+<span class="tok-c"># --- DNS ---</span>
+<span class="tok-f">server</span>=8.8.8.8                       <span class="tok-c"># a quién preguntar lo que no sepa</span>
+<span class="tok-f">address</span>=/servidor-nas.local/192.168.1.10   <span class="tok-c"># nombre interno → IP</span>
+<span class="tok-f">address</span>=/impresora.local/192.168.1.20
+<span class="tok-f">cache-size</span>=1000                      <span class="tok-c"># caché de respuestas (¡CP5!)</span>
+
+<span class="tok-c"># --- DHCP ---</span>
+<span class="tok-f">dhcp-range</span>=192.168.1.100,192.168.1.200,24h   <span class="tok-c"># el pool y el lease</span>
+<span class="tok-f">dhcp-option</span>=option:router,192.168.1.1        <span class="tok-c"># el gateway que regala</span>
+<span class="tok-f">dhcp-host</span>=AA:BB:CC:DD:EE:FF,192.168.1.50     <span class="tok-c"># reserva por MAC</span>
+
+<span class="tok-c"># Aplicar: sudo systemctl restart dnsmasq   (¡el ciclo del módulo 5!)</span>
+<span class="tok-c"># Probar:  dig servidor-nas.local @127.0.0.1</span></code></pre>
+      <p class="text-xs text-gray-500">🎓 <strong>Ejercicio recomendado:</strong> instala dnsmasq en una VM o Raspberry Pi y monta tu propio DNS interno con nombres para tus dispositivos. En 30 minutos habrás tocado con las manos TODO lo de esta guía: servicios, config, DNS, DHCP y troubleshooting.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">Troubleshooting y Dnsmasq.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← Servicios</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-indigo-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← Troubleshoot</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">Redes e infraestructura: clave para roles de soporte TI, sysadmin, DevOps y backend. Con traducción al español.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 Cómo brillar en preguntas de redes</h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><strong class="text-amber-700">Domina el troubleshooting narrado:</strong><p class="text-gray-600 mt-1">"Primero ping a una IP para aislar la capa..." — narrar el MÉTODO paso a paso es lo que evalúan, más que la respuesta final.</p></div>
+        <div><strong class="text-amber-700">Aprende los puertos clave:</strong><p class="text-gray-600 mt-1">22 SSH, 53 DNS, 67/68 DHCP, 80/443 HTTP/S, 123 NTP, 3389 RDP. Preguntarlos es el filtro clásico de soporte TI.</p></div>
+        <div><strong class="text-amber-700">Monta un laboratorio:</strong><p class="text-gray-600 mt-1">Un dnsmasq en una VM o Raspberry Pi te da historias reales que contar: "en mi lab configuré DNS interno y DHCP con reservas...".</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de redes e infraestructura</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Hablar de diagnóstico</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"First I ping an IP to rule out a connectivity issue."</p><p class="text-gray-500 text-xs">Primero hago ping a una IP para descartar un problema de conectividad.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"The name resolves against 8.8.8.8, so our DNS is the culprit."</p><p class="text-gray-500 text-xs">El nombre resuelve contra 8.8.8.8, así que nuestro DNS es el culpable.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"I checked the service status and tailed its logs."</p><p class="text-gray-500 text-xs">Revisé el estado del servicio y seguí sus logs en vivo.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"The DHCP scope was exhausted, so new devices got no IP."</p><p class="text-gray-500 text-xs">El rango DHCP se agotó, así que los equipos nuevos no recibían IP.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-blue-700 mb-3 text-sm uppercase">Hablar de administración</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-blue-600 font-mono text-xs">"I always back up the config file before editing it."</p><p class="text-gray-500 text-xs">Siempre respaldo el archivo de configuración antes de editarlo.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-blue-600 font-mono text-xs">"I validated the syntax before reloading the service."</p><p class="text-gray-500 text-xs">Validé la sintaxis antes de recargar el servicio.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-blue-600 font-mono text-xs">"SSH access uses keys only; password login is disabled."</p><p class="text-gray-500 text-xs">El acceso SSH usa solo llaves; el login con contraseña está deshabilitado.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-blue-600 font-mono text-xs">"The printer has a DHCP reservation tied to its MAC address."</p><p class="text-gray-500 text-xs">La impresora tiene una reserva DHCP ligada a su dirección MAC.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-indigo-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-indigo-600" value="1"><span class="text-sm">Módulo 1: Servicios TI</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-indigo-600" value="2"><span class="text-sm">Módulo 2: Acceso Remoto</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-indigo-600" value="3"><span class="text-sm">Módulo 3: DNS</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-indigo-600" value="4"><span class="text-sm">Módulo 4: DHCP</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-indigo-600" value="5"><span class="text-sm">Módulo 5: Servicios</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-indigo-600" value="6"><span class="text-sm">Módulo 6: Troubleshoot</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-indigo-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-indigo-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-indigo-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · Servicios de Red e Infraestructura TI · Conceptos de Programación CP10</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'Servicios de Infraestructura TI',en:'IT Infrastructure Services',def:'Los servicios que una organización necesita para operar: red, servidores, DNS, correo, archivos, seguridad. La "plomería" tecnológica.'},
+  {es:'Administrador de Sistemas',en:'System Administrator (SysAdmin)',def:'Responsable de mantener la infraestructura TI: configurar servidores y servicios, respaldar, asegurar y dar soporte.'},
+  {es:'SO de Servidor',en:'Server Operating System',def:'Sistema operativo optimizado para dar servicios: más conexiones, sin GUI (headless), pensado para no apagarse. Windows Server, Ubuntu Server, RHEL.'},
+  {es:'Headless',en:'Headless',def:'Servidor sin interfaz gráfica: se administra por terminal/SSH. La GUI gastaría recursos que el servicio necesita.'},
+  {es:'Virtualización',en:'Virtualization',def:'Ejecutar varias máquinas virtuales independientes sobre un mismo servidor físico, repartiendo su hardware.'},
+  {es:'Máquina Virtual (VM)',en:'Virtual Machine',def:'Computadora "simulada" con su propio SO, corriendo junto a otras sobre el mismo hardware físico.'},
+  {es:'Hipervisor',en:'Hypervisor',def:'El software que crea y administra las VMs, repartiendo CPU, RAM y disco: KVM, VMware ESXi, Hyper-V.'},
+  {es:'SSH',en:'SSH — Secure Shell',def:'Puerto 22. Terminal CIFRADA en una máquina remota. La herramienta #1 del sysadmin; con llaves es más segura que con contraseñas.'},
+  {es:'Llaves SSH',en:'SSH Keys',def:'Par de llaves pública/privada que reemplaza a la contraseña: más seguras y permiten desactivar el login por password.'},
+  {es:'RDP',en:'RDP — Remote Desktop Protocol',def:'Puerto 3389. El escritorio remoto gráfico de Windows. Nunca expuesto directo a internet: siempre detrás de VPN.'},
+  {es:'VPN',en:'VPN — Virtual Private Network',def:'Túnel cifrado que te "mete" a la red interna de la empresa desde cualquier lugar, como si estuvieras físicamente ahí.'},
+  {es:'FTP',en:'FTP — File Transfer Protocol',def:'Puerto 21. Transferencia de archivos SIN cifrar (hasta la contraseña viaja en texto plano). Legado: evítalo.'},
+  {es:'SFTP',en:'SFTP — SSH File Transfer Protocol',def:'Puerto 22. Transferencia de archivos DENTRO del túnel SSH: cifrada. El estándar actual. Clientes: FileZilla, WinSCP.'},
+  {es:'TFTP',en:'TFTP — Trivial FTP',def:'Puerto 69. Tan "trivial" que no autentica ni cifra. Solo para redes internas: arranque PXE y configs de equipos de red.'},
+  {es:'NTP',en:'NTP — Network Time Protocol',def:'Puerto 123. Sincroniza los relojes de todas las máquinas. Sin él: Kerberos falla, los logs mienten y TLS sospecha.'},
+  {es:'DNS',en:'DNS — Domain Name System',def:'Puerto 53. Traduce nombres de dominio a direcciones IP. La agenda telefónica de internet.'},
+  {es:'Resolver Recursivo',en:'Recursive Resolver',def:'El servidor DNS que busca POR TI: pregunta a la raíz, al TLD y al autoritativo, y te trae (y cachea) la respuesta. Ej: 8.8.8.8, 1.1.1.1.'},
+  {es:'Servidor Autoritativo',en:'Authoritative Server',def:'El DNS que tiene la respuesta OFICIAL de un dominio: donde viven sus registros A, MX, etc.'},
+  {es:'Registro A / AAAA',en:'A / AAAA Record',def:'Nombre → IPv4 (A) o IPv6 (AAAA). El registro DNS fundamental.'},
+  {es:'CNAME',en:'CNAME Record',def:'Alias: un nombre que apunta a otro nombre. www.miempresa.com → miempresa.com.'},
+  {es:'Registro MX',en:'MX Record',def:'Define qué servidor recibe el CORREO del dominio, con prioridades.'},
+  {es:'Registro TXT',en:'TXT Record',def:'Texto libre en el DNS: verificaciones de propiedad y anti-spam del correo (SPF, DKIM, DMARC).'},
+  {es:'TTL (DNS)',en:'TTL — Time To Live',def:'Cuánto tiempo puede cachearse una respuesta DNS. La razón por la que los cambios "tardan en propagar".'},
+  {es:'Registrar',en:'Domain Registrar',def:'Empresa donde compras/registras un dominio: Namecheap, GoDaddy. De ahí apuntas los NS a tu proveedor de DNS.'},
+  {es:'DNS Interno',en:'Internal DNS',def:'El DNS privado de la red de la empresa: resuelve nombres internos (servidor-nomina.interno) que internet no ve.'},
+  {es:'DHCP',en:'DHCP — Dynamic Host Configuration Protocol',def:'Puertos 67/68. Asigna automáticamente IP, máscara, gateway y DNS a cada dispositivo que se conecta, en préstamo temporal.'},
+  {es:'DORA',en:'DORA — Discover, Offer, Request, Acknowledge',def:'Los 4 pasos del DHCP: el cliente descubre, el servidor ofrece, el cliente acepta, el servidor confirma el lease.'},
+  {es:'Lease (DHCP)',en:'DHCP Lease',def:'El préstamo de la IP por tiempo limitado. Se renueva a la mitad del plazo; si no, la IP vuelve al pool.'},
+  {es:'Rango / Scope',en:'DHCP Scope / Pool',def:'El conjunto de IPs que el DHCP puede repartir (ej. .100–.200). Si se agota, los equipos nuevos no obtienen red.'},
+  {es:'Reserva DHCP',en:'DHCP Reservation',def:'IP fija asignada por MAC address: la impresora siempre recibe la .50, administrado centralmente.'},
+  {es:'Gateway (Puerta de Enlace)',en:'Default Gateway',def:'El router por el que la red local sale hacia otras redes/internet. El DHCP lo entrega junto con la IP.'},
+  {es:'Dirección MAC',en:'MAC Address',def:'Identificador físico único de cada tarjeta de red (AA:BB:CC:DD:EE:FF). Base de las reservas DHCP.'},
+  {es:'Servicio / Daemon',en:'Service / Daemon',def:'Programa en segundo plano sin interfaz, normalmente desde el arranque: sshd, nginx, la base de datos.'},
+  {es:'systemd / systemctl',en:'systemd / systemctl',def:'El gestor de servicios estándar de Linux y su comando: status, start, stop, restart, reload, enable, disable.'},
+  {es:'journalctl',en:'journalctl',def:'El visor de logs de systemd: journalctl -u servicio -f sigue los logs en vivo. La mina de oro del troubleshooting.'},
+  {es:'reload vs restart',en:'reload vs restart',def:'reload relee la configuración SIN cortar conexiones; restart detiene y arranca. Prefiere reload cuando exista.'},
+  {es:'enable vs start',en:'enable vs start',def:'start arranca AHORA; enable lo programa para el arranque. Son independientes: enable --now hace ambos.'},
+  {es:'services.msc',en:'services.msc',def:'La consola gráfica de servicios de Windows. Por PowerShell: Get-Service, Start-Service, Set-Service.'},
+  {es:'nslookup / dig',en:'nslookup / dig',def:'Herramientas para consultar el DNS a mano: qué IP devuelve un nombre y qué servidor respondió. dig da más detalle.'},
+  {es:'Archivo hosts',en:'hosts File',def:'Tabla local nombre→IP que se consulta ANTES que el DNS (/etc/hosts o drivers/etc/hosts). Causa clásica de "solo a mí no me abre".'},
+  {es:'flush DNS',en:'Flush DNS Cache',def:'Limpiar el caché DNS local: ipconfig /flushdns (Windows), resolvectl flush-caches (Linux).'},
+  {es:'dnsmasq',en:'dnsmasq',def:'Servidor ligero que combina DNS (con caché y nombres locales) y DHCP. Ideal para redes pequeñas; tu router probablemente lo trae.'},
+  {es:'PXE',en:'PXE Boot',def:'Arrancar una computadora desde la RED (sin disco): obtiene IP por DHCP y descarga su imagen de arranque por TFTP.'}
+];
+
+const flashcards = [
+  {en:'Server',es:'Servidor',def:'A machine (or software) that provides services to other machines on a network.',pron:'SER-ver'},
+  {en:'Virtual Machine',es:'Máquina Virtual',def:'A simulated computer with its own OS, running alongside others on shared hardware.',pron:'VER-choo-al muh-SHEEN'},
+  {en:'Hypervisor',es:'Hipervisor',def:'Software that creates and manages virtual machines, sharing the physical hardware.',pron:'HY-per-vy-zor'},
+  {en:'Remote Access',es:'Acceso Remoto',def:'Administering a machine from elsewhere, typically over SSH or RDP.',pron:'ree-MOHT AK-ses'},
+  {en:'Hostname',es:'Nombre de Host',def:'The human-readable name of a machine on a network, resolved to an IP by DNS.',pron:'HOHST-neym'},
+  {en:'Domain Name',es:'Nombre de Dominio',def:'A registered name like miempresa.com, managed through DNS records.',pron:'doh-MEYN neym'},
+  {en:'Name Resolution',es:'Resolución de Nombres',def:'The process of translating a name into an IP address through DNS.',pron:'neym rez-oh-LOO-shun'},
+  {en:'Lease',es:'Préstamo (DHCP)',def:'The temporary assignment of an IP address to a device by DHCP.',pron:'lees'},
+  {en:'Scope',es:'Rango (DHCP)',def:'The pool of IP addresses a DHCP server is allowed to hand out.',pron:'skohp'},
+  {en:'Daemon',es:'Demonio / Servicio',def:'A background process with no interface, like sshd or nginx. Windows calls them services.',pron:'DEE-mun'},
+  {en:'Time Synchronization',es:'Sincronización de Hora',def:'Keeping all machine clocks aligned via NTP — critical for auth, logs, and TLS.',pron:'taym sin-kro-ny-ZEY-shun'},
+  {en:'Troubleshooting',es:'Diagnóstico de Fallas',def:'Systematically isolating which layer fails: connectivity, resolution, or service.',pron:'TRUH-bul-shoo-ting'},
+  {en:'Configuration File',es:'Archivo de Configuración',def:'The text file that controls a service, like /etc/ssh/sshd_config. Back it up before editing.',pron:'kun-fig-yoo-REY-shun fyl'},
+  {en:'Uptime',es:'Tiempo en Línea',def:'How long a system has been running without a restart.',pron:'UP-taym'},
+  {en:'Port',es:'Puerto',def:'A numbered channel for network services: 22 SSH, 53 DNS, 443 HTTPS.',pron:'port'}
+];
+
+const interviewQA = [
+  {q:'A user can\'t reach a website by name. Walk me through your troubleshooting. / Un usuario no puede abrir un sitio por nombre, ¿cómo lo diagnosticas?',cat:'Técnica',
+   ans:'I isolate layers bottom-up. First, ping a known IP like 8.8.8.8: if it fails, it\'s connectivity (network/gateway/DHCP), not DNS. If it works, test resolution with nslookup/dig. Then query ANOTHER DNS server (nslookup site 8.8.8.8): if that resolves, our DNS server is the culprit. Finally check the local side: the hosts file (a stale hardcoded entry is the classic "only I can\'t reach it") and flush the local DNS cache.\n\n🇪🇸 Español: Aíslo capas de abajo hacia arriba. Primero, ping a una IP conocida como 8.8.8.8: si falla, es conectividad (red/gateway/DHCP), no DNS. Si funciona, pruebo la resolución con nslookup/dig. Luego consulto OTRO servidor DNS (nslookup sitio 8.8.8.8): si ese sí resuelve, nuestro servidor DNS es el culpable. Al final reviso lo local: el archivo hosts (una entrada vieja hardcodeada es el clásico "solo a mí no me abre") y limpio el caché DNS local.'},
+  {q:'Explain how DNS resolution works. / Explica cómo funciona la resolución DNS.',cat:'Técnica',
+   ans:'The client first checks its local cache and hosts file. If not found, it asks its recursive resolver (the network\'s DNS or a public one like 8.8.8.8), which walks the hierarchy: root servers → TLD servers (.com) → the domain\'s authoritative server, which holds the actual records. Every step caches the answer according to its TTL — which is why DNS changes "take time to propagate".\n\n🇪🇸 Español: El cliente primero revisa su caché local y el archivo hosts. Si no está, le pregunta a su resolver recursivo (el DNS de la red o uno público como 8.8.8.8), que recorre la jerarquía: servidores raíz → servidores TLD (.com) → el servidor autoritativo del dominio, que tiene los registros reales. Cada paso cachea la respuesta según su TTL — por eso los cambios de DNS "tardan en propagar".'},
+  {q:'What are the main DNS record types? / ¿Cuáles son los tipos de registro DNS principales?',cat:'Técnica',
+   ans:'A: name to IPv4. AAAA: name to IPv6. CNAME: alias pointing to another name (www → apex). MX: which server receives the domain\'s email, with priorities. TXT: free text used for ownership verification and email anti-spam (SPF/DKIM). NS: which servers are authoritative for the domain. PTR: the reverse — IP to name.\n\n🇪🇸 Español: A: nombre a IPv4. AAAA: nombre a IPv6. CNAME: alias que apunta a otro nombre (www → dominio raíz). MX: qué servidor recibe el correo del dominio, con prioridades. TXT: texto libre para verificaciones de propiedad y anti-spam del correo (SPF/DKIM). NS: qué servidores son los autoritativos del dominio. PTR: el inverso — de IP a nombre.'},
+  {q:'Explain the DHCP process (DORA). / Explica el proceso DHCP (DORA).',cat:'Técnica',
+   ans:'Discover: the client broadcasts "any DHCP server out there?". Offer: the server proposes an IP with gateway, DNS and mask. Request: the client formally accepts that offer. Acknowledge: the server confirms and starts the lease — a temporary loan the client silently renews at half-life. Bonus points: mention MAC reservations for printers/servers, and that an exhausted scope means new devices get no network.\n\n🇪🇸 Español: Discover: el cliente grita a toda la red "¿hay algún servidor DHCP?". Offer: el servidor propone una IP con gateway, DNS y máscara. Request: el cliente acepta formalmente esa oferta. Acknowledge: el servidor confirma e inicia el lease — un préstamo temporal que el cliente renueva en silencio a la mitad del plazo. Puntos extra: menciona las reservas por MAC para impresoras/servidores, y que un rango agotado significa que los equipos nuevos se quedan sin red.'},
+  {q:'FTP vs SFTP vs TFTP — when would you use each?',cat:'Técnica',
+   ans:'FTP (port 21) sends everything unencrypted, including credentials — legacy only, avoid it. SFTP (port 22) runs inside the SSH tunnel, fully encrypted — today\'s standard for file transfers to servers. TFTP (port 69) is "trivial": no auth, no encryption — only for controlled internal networks, typically PXE boot images and network device configs.\n\n🇪🇸 Español: FTP (puerto 21) envía todo sin cifrar, incluidas las credenciales — solo legado, evítalo. SFTP (puerto 22) viaja dentro del túnel SSH, totalmente cifrado — el estándar actual para transferir archivos a servidores. TFTP (puerto 69) es "trivial": sin autenticación ni cifrado — solo para redes internas controladas, típicamente imágenes de arranque PXE y configuraciones de equipos de red.'},
+  {q:'Why does NTP matter so much? / ¿Por qué importa tanto NTP?',cat:'Conceptual',
+   ans:'Because clock drift silently breaks three critical things: authentication (Kerberos rejects tickets beyond ~5 minutes of skew — nobody can log in; JWTs expire wrongly), logs (you can\'t reconstruct an incident if servers disagree on when things happened), and TLS (certificates have validity dates, so a skewed clock rejects valid certs). It\'s the most boring service... until it fails.\n\n🇪🇸 Español: Porque la desviación de relojes rompe en silencio tres cosas críticas: la autenticación (Kerberos rechaza tickets con más de ~5 minutos de desfase — nadie puede iniciar sesión; los JWT expiran mal), los logs (no puedes reconstruir un incidente si los servidores no coinciden en cuándo pasaron las cosas) y TLS (los certificados tienen fechas de validez, así que un reloj desviado rechaza certificados válidos). Es el servicio más aburrido... hasta que falla.'},
+  {q:'How do you manage a service in Linux? And in Windows? / ¿Cómo gestionas un servicio en Linux y en Windows?',cat:'Técnica',
+   ans:'Linux (systemd): systemctl status/start/stop/restart/reload, enable/disable for boot behavior — noting that enable does NOT start it now (enable --now does both) — and journalctl -u for logs. Windows: services.msc graphically, or PowerShell\'s Get-Service/Start-Service/Set-Service -StartupType, with logs in Event Viewer. For config changes: back up the file, edit, VALIDATE syntax (nginx -t, sshd -t), then reload — and keep a second SSH session open when touching sshd_config remotely.\n\n🇪🇸 Español: Linux (systemd): systemctl status/start/stop/restart/reload, enable/disable para el arranque — notando que enable NO lo arranca ahora (enable --now hace ambos) — y journalctl -u para los logs. Windows: services.msc en gráfico, o Get-Service/Start-Service/Set-Service -StartupType en PowerShell, con logs en el Visor de Eventos. Para cambios de config: respaldar el archivo, editar, VALIDAR la sintaxis (nginx -t, sshd -t) y hacer reload — y mantener una segunda sesión SSH abierta cuando tocas sshd_config en remoto.'},
+  {q:'What is virtualization and why do companies use it? / ¿Qué es la virtualización y por qué la usan las empresas?',cat:'Conceptual',
+   ans:'Running multiple independent virtual machines on one physical server via a hypervisor (KVM, VMware, Hyper-V). Why: hardware utilization (one service using 10% of a box is waste), easier operations (a VM moves, copies, and restores like a file), and cost. Trade-off: the host becomes a bigger failure point, so you add redundancy. Containers (Docker) are the next step — lighter, sharing the kernel — and the cloud is essentially virtualization rented by the hour.\n\n🇪🇸 Español: Ejecutar varias máquinas virtuales independientes en un servidor físico mediante un hipervisor (KVM, VMware, Hyper-V). Por qué: aprovechamiento del hardware (un servicio usando el 10% de una máquina es desperdicio), operación más fácil (una VM se mueve, copia y restaura como archivo) y costo. Trade-off: el host se vuelve un punto de fallo más grande, así que agregas redundancia. Los contenedores (Docker) son el siguiente paso — más ligeros, compartiendo el kernel — y la nube es esencialmente virtualización rentada por hora.'}
+];
+
+const quizData = {
+  1:[{q:'Los servicios de infraestructura TI son...',opts:['Solo el internet','La "plomería" tecnológica: red, DNS, correo, archivos, seguridad','Un tipo de software de oficina','Las computadoras de los empleados'],ans:1},
+     {q:'Un SO de servidor se distingue porque...',opts:['Es más bonito','Soporta más conexiones, suele ir sin GUI (headless) y está pensado para no apagarse','Es más barato','Solo corre juegos'],ans:1},
+     {q:'El hipervisor es...',opts:['Un antivirus','El software que crea y administra las máquinas virtuales repartiendo el hardware','Un tipo de cable','Un navegador'],ans:1},
+     {q:'La analogía correcta de la virtualización es...',opts:['Una casa por familia','Un edificio de departamentos: cada VM con su espacio, compartiendo la estructura','Un estacionamiento','Una biblioteca'],ans:1},
+     {q:'El riesgo de concentrar VMs en un host es...',opts:['Ninguno','Si el host físico muere, mueren TODAS sus VMs (por eso: redundancia)','Que se llenan de virus','Que van más lento siempre'],ans:1},
+     {q:'Los contenedores (Docker) vs las VMs:',opts:['Son idénticos','Los contenedores comparten el kernel y solo aíslan la app: más ligeros, menos aislamiento','Las VMs son más ligeras','Docker es un hipervisor'],ans:1}],
+  2:[{q:'SSH usa el puerto...',opts:['80','443','22','21'],ans:2},
+     {q:'La mejor práctica de autenticación SSH es...',opts:['Contraseñas largas','Llaves SSH, y desactivar el login por contraseña','Sin autenticación','Usar telnet'],ans:1},
+     {q:'¿Cuál protocolo de transferencia viaja CIFRADO?',opts:['FTP','TFTP','SFTP (dentro del túnel SSH)','Ninguno'],ans:2},
+     {q:'TFTP se usa principalmente para...',opts:['Descargar películas','Arranque por red (PXE) y configs de routers/switches en redes internas','Correo electrónico','Videollamadas'],ans:1},
+     {q:'Un reloj desviado varios minutos rompe...',opts:['Nada importante','Kerberos/autenticación, el orden de los logs y la validación de certificados TLS','Solo el salvapantallas','El teclado'],ans:1},
+     {q:'RDP (puerto 3389) debe...',opts:['Exponerse a internet directamente','Ir siempre detrás de una VPN: es de los puertos más atacados','Usarse en Linux','Reemplazar al DNS'],ans:1}],
+  3:[{q:'El DNS traduce...',opts:['Idiomas','Nombres de dominio a direcciones IP','IPs a MACs','Correos a nombres'],ans:1},
+     {q:'El resolver recursivo (ej. 8.8.8.8) es...',opts:['El dueño del dominio','El servidor que busca POR TI recorriendo raíz → TLD → autoritativo','Un virus','El archivo hosts'],ans:1},
+     {q:'El registro que traduce nombre → IPv4 es...',opts:['MX','CNAME','A','TXT'],ans:2},
+     {q:'El registro MX define...',opts:['La IP del sitio web','Qué servidor recibe el CORREO del dominio','Un alias','La versión de PHP'],ans:1},
+     {q:'Un CNAME es...',opts:['Una IP','Un alias: un nombre que apunta a otro nombre','Un certificado','Un tipo de servidor'],ans:1},
+     {q:'Los cambios de DNS "tardan en propagar" por...',opts:['La lentitud de internet','El TTL: el mundo espera a que expiren los cachés de la respuesta anterior','Los antivirus','El clima'],ans:1}],
+  4:[{q:'El DHCP entrega automáticamente...',opts:['Solo la IP','IP, máscara, gateway y servidores DNS','Contraseñas','Certificados'],ans:1},
+     {q:'DORA significa...',opts:['Un explorador','Discover, Offer, Request, Acknowledge','Domain, Origin, Route, Address','Nada'],ans:1},
+     {q:'El lease de DHCP es...',opts:['Un contrato de renta de oficina','El préstamo temporal de la IP, renovado a la mitad del plazo','Una licencia de software','Un cable'],ans:1},
+     {q:'Una reserva DHCP sirve para...',opts:['Guardar IPs para el futuro','Que un equipo (por su MAC) reciba SIEMPRE la misma IP, administrado centralmente','Bloquear usuarios','Acelerar la red'],ans:1},
+     {q:'Si el scope/pool de DHCP se agota...',opts:['No pasa nada','Los dispositivos nuevos no obtienen IP: "no tienen red"','Internet va más lento','Se reinicia el router'],ans:1},
+     {q:'El "DNS dinámico" con DHCP significa que...',opts:['El DNS cambia de puerto','Al prestar una IP, el DHCP registra el nombre del equipo en el DNS interno','El DNS es más rápido','No existe'],ans:1}],
+  5:[{q:'Un daemon/servicio es...',opts:['Un virus','Un programa en segundo plano sin interfaz, normalmente desde el arranque','Una ventana','Un archivo de texto'],ans:1},
+     {q:'El comando para ver el estado de un servicio en Linux es...',opts:['systemctl status servicio','service.exe','Get-Status','run servicio'],ans:0},
+     {q:'La diferencia entre reload y restart es...',opts:['Ninguna','reload relee la config SIN cortar conexiones; restart detiene y arranca','restart es más suave','reload borra los logs'],ans:1},
+     {q:'systemctl enable...',opts:['Arranca el servicio ahora','Lo programa para el arranque, pero NO lo arranca ahora (enable --now hace ambos)','Lo desinstala','Lo actualiza'],ans:1},
+     {q:'En Windows, los servicios se gestionan con...',opts:['Excel','services.msc o PowerShell (Get-Service, Start-Service)','El Bloc de notas','cmd /dns'],ans:1},
+     {q:'Antes de editar un archivo de configuración, SIEMPRE...',opts:['Reinicia el servidor','Respáldalo (cp archivo archivo.bak) y valida la sintaxis antes de aplicar','Borra los logs','Avisa a todos por correo'],ans:1}],
+  6:[{q:'El PASO 1 del diagnóstico "no abre la página" es...',opts:['Reinstalar el navegador','Ping a una IP directa (8.8.8.8) para aislar si es conectividad o nombres','Cambiar de laptop','Llamar al proveedor'],ans:1},
+     {q:'Si el nombre resuelve con 8.8.8.8 pero no con tu DNS...',opts:['El sitio está caído','Tu servidor DNS es el culpable','El cable está roto','Es un virus'],ans:1},
+     {q:'La causa clásica de "solo a MÍ no me abre" es...',opts:['Mala suerte','Una entrada vieja hardcodeada en el archivo hosts','El firewall del sitio','La RAM'],ans:1},
+     {q:'Para limpiar el caché DNS en Windows:',opts:['ipconfig /flushdns','delete dns','clear-cache','dns --reset'],ans:0},
+     {q:'dnsmasq combina en un solo servicio ligero...',opts:['Web y correo','DNS (con caché y nombres locales) y DHCP','FTP y SSH','Antivirus y firewall'],ans:1},
+     {q:'En dnsmasq, dhcp-range=192.168.1.100,192.168.1.200,24h define...',opts:['El nombre del dominio','El pool de IPs a repartir y la duración del lease','La contraseña','El gateway'],ans:1}]
+};
+
+// ===== RENDER =====
+function setOS(os){
+  localStorage.setItem('cp_os',os);
+  document.querySelectorAll('.code-wrap').forEach(w=>{
+    w.querySelectorAll('.ct-btn').forEach(b=>b.classList.toggle('ct-active',b.dataset.os===os));
+    w.querySelectorAll('.code-block').forEach(p=>{if(!p.classList.contains('code-single'))p.classList.toggle('hidden',!p.classList.contains('code-'+os));});
+  });
+}
+
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-indigo-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp10_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp10_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp10_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-indigo-600 text-white">'+
+      '<p class="text-xs text-indigo-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-indigo-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-indigo-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-indigo-100 text-indigo-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-orange-100 text-orange-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp10_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp10_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp10_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp10_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+  setOS(localStorage.getItem('cp_os')||'lx');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos de Programación — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(13,148,136,0.12); color: #0d9488; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #0d9488; cursor: help; position: relative; color: #0f766e; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #134e4a; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 800px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .ct-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px 8px 0 0; background: #1e293b; color: #94a3b8; border: none; cursor: pointer; }
+  .ct-btn.ct-active { background: #0f172a; color: #5eead4; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 0 10px 10px 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; } .tok-f { color: #7dd3fc; } .tok-n { color: #fbbf24; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <span style="color:#2dd4bf;font-weight:700;border-bottom:2px solid #2dd4bf;">CP1</span>
+  <a href="CP2-Programacion-orientada-a-objetos.html" title="POO" style="color:#c4b5fd;text-decoration:none;">CP2</a>
+  <a href="CP3-APIs-y-comunicacion.html" title="APIs" style="color:#6ee7b7;text-decoration:none;">CP3</a>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <a href="CP6-Bases-de-datos-avanzado.html" title="Bases de Datos Avanzado" style="color:#7dd3fc;text-decoration:none;">CP6</a>
+  <a href="CP7-DevOps-e-infraestructura.html" title="DevOps" style="color:#fdba74;text-decoration:none;">CP7</a>
+  <a href="CP8-Seguridad.html" title="Seguridad" style="color:#f87171;text-decoration:none;">CP8</a>
+  <a href="CP9-Diseno-de-sistemas-y-liderazgo.html" title="Diseño de Sistemas y Liderazgo" style="color:#bef264;text-decoration:none;">CP9</a>
+  <a href="CP10-Servicios-de-red-e-infraestructura.html" title="Servicios de Red e Infraestructura TI" style="color:#a5b4fc;text-decoration:none;">CP10</a>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-teal-700 font-bold text-lg">CP1</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">Fundamentos de Programación</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-teal-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">¿Qué es?</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">Variables</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">Control</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">Funciones</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">Estructuras</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">Errores</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: ¿Qué es Programar?</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: Variables y Tipos de Datos</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: Control de Flujo</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: Funciones</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: Estructuras de Datos</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: Errores y Excepciones</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-teal-900 to-cyan-800 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-teal-300/70 text-sm mb-4">Guía de Estudio Completa · Curso 1 de 4</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">Fundamentos de<br>Programación</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">Variables, control de flujo, funciones, estructuras de datos y errores. Todo explicado desde cero, con ejemplos en Python 🐍 y C# #️⃣ lado a lado.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-teal-700">2</div><div class="text-sm text-gray-500 mt-1">Lenguajes: Python y C#</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-500">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">30+</div><div class="text-sm text-gray-500 mt-1">Términos en el glosario</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">0</div><div class="text-sm text-gray-500 mt-1">Conocimientos previos necesarios</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-teal-500"><span class="text-xs font-bold text-teal-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">¿Qué es Programar?</h3><p class="text-sm text-gray-500 mt-1">Lenguajes, algoritmos, compilado vs. interpretado.</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">Variables y Tipos de Datos</h3><p class="text-sm text-gray-500 mt-1">Cajas etiquetadas, tipos, operadores.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">Control de Flujo</h3><p class="text-sm text-gray-500 mt-1">Decisiones (if) y repeticiones (for, while).</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">Funciones</h3><p class="text-sm text-gray-500 mt-1">Parámetros, retorno, alcance, reutilización.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">Estructuras de Datos</h3><p class="text-sm text-gray-500 mt-1">Listas, diccionarios, tuplas y conjuntos.</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">Errores y Excepciones</h3><p class="text-sm text-gray-500 mt-1">try/catch, stack trace, debugging.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">Los términos que todo programador usa a diario.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">Preguntas frecuentes en inglés y español.</p></div>
+    </div>
+    <div class="mt-8 bg-teal-50 border border-teal-200 rounded-xl p-5 text-sm text-teal-900">
+      💡 <strong>Tip:</strong> Todos los ejemplos de código tienen pestañas <strong>🐍 Python</strong> y <strong>#️⃣ C#</strong>. Al elegir un lenguaje, toda la guía cambia a ese lenguaje y tu preferencia se recuerda. Compara ambos: es la mejor forma de entender qué es del <em>lenguaje</em> y qué es de la <em>programación en general</em>.
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: QUÉ ES PROGRAMAR ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-teal-700 to-teal-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-teal-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">¿Qué es Programar?</h1>
+    <p class="text-lg text-teal-200 max-w-3xl">Darle instrucciones exactas a una máquina que obedece al pie de la letra... y no entiende indirectas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-teal-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🍰 La analogía de la receta</h2>
+      <p class="text-sm text-gray-600 mb-4">Imagina que le explicas a alguien que <strong>nunca ha cocinado</strong> cómo hacer un pastel. No puedes decir "hornéalo hasta que esté listo": debes decir <em>"hornea a 180°C durante 35 minutos"</em>. Una computadora es ese aprendiz extremo: hace <strong>exactamente</strong> lo que le dices, ni más ni menos.</p>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="text-sm font-semibold text-teal-800 mb-1">Programar es...</p><p class="text-sm text-gray-600">Escribir instrucciones paso a paso (un <span class="gterm">algoritmo<span class="gtooltip">🇪🇸 Algoritmo / 🇺🇸 Algorithm — Serie de pasos ordenados y finitos para resolver un problema. Una receta de cocina es un algoritmo.</span></span>) que una computadora puede ejecutar.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="text-sm font-semibold text-blue-800 mb-1">Un programa es...</p><p class="text-sm text-gray-600">Ese conjunto de instrucciones ya escrito en un <span class="gterm">lenguaje de programación<span class="gtooltip">🇪🇸 Lenguaje de Programación / 🇺🇸 Programming Language — Idioma formal con reglas estrictas (sintaxis) que humanos usan para escribir instrucciones que una computadora puede ejecutar.</span></span>, listo para ejecutarse.</p></div>
+        <div class="bg-purple-50 rounded-xl p-4 border border-purple-200"><p class="text-sm font-semibold text-purple-800 mb-1">El código fuente es...</p><p class="text-sm text-gray-600">El texto que escribes. Como el manuscrito de la receta antes de que alguien la cocine.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-teal-600 rounded-full"></span>Tu primer programa: Hola Mundo</h2>
+    <p class="text-sm text-gray-600 mb-3">Por tradición, el primer programa de todo programador muestra el texto "Hola Mundo" en pantalla. Compara ambos lenguajes:</p>
+    <div class="code-wrap mb-3">
+      <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+      <pre class="code-block code-py"><code><span class="tok-c"># Python: una sola línea. print() muestra texto en pantalla</span>
+<span class="tok-f">print</span>(<span class="tok-s">"¡Hola Mundo!"</span>)</code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-c">// C# moderno (top-level statements): también una línea</span>
+Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"¡Hola Mundo!"</span>);</code></pre>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-10 text-sm text-amber-900">
+      ⚠️ <strong>Observa las diferencias:</strong> en C# cada instrucción termina con punto y coma <code class="bg-amber-100 px-1 rounded">;</code> y las funciones viven dentro de clases (Console). En Python el formato es más ligero. Pero <strong>la idea es idéntica</strong>: darle una orden a la máquina.
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-teal-600 rounded-full"></span>Compilado vs. Interpretado</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-indigo-400">
+        <h3 class="font-bold text-indigo-700 mb-2">📖 Interpretado (Python)</h3>
+        <p class="text-sm text-gray-600 mb-3">Un <span class="gterm">intérprete<span class="gtooltip">🇪🇸 Intérprete / 🇺🇸 Interpreter — Programa que lee y ejecuta el código fuente línea por línea, sin generar un archivo ejecutable previo.</span></span> lee tu código <strong>línea por línea</strong> y lo va ejecutando al momento.</p>
+        <p class="text-sm text-gray-600"><strong>Analogía:</strong> un traductor simultáneo en una conferencia — traduce mientras hablas.</p>
+        <ul class="text-sm text-gray-600 mt-3 space-y-1">
+          <li>✅ Rápido para probar ideas</li>
+          <li>✅ Corre igual en Windows, Mac, Linux</li>
+          <li>❌ Más lento al ejecutar</li>
+          <li>❌ Algunos errores aparecen hasta que esa línea corre</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-teal-400">
+        <h3 class="font-bold text-teal-700 mb-2">⚙️ Compilado (C#)</h3>
+        <p class="text-sm text-gray-600 mb-3">Un <span class="gterm">compilador<span class="gtooltip">🇪🇸 Compilador / 🇺🇸 Compiler — Programa que traduce TODO el código fuente a un formato ejecutable antes de correrlo, detectando errores de sintaxis y tipos en el proceso.</span></span> traduce <strong>todo el programa completo</strong> antes de ejecutarlo (en C#, a un lenguaje intermedio llamado IL que corre sobre .NET).</p>
+        <p class="text-sm text-gray-600"><strong>Analogía:</strong> traducir un libro completo antes de publicarlo.</p>
+        <ul class="text-sm text-gray-600 mt-3 space-y-1">
+          <li>✅ Detecta muchos errores ANTES de ejecutar</li>
+          <li>✅ Ejecución más rápida</li>
+          <li>❌ Hay que compilar en cada cambio</li>
+          <li>❌ Un poco más de "ceremonia" para empezar</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-teal-600 rounded-full"></span>Python vs. C#: conoce tus herramientas</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Aspecto</th><th class="p-3 text-left">🐍 Python</th><th class="p-3 text-left">#️⃣ C#</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-semibold">Creador / año</td><td class="p-3">Guido van Rossum, 1991</td><td class="p-3">Microsoft (Anders Hejlsberg), 2000</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Tipado</td><td class="p-3">Dinámico (el tipo se decide al ejecutar)</td><td class="p-3">Estático (el tipo se declara y verifica al compilar)</td></tr>
+          <tr><td class="p-3 font-semibold">Ejecución</td><td class="p-3">Interpretado</td><td class="p-3">Compilado (a IL, sobre .NET)</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Se usa mucho en</td><td class="p-3">Ciencia de datos, IA, scripts, automatización, web</td><td class="p-3">Aplicaciones empresariales, web (ASP.NET), juegos (Unity), escritorio</td></tr>
+          <tr><td class="p-3 font-semibold">Los bloques se marcan con</td><td class="p-3">Indentación (espacios obligatorios)</td><td class="p-3">Llaves { }</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Fin de instrucción</td><td class="p-3">Salto de línea</td><td class="p-3">Punto y coma ;</td></tr>
+          <tr><td class="p-3 font-semibold">Convención de nombres</td><td class="p-3">snake_case (mi_variable)</td><td class="p-3">PascalCase / camelCase (MiClase, miVariable)</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-teal-600 rounded-full"></span>Pensar antes de escribir: el pseudocódigo</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <p class="text-sm text-gray-600 mb-3">El <span class="gterm">pseudocódigo<span class="gtooltip">🇪🇸 Pseudocódigo / 🇺🇸 Pseudocode — Descripción de un algoritmo en lenguaje humano estructurado, sin la sintaxis estricta de un lenguaje real. Sirve para planear antes de programar.</span></span> es escribir la lógica en español estructurado <strong>antes</strong> de escribir código real. Los programadores senior planean primero y escriben código después.</p>
+        <div class="bg-gray-50 rounded-lg p-4 font-mono text-xs text-gray-700 leading-relaxed">
+          <p>ALGORITMO: ¿puedo comprar el producto?</p>
+          <p>1. LEER precio del producto</p>
+          <p>2. LEER dinero disponible</p>
+          <p>3. SI dinero &gt;= precio ENTONCES</p>
+          <p class="pl-4">MOSTRAR "Puedes comprarlo"</p>
+          <p>4. SI NO</p>
+          <p class="pl-4">MOSTRAR "Te falta dinero"</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">Las 4 fases para resolver cualquier problema</h3>
+        <ol class="space-y-3 text-sm">
+          <li class="flex gap-3"><span class="bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">1</span><span><strong>Entender:</strong> ¿qué entra, qué debe salir? Si no puedes explicarlo con palabras, no puedes programarlo.</span></li>
+          <li class="flex gap-3"><span class="bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">2</span><span><strong>Planear:</strong> escribe el pseudocódigo o dibuja el flujo.</span></li>
+          <li class="flex gap-3"><span class="bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">3</span><span><strong>Codificar:</strong> traduce el plan al lenguaje (Python, C#...).</span></li>
+          <li class="flex gap-3"><span class="bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">4</span><span><strong>Probar y corregir:</strong> ejecuta con distintos casos, incluidos los raros (¿y si el precio es 0?).</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-teal-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">¿Qué es Programar?</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-teal-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-teal-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-teal-800 transition text-sm font-semibold">Siguiente: Variables →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: VARIABLES Y TIPOS ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Variables y Tipos de Datos</h1>
+    <p class="text-lg text-blue-200">Las cajas etiquetadas donde tu programa guarda información.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📦 La analogía de la caja etiquetada</h2>
+      <p class="text-sm text-gray-600 mb-4">Una <span class="gterm">variable<span class="gtooltip">🇪🇸 Variable / 🇺🇸 Variable — Espacio en memoria con un nombre, donde el programa guarda un valor que puede cambiar durante la ejecución.</span></span> es una <strong>caja con una etiqueta</strong>: la etiqueta es el nombre (<code class="bg-gray-100 px-1 rounded">edad</code>) y dentro va el valor (<code class="bg-gray-100 px-1 rounded">25</code>). Puedes cambiar el contenido cuando quieras — por eso se llama <em>variable</em>. El <span class="gterm">tipo de dato<span class="gtooltip">🇪🇸 Tipo de Dato / 🇺🇸 Data Type — Categoría del valor que define qué operaciones se pueden hacer con él: número entero, decimal, texto, booleano, etc.</span></span> dice qué clase de cosa cabe en la caja: números, texto, verdadero/falso...</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-c"># Python decide el tipo automáticamente (tipado dinámico)</span>
+nombre = <span class="tok-s">"Nayeli"</span>       <span class="tok-c"># str    → texto</span>
+edad = <span class="tok-n">28</span>                <span class="tok-c"># int    → número entero</span>
+estatura = <span class="tok-n">1.65</span>          <span class="tok-c"># float  → número decimal</span>
+es_estudiante = <span class="tok-k">True</span>     <span class="tok-c"># bool   → verdadero o falso</span>
+
+<span class="tok-f">print</span>(<span class="tok-s">f"Hola {nombre}, tienes {edad} años"</span>)</code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-c">// En C# declaras el tipo ANTES del nombre (tipado estático)</span>
+<span class="tok-k">string</span> nombre = <span class="tok-s">"Nayeli"</span>;      <span class="tok-c">// texto</span>
+<span class="tok-k">int</span> edad = <span class="tok-n">28</span>;                 <span class="tok-c">// número entero</span>
+<span class="tok-k">double</span> estatura = <span class="tok-n">1.65</span>;        <span class="tok-c">// número decimal</span>
+<span class="tok-k">bool</span> esEstudiante = <span class="tok-k">true</span>;      <span class="tok-c">// verdadero o falso</span>
+
+Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"Hola {nombre}, tienes {edad} años"</span>);</code></pre>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">💡 Ambos lenguajes tienen <em>interpolación de cadenas</em>: <code class="bg-gray-100 px-1 rounded">f"..."</code> en Python y <code class="bg-gray-100 px-1 rounded">$"..."</code> en C# permiten insertar variables dentro del texto con llaves {}.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Los tipos de datos básicos</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Tipo</th><th class="p-3 text-left">🐍 Python</th><th class="p-3 text-left">#️⃣ C#</th><th class="p-3 text-left">Ejemplo</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-semibold">Entero</td><td class="p-3 font-mono text-xs">int</td><td class="p-3 font-mono text-xs">int, long</td><td class="p-3 font-mono text-xs">42, -7, 0</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Decimal</td><td class="p-3 font-mono text-xs">float</td><td class="p-3 font-mono text-xs">double, decimal</td><td class="p-3 font-mono text-xs">3.14, -0.5</td></tr>
+          <tr><td class="p-3 font-semibold">Texto</td><td class="p-3 font-mono text-xs">str</td><td class="p-3 font-mono text-xs">string</td><td class="p-3 font-mono text-xs">"hola", "a"</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Booleano</td><td class="p-3 font-mono text-xs">bool (True/False)</td><td class="p-3 font-mono text-xs">bool (true/false)</td><td class="p-3 font-mono text-xs">True, false</td></tr>
+          <tr><td class="p-3 font-semibold">Nada / vacío</td><td class="p-3 font-mono text-xs">None</td><td class="p-3 font-mono text-xs">null</td><td class="p-3 font-mono text-xs">None, null</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-10 text-sm text-amber-900">
+      💰 <strong>Dato senior:</strong> en C#, para dinero se usa <code class="bg-amber-100 px-1 rounded">decimal</code> (no <code class="bg-amber-100 px-1 rounded">double</code>), porque los <code class="bg-amber-100 px-1 rounded">double</code> tienen pequeños errores de redondeo binario. Prueba en Python: <code class="bg-amber-100 px-1 rounded">0.1 + 0.2</code> da <code class="bg-amber-100 px-1 rounded">0.30000000000000004</code>. ¡Es normal en todos los lenguajes!
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Operadores: hacer cosas con los valores</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-blue-700 text-sm uppercase mb-3">Aritméticos</h3>
+        <ul class="text-sm text-gray-600 space-y-1 font-mono text-xs">
+          <li><strong>+</strong> suma · <strong>-</strong> resta</li>
+          <li><strong>*</strong> multiplicación · <strong>/</strong> división</li>
+          <li><strong>%</strong> módulo (residuo de dividir)</li>
+          <li><strong>**</strong> potencia (Py) · Math.Pow (C#)</li>
+          <li><strong>//</strong> división entera (Py)</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-teal-700 text-sm uppercase mb-3">Comparación</h3>
+        <ul class="text-sm text-gray-600 space-y-1 font-mono text-xs">
+          <li><strong>==</strong> igual · <strong>!=</strong> diferente</li>
+          <li><strong>&gt;</strong> mayor · <strong>&lt;</strong> menor</li>
+          <li><strong>&gt;=</strong> mayor o igual</li>
+          <li><strong>&lt;=</strong> menor o igual</li>
+          <li class="text-gray-400 font-sans">Siempre devuelven un booleano</li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-purple-700 text-sm uppercase mb-3">Lógicos</h3>
+        <ul class="text-sm text-gray-600 space-y-1 font-mono text-xs">
+          <li>Py: <strong>and, or, not</strong></li>
+          <li>C#: <strong>&amp;&amp;, ||, !</strong></li>
+          <li class="text-gray-400 font-sans pt-1">and: ambas verdaderas</li>
+          <li class="text-gray-400 font-sans">or: al menos una verdadera</li>
+          <li class="text-gray-400 font-sans">not: invierte el valor</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-10 text-sm text-red-900">
+      🚨 <strong>Error clásico de principiante:</strong> confundir <code class="bg-red-100 px-1 rounded">=</code> (asignar un valor) con <code class="bg-red-100 px-1 rounded">==</code> (comparar si son iguales). <code class="bg-red-100 px-1 rounded">edad = 18</code> guarda 18 en la caja; <code class="bg-red-100 px-1 rounded">edad == 18</code> pregunta "¿la caja contiene 18?".
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Conversión de tipos (casting)</h2>
+    <p class="text-sm text-gray-600 mb-3">Lo que el usuario escribe siempre llega como <strong>texto</strong>. Para hacer matemáticas hay que <span class="gterm">convertirlo<span class="gtooltip">🇪🇸 Conversión de tipos / 🇺🇸 Type Casting — Transformar un valor de un tipo a otro, por ejemplo el texto "25" al número 25.</span></span>:</p>
+    <div class="code-wrap mb-10">
+      <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+      <pre class="code-block code-py"><code>texto = <span class="tok-s">"25"</span>            <span class="tok-c"># esto es TEXTO, no un número</span>
+numero = <span class="tok-f">int</span>(texto)     <span class="tok-c"># ahora sí es el número 25</span>
+precio = <span class="tok-f">float</span>(<span class="tok-s">"9.99"</span>)  <span class="tok-c"># texto → decimal</span>
+etiqueta = <span class="tok-f">str</span>(<span class="tok-n">100</span>)     <span class="tok-c"># número → texto "100"</span>
+
+<span class="tok-c"># Sin convertir: "25" + "5" = "255" (une textos!)</span>
+<span class="tok-c"># Convertido:     25 + 5   = 30</span></code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-k">string</span> texto = <span class="tok-s">"25"</span>;                <span class="tok-c">// esto es TEXTO</span>
+<span class="tok-k">int</span> numero = <span class="tok-f">int</span>.Parse(texto);       <span class="tok-c">// ahora es el número 25</span>
+<span class="tok-k">double</span> precio = <span class="tok-k">double</span>.Parse(<span class="tok-s">"9.99"</span>);
+<span class="tok-k">string</span> etiqueta = <span class="tok-n">100</span>.<span class="tok-f">ToString</span>();    <span class="tok-c">// número → texto</span>
+
+<span class="tok-c">// Versión segura: no truena si el texto no es número</span>
+<span class="tok-k">bool</span> ok = <span class="tok-f">int</span>.TryParse(texto, <span class="tok-k">out int</span> resultado);</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">Variables y Tipos de Datos.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← ¿Qué es Programar?</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-teal-800 transition text-sm font-semibold">Siguiente: Control de Flujo →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: CONTROL DE FLUJO ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Control de Flujo</h1>
+    <p class="text-lg text-purple-200">Enseñarle al programa a tomar decisiones y a repetir tareas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🚦 Decisiones: if / else</h2>
+      <p class="text-sm text-gray-600 mb-4">Un programa sin decisiones siempre hace lo mismo. El <span class="gterm">condicional<span class="gtooltip">🇪🇸 Condicional / 🇺🇸 Conditional — Estructura que ejecuta un bloque de código solo si una condición es verdadera (if), con alternativas (else if / else).</span></span> <code class="bg-gray-100 px-1 rounded">if</code> es una bifurcación en el camino: <em>"SI llueve, lleva paraguas; SI NO, lleva lentes de sol"</em>.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code>temperatura = <span class="tok-n">35</span>
+
+<span class="tok-k">if</span> temperatura &gt; <span class="tok-n">30</span>:
+    <span class="tok-f">print</span>(<span class="tok-s">"Hace calor 🥵"</span>)
+<span class="tok-k">elif</span> temperatura &gt; <span class="tok-n">15</span>:          <span class="tok-c"># "elif" = else if</span>
+    <span class="tok-f">print</span>(<span class="tok-s">"Clima agradable 😊"</span>)
+<span class="tok-k">else</span>:
+    <span class="tok-f">print</span>(<span class="tok-s">"Hace frío 🥶"</span>)
+
+<span class="tok-c"># OJO: en Python la indentación (4 espacios) DEFINE el bloque</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">int</span> temperatura = <span class="tok-n">35</span>;
+
+<span class="tok-k">if</span> (temperatura &gt; <span class="tok-n">30</span>)
+{
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Hace calor 🥵"</span>);
+}
+<span class="tok-k">else if</span> (temperatura &gt; <span class="tok-n">15</span>)
+{
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Clima agradable 😊"</span>);
+}
+<span class="tok-k">else</span>
+{
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Hace frío 🥶"</span>);
+}
+<span class="tok-c">// En C# las llaves { } definen el bloque, y la condición va entre ( )</span></code></pre>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">💡 Las condiciones se evalúan <strong>en orden</strong> y solo entra al primer bloque verdadero. Si temperatura fuera 35, nunca revisa el elif.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-purple-600 rounded-full"></span>Muchos casos: switch / match</h2>
+    <p class="text-sm text-gray-600 mb-3">Cuando comparas una misma variable contra muchos valores, hay una estructura más limpia que encadenar diez <code class="bg-gray-100 px-1 rounded">if</code>:</p>
+    <div class="code-wrap mb-10">
+      <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+      <pre class="code-block code-py"><code>dia = <span class="tok-s">"sábado"</span>
+
+<span class="tok-k">match</span> dia:                    <span class="tok-c"># match existe desde Python 3.10</span>
+    <span class="tok-k">case</span> <span class="tok-s">"sábado"</span> | <span class="tok-s">"domingo"</span>:
+        <span class="tok-f">print</span>(<span class="tok-s">"¡Fin de semana!"</span>)
+    <span class="tok-k">case</span> <span class="tok-s">"viernes"</span>:
+        <span class="tok-f">print</span>(<span class="tok-s">"Casi..."</span>)
+    <span class="tok-k">case</span> _:                   <span class="tok-c"># _ = cualquier otro caso (default)</span>
+        <span class="tok-f">print</span>(<span class="tok-s">"Día laboral"</span>)</code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-k">string</span> dia = <span class="tok-s">"sábado"</span>;
+
+<span class="tok-k">switch</span> (dia)
+{
+    <span class="tok-k">case</span> <span class="tok-s">"sábado"</span>:
+    <span class="tok-k">case</span> <span class="tok-s">"domingo"</span>:
+        Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"¡Fin de semana!"</span>);
+        <span class="tok-k">break</span>;
+    <span class="tok-k">case</span> <span class="tok-s">"viernes"</span>:
+        Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Casi..."</span>);
+        <span class="tok-k">break</span>;
+    <span class="tok-k">default</span>:
+        Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Día laboral"</span>);
+        <span class="tok-k">break</span>;
+}</code></pre>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-purple-600 rounded-full"></span>Repeticiones: los bucles</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-purple-400">
+        <h3 class="font-bold text-purple-700 mb-2">🔁 for — "repite N veces / por cada elemento"</h3>
+        <p class="text-sm text-gray-600">Úsalo cuando <strong>sabes cuántas veces</strong> repetir, o cuando quieres recorrer una colección elemento por elemento. Analogía: repartir un volante a <em>cada</em> casa de la cuadra.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6 border-t-4 border-pink-400">
+        <h3 class="font-bold text-pink-700 mb-2">♾️ while — "repite MIENTRAS sea cierto"</h3>
+        <p class="text-sm text-gray-600">Úsalo cuando <strong>no sabes cuántas veces</strong>: depende de una condición. Analogía: seguir batiendo la mezcla <em>mientras</em> tenga grumos. ⚠️ Si la condición nunca se vuelve falsa → <span class="gterm">bucle infinito<span class="gtooltip">🇪🇸 Bucle Infinito / 🇺🇸 Infinite Loop — Bucle cuya condición nunca se vuelve falsa, por lo que el programa se queda atorado repitiendo para siempre.</span></span>.</p>
+      </div>
+    </div>
+    <div class="code-wrap mb-6">
+      <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+      <pre class="code-block code-py"><code><span class="tok-c"># FOR: repetir 5 veces (range genera 0,1,2,3,4)</span>
+<span class="tok-k">for</span> i <span class="tok-k">in</span> <span class="tok-f">range</span>(<span class="tok-n">5</span>):
+    <span class="tok-f">print</span>(<span class="tok-s">f"Vuelta número {i}"</span>)
+
+<span class="tok-c"># FOR: recorrer una lista elemento por elemento</span>
+frutas = [<span class="tok-s">"manzana"</span>, <span class="tok-s">"pera"</span>, <span class="tok-s">"uva"</span>]
+<span class="tok-k">for</span> fruta <span class="tok-k">in</span> frutas:
+    <span class="tok-f">print</span>(fruta)
+
+<span class="tok-c"># WHILE: repetir mientras la condición sea verdadera</span>
+vidas = <span class="tok-n">3</span>
+<span class="tok-k">while</span> vidas &gt; <span class="tok-n">0</span>:
+    <span class="tok-f">print</span>(<span class="tok-s">f"Te quedan {vidas} vidas"</span>)
+    vidas = vidas - <span class="tok-n">1</span>   <span class="tok-c"># ¡sin esta línea sería infinito!</span></code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-c">// FOR: repetir 5 veces (inicio; condición; incremento)</span>
+<span class="tok-k">for</span> (<span class="tok-k">int</span> i = <span class="tok-n">0</span>; i &lt; <span class="tok-n">5</span>; i++)
+{
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"Vuelta número {i}"</span>);
+}
+
+<span class="tok-c">// FOREACH: recorrer una lista elemento por elemento</span>
+<span class="tok-k">var</span> frutas = <span class="tok-k">new</span> List&lt;<span class="tok-k">string</span>&gt; { <span class="tok-s">"manzana"</span>, <span class="tok-s">"pera"</span>, <span class="tok-s">"uva"</span> };
+<span class="tok-k">foreach</span> (<span class="tok-k">string</span> fruta <span class="tok-k">in</span> frutas)
+{
+    Console.<span class="tok-f">WriteLine</span>(fruta);
+}
+
+<span class="tok-c">// WHILE: repetir mientras la condición sea verdadera</span>
+<span class="tok-k">int</span> vidas = <span class="tok-n">3</span>;
+<span class="tok-k">while</span> (vidas &gt; <span class="tok-n">0</span>)
+{
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"Te quedan {vidas} vidas"</span>);
+    vidas--;   <span class="tok-c">// vidas-- resta 1 (¡sin esto sería infinito!)</span>
+}</code></pre>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900"><strong>break</strong> — sal del bucle inmediatamente. <em>"Encontré las llaves, dejo de buscar."</em></div>
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900"><strong>continue</strong> — salta a la siguiente vuelta. <em>"Esta casa no tiene buzón, sigo con la siguiente."</em></div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-purple-600 rounded-full"></span>Ejercicio clásico de entrevista: FizzBuzz</h2>
+    <p class="text-sm text-gray-600 mb-3">Imprime los números del 1 al 15; pero si es múltiplo de 3 imprime "Fizz", si es múltiplo de 5 "Buzz" y si es de ambos "FizzBuzz". Combina todo lo del módulo:</p>
+    <div class="code-wrap mb-10">
+      <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+      <pre class="code-block code-py"><code><span class="tok-k">for</span> n <span class="tok-k">in</span> <span class="tok-f">range</span>(<span class="tok-n">1</span>, <span class="tok-n">16</span>):          <span class="tok-c"># del 1 al 15</span>
+    <span class="tok-k">if</span> n % <span class="tok-n">3</span> == <span class="tok-n">0</span> <span class="tok-k">and</span> n % <span class="tok-n">5</span> == <span class="tok-n">0</span>:   <span class="tok-c"># % = residuo. Si es 0, es múltiplo</span>
+        <span class="tok-f">print</span>(<span class="tok-s">"FizzBuzz"</span>)
+    <span class="tok-k">elif</span> n % <span class="tok-n">3</span> == <span class="tok-n">0</span>:
+        <span class="tok-f">print</span>(<span class="tok-s">"Fizz"</span>)
+    <span class="tok-k">elif</span> n % <span class="tok-n">5</span> == <span class="tok-n">0</span>:
+        <span class="tok-f">print</span>(<span class="tok-s">"Buzz"</span>)
+    <span class="tok-k">else</span>:
+        <span class="tok-f">print</span>(n)</code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-k">for</span> (<span class="tok-k">int</span> n = <span class="tok-n">1</span>; n &lt;= <span class="tok-n">15</span>; n++)
+{
+    <span class="tok-k">if</span> (n % <span class="tok-n">3</span> == <span class="tok-n">0</span> &amp;&amp; n % <span class="tok-n">5</span> == <span class="tok-n">0</span>)   <span class="tok-c">// % = residuo. Si es 0, es múltiplo</span>
+        Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"FizzBuzz"</span>);
+    <span class="tok-k">else if</span> (n % <span class="tok-n">3</span> == <span class="tok-n">0</span>)
+        Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Fizz"</span>);
+    <span class="tok-k">else if</span> (n % <span class="tok-n">5</span> == <span class="tok-n">0</span>)
+        Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Buzz"</span>);
+    <span class="tok-k">else</span>
+        Console.<span class="tok-f">WriteLine</span>(n);
+}</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">Control de Flujo.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← Variables</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-teal-800 transition text-sm font-semibold">Siguiente: Funciones →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: FUNCIONES ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Funciones</h1>
+    <p class="text-lg text-cyan-200">Escribe la lógica una vez, úsala mil veces.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">☕ La analogía de la cafetera</h2>
+      <p class="text-sm text-gray-600 mb-4">Una <span class="gterm">función<span class="gtooltip">🇪🇸 Función / 🇺🇸 Function — Bloque de código con nombre que realiza una tarea específica. Recibe entradas (parámetros) y puede devolver una salida (return).</span></span> es como una cafetera: le pones <strong>entradas</strong> (agua y café molido = <span class="gterm">parámetros<span class="gtooltip">🇪🇸 Parámetro / 🇺🇸 Parameter — Variable que una función recibe como entrada. El valor concreto que le pasas al llamarla se llama argumento.</span></span>), hace su proceso interno (que no necesitas ver), y te devuelve una <strong>salida</strong> (el café = valor de <span class="gterm">retorno<span class="gtooltip">🇪🇸 Retorno / 🇺🇸 Return — Valor que una función devuelve a quien la llamó. La palabra clave return además termina la ejecución de la función.</span></span>). Una vez que existe, no vuelves a "construir la cafetera": solo la usas.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code><span class="tok-c"># DEFINIR la función (construir la cafetera, se hace 1 vez)</span>
+<span class="tok-k">def</span> <span class="tok-f">calcular_precio_final</span>(precio, impuesto=<span class="tok-n">0.16</span>):
+    <span class="tok-s">"""Devuelve el precio con impuesto incluido."""</span>
+    total = precio * (<span class="tok-n">1</span> + impuesto)
+    <span class="tok-k">return</span> <span class="tok-f">round</span>(total, <span class="tok-n">2</span>)
+
+<span class="tok-c"># LLAMAR la función (usar la cafetera, las veces que quieras)</span>
+<span class="tok-f">print</span>(<span class="tok-f">calcular_precio_final</span>(<span class="tok-n">100</span>))        <span class="tok-c"># 116.0 → usa el 16% por defecto</span>
+<span class="tok-f">print</span>(<span class="tok-f">calcular_precio_final</span>(<span class="tok-n">100</span>, <span class="tok-n">0.08</span>))  <span class="tok-c"># 108.0 → impuesto personalizado</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-c">// DEFINIR el método (en C# las funciones se llaman "métodos")</span>
+<span class="tok-c">// double = tipo de dato que DEVUELVE</span>
+<span class="tok-k">double</span> <span class="tok-f">CalcularPrecioFinal</span>(<span class="tok-k">double</span> precio, <span class="tok-k">double</span> impuesto = <span class="tok-n">0.16</span>)
+{
+    <span class="tok-k">double</span> total = precio * (<span class="tok-n">1</span> + impuesto);
+    <span class="tok-k">return</span> Math.<span class="tok-f">Round</span>(total, <span class="tok-n">2</span>);
+}
+
+<span class="tok-c">// LLAMAR el método (las veces que quieras)</span>
+Console.<span class="tok-f">WriteLine</span>(<span class="tok-f">CalcularPrecioFinal</span>(<span class="tok-n">100</span>));        <span class="tok-c">// 116 → 16% por defecto</span>
+Console.<span class="tok-f">WriteLine</span>(<span class="tok-f">CalcularPrecioFinal</span>(<span class="tok-n">100</span>, <span class="tok-n">0.08</span>));  <span class="tok-c">// 108</span></code></pre>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-cyan-600 rounded-full"></span>Anatomía de una función</h2>
+    <div class="grid md:grid-cols-4 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-2xl mb-2">🏷️</div><h3 class="font-bold text-sm mb-1">Nombre</h3><p class="text-xs text-gray-500">Debe decir QUÉ hace: <code>calcular_total</code>, no <code>funcion1</code>.</p></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-2xl mb-2">📥</div><h3 class="font-bold text-sm mb-1">Parámetros</h3><p class="text-xs text-gray-500">Las entradas que necesita. Pueden tener valores por defecto.</p></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-2xl mb-2">⚙️</div><h3 class="font-bold text-sm mb-1">Cuerpo</h3><p class="text-xs text-gray-500">Las instrucciones que se ejecutan al llamarla.</p></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-2xl mb-2">📤</div><h3 class="font-bold text-sm mb-1">Return</h3><p class="text-xs text-gray-500">El resultado que devuelve (opcional: hay funciones que solo "hacen" sin devolver).</p></div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-cyan-600 rounded-full"></span>Alcance (scope): dónde "vive" cada variable</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <p class="text-sm text-gray-600 mb-3">El <span class="gterm">alcance<span class="gtooltip">🇪🇸 Alcance / 🇺🇸 Scope — Región del código donde una variable existe y puede usarse. Las variables creadas dentro de una función solo existen dentro de ella.</span></span> define dónde puede usarse una variable:</p>
+        <ul class="space-y-3 text-sm text-gray-600">
+          <li class="flex gap-3"><span class="text-cyan-600 font-bold">🏠</span><span><strong>Local:</strong> nace dentro de una función y muere cuando la función termina. Como lo que escribes en un pizarrón de una sala de juntas: al salir, se borra.</span></li>
+          <li class="flex gap-3"><span class="text-cyan-600 font-bold">🌍</span><span><strong>Global:</strong> se declara fuera de toda función y todos la ven. Útil a veces, pero abusar de globales hace el código impredecible — los seniors las evitan.</span></li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">¿Por qué usar funciones? (lo que evalúan los seniors)</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li>✅ <strong>Reutilizar:</strong> escribes la lógica una vez (principio <span class="gterm">DRY<span class="gtooltip">🇺🇸 DRY — Don't Repeat Yourself ("no te repitas"). Si copias y pegas el mismo código dos veces, probablemente debería ser una función.</span></span>).</li>
+          <li>✅ <strong>Leer:</strong> <code class="bg-gray-100 px-1 rounded text-xs">enviar_correo(cliente)</code> se entiende solo.</li>
+          <li>✅ <strong>Probar:</strong> puedes verificar cada función por separado.</li>
+          <li>✅ <strong>Dividir problemas:</strong> un problema grande = varias funciones pequeñas.</li>
+          <li>📏 <strong>Regla de oro:</strong> una función debe hacer <strong>UNA sola cosa</strong> y hacerla bien.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">Funciones.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← Control de Flujo</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-teal-800 transition text-sm font-semibold">Siguiente: Estructuras →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: ESTRUCTURAS DE DATOS ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Estructuras de Datos</h1>
+    <p class="text-lg text-green-200">Cómo organizar muchos datos: listas, diccionarios, tuplas y conjuntos.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📋 Listas: la fila de casilleros numerados</h2>
+      <p class="text-sm text-gray-600 mb-4">Una <span class="gterm">lista<span class="gtooltip">🇪🇸 Lista / 🇺🇸 List — Colección ordenada y modificable de elementos, donde cada uno tiene una posición (índice) empezando en 0.</span></span> guarda varios valores <strong>en orden</strong>, cada uno con una posición llamada <span class="gterm">índice<span class="gtooltip">🇪🇸 Índice / 🇺🇸 Index — Posición numérica de un elemento dentro de una colección ordenada. En casi todos los lenguajes ¡empieza en 0, no en 1!</span></span>. ⚠️ El primer casillero es el <strong>0</strong>, no el 1 — el error más famoso de los principiantes.</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code>tareas = [<span class="tok-s">"estudiar"</span>, <span class="tok-s">"ejercicio"</span>, <span class="tok-s">"leer"</span>]
+
+<span class="tok-f">print</span>(tareas[<span class="tok-n">0</span>])          <span class="tok-c"># "estudiar" → índice 0 es el PRIMERO</span>
+tareas.<span class="tok-f">append</span>(<span class="tok-s">"dormir"</span>)   <span class="tok-c"># agregar al final</span>
+tareas.<span class="tok-f">remove</span>(<span class="tok-s">"leer"</span>)     <span class="tok-c"># eliminar por valor</span>
+<span class="tok-f">print</span>(<span class="tok-f">len</span>(tareas))        <span class="tok-c"># 3 → cuántos elementos hay</span>
+<span class="tok-f">print</span>(tareas[-<span class="tok-n">1</span>])         <span class="tok-c"># "dormir" → -1 es el último (truco Python)</span></code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">var</span> tareas = <span class="tok-k">new</span> List&lt;<span class="tok-k">string</span>&gt; { <span class="tok-s">"estudiar"</span>, <span class="tok-s">"ejercicio"</span>, <span class="tok-s">"leer"</span> };
+
+Console.<span class="tok-f">WriteLine</span>(tareas[<span class="tok-n">0</span>]);   <span class="tok-c">// "estudiar" → índice 0 es el PRIMERO</span>
+tareas.<span class="tok-f">Add</span>(<span class="tok-s">"dormir"</span>);           <span class="tok-c">// agregar al final</span>
+tareas.<span class="tok-f">Remove</span>(<span class="tok-s">"leer"</span>);          <span class="tok-c">// eliminar por valor</span>
+Console.<span class="tok-f">WriteLine</span>(tareas.Count); <span class="tok-c">// 3 → cuántos elementos hay</span>
+Console.<span class="tok-f">WriteLine</span>(tareas[^<span class="tok-n">1</span>]);  <span class="tok-c">// "dormir" → ^1 es el último (C# 8+)</span></code></pre>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-emerald-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📖 Diccionarios: la agenda de contactos</h2>
+      <p class="text-sm text-gray-600 mb-4">Un <span class="gterm">diccionario<span class="gtooltip">🇪🇸 Diccionario / 🇺🇸 Dictionary — Colección de pares clave→valor. Buscas por la clave (como un nombre en tu agenda) y obtienes el valor (el teléfono) al instante.</span></span> guarda pares <strong>clave → valor</strong>. No buscas por posición sino por clave, como buscas un teléfono por el <em>nombre</em> del contacto, no por "el contacto número 47".</p>
+      <div class="code-wrap">
+        <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+        <pre class="code-block code-py"><code>producto = {
+    <span class="tok-s">"nombre"</span>: <span class="tok-s">"Laptop"</span>,     <span class="tok-c"># clave: "nombre" → valor: "Laptop"</span>
+    <span class="tok-s">"precio"</span>: <span class="tok-n">15000</span>,
+    <span class="tok-s">"disponible"</span>: <span class="tok-k">True</span>
+}
+
+<span class="tok-f">print</span>(producto[<span class="tok-s">"precio"</span>])       <span class="tok-c"># 15000 → acceso por clave</span>
+producto[<span class="tok-s">"precio"</span>] = <span class="tok-n">13999</span>      <span class="tok-c"># modificar</span>
+producto[<span class="tok-s">"marca"</span>] = <span class="tok-s">"Dell"</span>      <span class="tok-c"># agregar clave nueva</span>
+
+<span class="tok-k">for</span> clave, valor <span class="tok-k">in</span> producto.<span class="tok-f">items</span>():
+    <span class="tok-f">print</span>(<span class="tok-s">f"{clave}: {valor}"</span>)</code></pre>
+        <pre class="code-block code-cs hidden"><code><span class="tok-k">var</span> producto = <span class="tok-k">new</span> Dictionary&lt;<span class="tok-k">string</span>, <span class="tok-k">object</span>&gt;
+{
+    [<span class="tok-s">"nombre"</span>] = <span class="tok-s">"Laptop"</span>,    <span class="tok-c">// clave: "nombre" → valor: "Laptop"</span>
+    [<span class="tok-s">"precio"</span>] = <span class="tok-n">15000</span>,
+    [<span class="tok-s">"disponible"</span>] = <span class="tok-k">true</span>
+};
+
+Console.<span class="tok-f">WriteLine</span>(producto[<span class="tok-s">"precio"</span>]);  <span class="tok-c">// 15000 → acceso por clave</span>
+producto[<span class="tok-s">"precio"</span>] = <span class="tok-n">13999</span>;             <span class="tok-c">// modificar</span>
+producto[<span class="tok-s">"marca"</span>] = <span class="tok-s">"Dell"</span>;             <span class="tok-c">// agregar clave nueva</span>
+
+<span class="tok-k">foreach</span> (<span class="tok-k">var</span> par <span class="tok-k">in</span> producto)
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"{par.Key}: {par.Value}"</span>);</code></pre>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-green-600 rounded-full"></span>¿Cuál estructura uso? Tabla de decisión</h2>
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Estructura</th><th class="p-3 text-left">🐍 Python</th><th class="p-3 text-left">#️⃣ C#</th><th class="p-3 text-left">Úsala cuando...</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-semibold">Lista</td><td class="p-3 font-mono text-xs">list [1,2,3]</td><td class="p-3 font-mono text-xs">List&lt;T&gt;</td><td class="p-3">Importa el orden y vas a agregar/quitar elementos.</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Arreglo</td><td class="p-3 font-mono text-xs">(se usa list)</td><td class="p-3 font-mono text-xs">int[] fijo</td><td class="p-3">Tamaño fijo conocido de antemano (más eficiente).</td></tr>
+          <tr><td class="p-3 font-semibold">Diccionario</td><td class="p-3 font-mono text-xs">dict {"a":1}</td><td class="p-3 font-mono text-xs">Dictionary&lt;K,V&gt;</td><td class="p-3">Buscas valores por una clave (id, nombre, código).</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-semibold">Tupla</td><td class="p-3 font-mono text-xs">tuple (1,2)</td><td class="p-3 font-mono text-xs">(int, int)</td><td class="p-3">Grupo pequeño de valores que NUNCA cambia (coordenadas, RGB).</td></tr>
+          <tr><td class="p-3 font-semibold">Conjunto</td><td class="p-3 font-mono text-xs">set {1,2}</td><td class="p-3 font-mono text-xs">HashSet&lt;T&gt;</td><td class="p-3">No quieres duplicados, o preguntas "¿ya existe?" muy seguido.</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="bg-teal-50 border border-teal-200 rounded-xl p-5 mb-10 text-sm text-teal-900">
+      🧠 <strong>Cómo lo piensa un senior:</strong> "¿Necesito orden? → lista. ¿Busco por clave? → diccionario. ¿Prohibidos los duplicados? → conjunto. ¿Datos fijos que viajan juntos? → tupla." Elegir bien la estructura es la mitad de la solución de la mayoría de los problemas.
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">Estructuras de Datos.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← Funciones</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-teal-800 transition text-sm font-semibold">Siguiente: Errores →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: ERRORES Y EXCEPCIONES ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Errores y Excepciones</h1>
+    <p class="text-lg text-rose-200">Los errores no son fracasos: son mensajes. Aprende a leerlos y a controlarlos.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-rose-600 rounded-full"></span>Los 3 tipos de errores</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-red-400">
+        <h3 class="font-bold text-red-700 text-sm uppercase mb-2">1. De sintaxis</h3>
+        <p class="text-sm text-gray-600 mb-2">Escribiste mal el "idioma": falta un paréntesis, dos puntos, punto y coma. <strong>El programa ni siquiera arranca.</strong></p>
+        <p class="text-xs text-gray-400 italic">Analogía: una oración sin verbo — el lector se detiene de inmediato.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-orange-400">
+        <h3 class="font-bold text-orange-700 text-sm uppercase mb-2">2. De ejecución (runtime)</h3>
+        <p class="text-sm text-gray-600 mb-2">La sintaxis es válida, pero al correr algo falla: dividir entre 0, abrir un archivo que no existe, índice fuera de rango. <strong>Lanzan una <span class="gterm">excepción<span class="gtooltip">🇪🇸 Excepción / 🇺🇸 Exception — Evento inesperado durante la ejecución que interrumpe el flujo normal del programa. Puede "atraparse" con try/catch para manejarlo con elegancia.</span></span>.</strong></p>
+        <p class="text-xs text-gray-400 italic">Analogía: la receta está bien escrita, pero el horno se descompuso a media cocción.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5 border-t-4 border-yellow-400">
+        <h3 class="font-bold text-yellow-700 text-sm uppercase mb-2">3. De lógica</h3>
+        <p class="text-sm text-gray-600 mb-2">El programa corre sin quejarse... pero da un resultado <strong>incorrecto</strong>. Usaste <code class="bg-gray-100 px-1 rounded">+</code> en vez de <code class="bg-gray-100 px-1 rounded">-</code>. Son los más difíciles de encontrar.</p>
+        <p class="text-xs text-gray-400 italic">Analogía: el pastel se horneó perfecto... con sal en lugar de azúcar.</p>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-rose-600 rounded-full"></span>try / catch: el plan B de tu programa</h2>
+    <p class="text-sm text-gray-600 mb-3">Cuando una operación puede fallar (pedir datos al usuario, leer archivos, llamar a internet), la envuelves en un bloque protegido: <em>"INTENTA esto; SI FALLA, haz esto otro en lugar de tronar"</em>.</p>
+    <div class="code-wrap mb-6">
+      <div class="flex"><button class="ct-btn ct-active" data-lang="py" onclick="setLang('py')">🐍 Python</button><button class="ct-btn" data-lang="cs" onclick="setLang('cs')">#️⃣ C#</button></div>
+      <pre class="code-block code-py"><code><span class="tok-k">try</span>:
+    texto = <span class="tok-f">input</span>(<span class="tok-s">"¿Cuántos años tienes? "</span>)
+    edad = <span class="tok-f">int</span>(texto)              <span class="tok-c"># puede fallar si escriben "hola"</span>
+    <span class="tok-f">print</span>(<span class="tok-s">f"En 10 años tendrás {edad + 10}"</span>)
+<span class="tok-k">except</span> ValueError:                 <span class="tok-c"># se ejecuta SOLO si hubo ese error</span>
+    <span class="tok-f">print</span>(<span class="tok-s">"Eso no es un número 😅"</span>)
+<span class="tok-k">finally</span>:                           <span class="tok-c"># se ejecuta SIEMPRE, falle o no</span>
+    <span class="tok-f">print</span>(<span class="tok-s">"Programa terminado"</span>)
+
+<span class="tok-c"># También puedes LANZAR tus propios errores:</span>
+<span class="tok-k">def</span> <span class="tok-f">retirar</span>(saldo, monto):
+    <span class="tok-k">if</span> monto &gt; saldo:
+        <span class="tok-k">raise</span> <span class="tok-f">ValueError</span>(<span class="tok-s">"Fondos insuficientes"</span>)
+    <span class="tok-k">return</span> saldo - monto</code></pre>
+      <pre class="code-block code-cs hidden"><code><span class="tok-k">try</span>
+{
+    Console.<span class="tok-f">Write</span>(<span class="tok-s">"¿Cuántos años tienes? "</span>);
+    <span class="tok-k">string</span> texto = Console.<span class="tok-f">ReadLine</span>();
+    <span class="tok-k">int</span> edad = <span class="tok-f">int</span>.Parse(texto);   <span class="tok-c">// puede fallar si escriben "hola"</span>
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"En 10 años tendrás {edad + 10}"</span>);
+}
+<span class="tok-k">catch</span> (FormatException)            <span class="tok-c">// se ejecuta SOLO si hubo ese error</span>
+{
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Eso no es un número 😅"</span>);
+}
+<span class="tok-k">finally</span>                            <span class="tok-c">// se ejecuta SIEMPRE, falle o no</span>
+{
+    Console.<span class="tok-f">WriteLine</span>(<span class="tok-s">"Programa terminado"</span>);
+}
+
+<span class="tok-c">// También puedes LANZAR tus propios errores:</span>
+<span class="tok-k">decimal</span> <span class="tok-f">Retirar</span>(<span class="tok-k">decimal</span> saldo, <span class="tok-k">decimal</span> monto)
+{
+    <span class="tok-k">if</span> (monto &gt; saldo)
+        <span class="tok-k">throw new</span> <span class="tok-f">InvalidOperationException</span>(<span class="tok-s">"Fondos insuficientes"</span>);
+    <span class="tok-k">return</span> saldo - monto;
+}</code></pre>
+    </div>
+    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-10 text-sm text-rose-900">
+      📖 <strong>Vocabulario:</strong> Python dice <code class="bg-rose-100 px-1 rounded">try/except/raise</code>; C# dice <code class="bg-rose-100 px-1 rounded">try/catch/throw</code>. El concepto es idéntico: <em>atrapar</em> errores para manejarlos, o <em>lanzarlos</em> para avisar que algo salió mal.
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-rose-600 rounded-full"></span>Cómo leer un stack trace (sin pánico)</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <p class="text-sm text-gray-600 mb-3">El <span class="gterm">stack trace<span class="gtooltip">🇺🇸 Stack Trace / 🇪🇸 Traza de pila — Reporte que muestra la cadena de llamadas que llevó al error: qué función llamó a cuál, y en qué línea exacta explotó.</span></span> es el "reporte del accidente". Parece intimidante pero tiene 3 datos de oro:</p>
+        <ol class="space-y-2 text-sm text-gray-600">
+          <li><strong>1. El tipo de error</strong> — <code class="bg-gray-100 px-1 rounded text-xs">ValueError</code>, <code class="bg-gray-100 px-1 rounded text-xs">NullReferenceException</code>... dice QUÉ pasó.</li>
+          <li><strong>2. El mensaje</strong> — la descripción humana del problema.</li>
+          <li><strong>3. Archivo y línea</strong> — DÓNDE explotó. En Python, la última línea del trace es el error; en C#, la primera.</li>
+        </ol>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-slate-800 mb-3">🐛 Kit de debugging del principiante</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li>🖨️ <strong>Prints estratégicos:</strong> imprime valores intermedios para ver dónde se tuerce el dato.</li>
+          <li>🔴 <strong>Breakpoints:</strong> en VS Code / Visual Studio, pausa la ejecución en una línea y revisa cada variable en vivo. Nivel pro del print.</li>
+          <li>🦆 <strong>Patito de goma:</strong> explica tu código en voz alta línea por línea (a un pato, a tu gato). El 50% de las veces encuentras el error tú misma al explicarlo.</li>
+          <li>✂️ <strong>Divide y vencerás:</strong> comenta mitades del código hasta aislar la línea culpable.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">Errores y Excepciones.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← Estructuras</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-teal-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-teal-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← Errores</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">Preguntas de fundamentos que aparecen en TODA entrevista técnica, en inglés y español.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 Cómo responder preguntas de fundamentos</h2>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><strong class="text-amber-700">Definición + analogía:</strong><p class="text-gray-600 mt-1">Da la definición técnica y luego una analogía simple. Demuestra que entiendes, no que memorizaste.</p></div>
+        <div><strong class="text-amber-700">Ejemplo de código corto:</strong><p class="text-gray-600 mt-1">Ofrece escribir 3-5 líneas de ejemplo. "Can I show you with a quick example?" siempre suma puntos.</p></div>
+        <div><strong class="text-amber-700">Di cuándo se usa:</strong><p class="text-gray-600 mt-1">Cierra con un caso de uso real. Los seniors no solo saben QUÉ es algo, saben CUÁNDO usarlo.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de fundamentos</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-teal-700 mb-3 text-sm uppercase">Explicar código</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-teal-600 font-mono text-xs">"This function takes two parameters and returns..."</p><p class="text-gray-500 text-xs">Esta función recibe dos parámetros y devuelve...</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-teal-600 font-mono text-xs">"I would use a dictionary here for faster lookups."</p><p class="text-gray-500 text-xs">Usaría un diccionario aquí para búsquedas más rápidas.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-teal-600 font-mono text-xs">"The loop iterates over each element in the list."</p><p class="text-gray-500 text-xs">El bucle itera sobre cada elemento de la lista.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-teal-600 font-mono text-xs">"Let me walk you through my solution step by step."</p><p class="text-gray-500 text-xs">Déjame explicarte mi solución paso a paso.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Hablar de errores y soluciones</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"I wrapped it in a try/catch block to handle the exception."</p><p class="text-gray-500 text-xs">Lo envolví en un try/catch para manejar la excepción.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"I debugged it by adding breakpoints and inspecting the values."</p><p class="text-gray-500 text-xs">Lo depuré agregando breakpoints e inspeccionando los valores.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"The edge case I considered was an empty input."</p><p class="text-gray-500 text-xs">El caso límite que consideré fue una entrada vacía.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"There's a trade-off between readability and performance."</p><p class="text-gray-500 text-xs">Hay un balance entre legibilidad y rendimiento.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-teal-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-teal-600" value="1"><span class="text-sm">Módulo 1: ¿Qué es?</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-teal-600" value="2"><span class="text-sm">Módulo 2: Variables</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-teal-600" value="3"><span class="text-sm">Módulo 3: Control</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-teal-600" value="4"><span class="text-sm">Módulo 4: Funciones</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-teal-600" value="5"><span class="text-sm">Módulo 5: Estructuras</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-teal-600" value="6"><span class="text-sm">Módulo 6: Errores</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-teal-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-teal-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-teal-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · Fundamentos de Programación · Conceptos de Programación CP1</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'Algoritmo',en:'Algorithm',def:'Serie de pasos ordenados y finitos para resolver un problema. Una receta de cocina es un algoritmo.'},
+  {es:'Programa',en:'Program',def:'Conjunto de instrucciones escritas en un lenguaje de programación que la computadora puede ejecutar.'},
+  {es:'Código Fuente',en:'Source Code',def:'El texto que escribe el programador en un lenguaje de programación, antes de compilarse o ejecutarse.'},
+  {es:'Lenguaje de Programación',en:'Programming Language',def:'Idioma formal con reglas estrictas (sintaxis) para escribir instrucciones que una computadora ejecuta.'},
+  {es:'Sintaxis',en:'Syntax',def:'Las reglas gramaticales de un lenguaje de programación: cómo se escriben correctamente las instrucciones.'},
+  {es:'Compilador',en:'Compiler',def:'Programa que traduce TODO el código fuente a un formato ejecutable antes de correrlo. C# es compilado.'},
+  {es:'Intérprete',en:'Interpreter',def:'Programa que lee y ejecuta el código línea por línea sin compilarlo antes. Python es interpretado.'},
+  {es:'Pseudocódigo',en:'Pseudocode',def:'Descripción de un algoritmo en lenguaje humano estructurado, sin sintaxis estricta. Sirve para planear.'},
+  {es:'Variable',en:'Variable',def:'Espacio en memoria con un nombre donde el programa guarda un valor que puede cambiar. Como una caja etiquetada.'},
+  {es:'Tipo de Dato',en:'Data Type',def:'Categoría de un valor que define qué operaciones acepta: entero (int), decimal (float/double), texto (string), booleano (bool).'},
+  {es:'Cadena de Texto',en:'String',def:'Secuencia de caracteres (letras, números, símbolos) tratada como texto. Se escribe entre comillas.'},
+  {es:'Booleano',en:'Boolean',def:'Tipo de dato con solo dos valores posibles: verdadero (true) o falso (false). Base de todas las decisiones del programa.'},
+  {es:'Tipado Estático',en:'Static Typing',def:'El tipo de cada variable se declara y se verifica al compilar (C#). Los errores de tipo se detectan antes de ejecutar.'},
+  {es:'Tipado Dinámico',en:'Dynamic Typing',def:'El tipo se determina automáticamente al ejecutar (Python). Más flexible, pero los errores de tipo aparecen en ejecución.'},
+  {es:'Conversión de Tipos',en:'Type Casting',def:'Transformar un valor de un tipo a otro, por ejemplo el texto "25" al número 25 con int().'},
+  {es:'Operador',en:'Operator',def:'Símbolo que realiza una operación: aritmética (+, -, *, /), comparación (==, >) o lógica (and/&&, or/||).'},
+  {es:'Módulo (operador %)',en:'Modulo',def:'Operador que devuelve el residuo de una división. 7 % 3 = 1. Útil para saber si un número es par o múltiplo de otro.'},
+  {es:'Condicional',en:'Conditional',def:'Estructura que ejecuta código solo si una condición es verdadera: if / else if / else.'},
+  {es:'Bucle / Ciclo',en:'Loop',def:'Estructura que repite un bloque de código: for (número conocido de veces) o while (mientras una condición sea cierta).'},
+  {es:'Iteración',en:'Iteration',def:'Cada una de las "vueltas" que da un bucle. Iterar una lista = recorrerla elemento por elemento.'},
+  {es:'Bucle Infinito',en:'Infinite Loop',def:'Bucle cuya condición nunca se vuelve falsa: el programa se queda atorado repitiendo para siempre.'},
+  {es:'Función',en:'Function',def:'Bloque de código con nombre que hace una tarea específica. Recibe parámetros y puede devolver un resultado. En C# dentro de clases se llaman métodos.'},
+  {es:'Parámetro',en:'Parameter',def:'Variable que una función declara como entrada. El valor concreto que pasas al llamarla se llama argumento.'},
+  {es:'Argumento',en:'Argument',def:'El valor real que le pasas a una función al llamarla. calcular(100) → 100 es el argumento.'},
+  {es:'Retorno',en:'Return',def:'Valor que una función devuelve a quien la llamó. La palabra return además termina la función.'},
+  {es:'Alcance',en:'Scope',def:'Región del código donde una variable existe. Las variables locales solo viven dentro de su función.'},
+  {es:'Lista',en:'List',def:'Colección ordenada y modificable de elementos, cada uno con un índice. list en Python, List&lt;T&gt; en C#.'},
+  {es:'Índice',en:'Index',def:'Posición numérica de un elemento en una colección ordenada. ¡Empieza en 0, no en 1!'},
+  {es:'Arreglo',en:'Array',def:'Colección ordenada de tamaño fijo. En C# int[] tiene tamaño definido al crearse; en Python se usa list para casi todo.'},
+  {es:'Diccionario',en:'Dictionary',def:'Colección de pares clave→valor. Buscas por clave (como en una agenda) y obtienes el valor al instante. dict / Dictionary&lt;K,V&gt;.'},
+  {es:'Tupla',en:'Tuple',def:'Grupo pequeño e inmutable (no modificable) de valores que viajan juntos, como coordenadas (x, y).'},
+  {es:'Conjunto',en:'Set',def:'Colección sin orden y sin duplicados. Ideal para preguntar "¿ya existe?" o eliminar repetidos. set / HashSet&lt;T&gt;.'},
+  {es:'Excepción',en:'Exception',def:'Evento inesperado en ejecución que interrumpe el flujo normal. Se maneja con try/except (Python) o try/catch (C#).'},
+  {es:'Traza de Pila',en:'Stack Trace',def:'Reporte del error que muestra la cadena de llamadas y la línea exacta donde explotó el programa.'},
+  {es:'Bug',en:'Bug',def:'Error o defecto en un programa que produce un resultado incorrecto o inesperado.'},
+  {es:'Depuración',en:'Debugging',def:'Proceso de encontrar y corregir bugs: con prints, breakpoints o explicando el código en voz alta (patito de goma).'},
+  {es:'Punto de Interrupción',en:'Breakpoint',def:'Marca en el IDE que pausa la ejecución en una línea para inspeccionar variables en vivo.'},
+  {es:'IDE',en:'IDE — Integrated Development Environment',def:'Entorno de desarrollo: editor + ejecución + debugging en un solo programa. VS Code, Visual Studio, PyCharm.'},
+  {es:'DRY (No te repitas)',en:'DRY — Don\'t Repeat Yourself',def:'Principio: si copias el mismo código dos veces, conviértelo en una función. Menos duplicación = menos bugs.'},
+  {es:'Nulo / Vacío',en:'Null / None',def:'Valor especial que significa "no hay valor". None en Python, null en C#. Causa del famoso NullReferenceException.'}
+];
+
+const flashcards = [
+  {en:'Variable',es:'Variable',def:'A named storage location in memory that holds a value which can change during execution.',pron:'VEHR-ee-uh-bul'},
+  {en:'Data Type',es:'Tipo de Dato',def:'The category of a value: integer, float, string, or boolean. It defines what operations are allowed.',pron:'DEY-tah tayp'},
+  {en:'String',es:'Cadena de Texto',def:'A sequence of characters treated as text, written between quotes.',pron:'string'},
+  {en:'Loop',es:'Bucle / Ciclo',def:'A structure that repeats a block of code: for loops and while loops.',pron:'loop'},
+  {en:'Function',es:'Función',def:'A named block of code that performs a task. It takes parameters and may return a value.',pron:'FUNK-shun'},
+  {en:'Parameter',es:'Parámetro',def:'An input variable declared by a function. The actual value passed is called an argument.',pron:'puh-RAM-eh-ter'},
+  {en:'Return Value',es:'Valor de Retorno',def:'The output a function gives back to the code that called it.',pron:'ree-TERN VAL-yoo'},
+  {en:'Array / List',es:'Arreglo / Lista',def:'An ordered collection of elements accessed by index. Indexes start at zero.',pron:'uh-REY / list'},
+  {en:'Dictionary',es:'Diccionario',def:'A collection of key-value pairs. You look up values by their key, like a phone book.',pron:'DIK-shuh-neh-ree'},
+  {en:'Boolean',es:'Booleano',def:'A data type with only two values: true or false. The basis of all program decisions.',pron:'BOO-lee-un'},
+  {en:'Exception',es:'Excepción',def:'An unexpected runtime event that interrupts normal flow. Handled with try/catch blocks.',pron:'ek-SEP-shun'},
+  {en:'Bug',es:'Error / Defecto',def:'A defect in a program that causes incorrect or unexpected behavior.',pron:'bug'},
+  {en:'Debugging',es:'Depuración',def:'The process of finding and fixing bugs using prints, breakpoints, or step-by-step execution.',pron:'dee-BUG-ing'},
+  {en:'Compiler',es:'Compilador',def:'A program that translates all source code into executable form before running it.',pron:'kum-PY-ler'},
+  {en:'Syntax',es:'Sintaxis',def:'The grammar rules of a programming language: how statements must be written.',pron:'SIN-taks'}
+];
+
+const interviewQA = [
+  {q:'What is the difference between a compiled and an interpreted language? / ¿Cuál es la diferencia entre un lenguaje compilado y uno interpretado?',cat:'Conceptual',
+   ans:'A compiled language (like C#) translates ALL the source code into executable form before running, catching many errors early and running faster. An interpreted language (like Python) executes line by line at runtime, which makes development faster but execution slower.\n\n🇪🇸 Español: Un lenguaje compilado (como C#) traduce TODO el código fuente a formato ejecutable antes de correrlo, detectando muchos errores temprano y ejecutándose más rápido. Un lenguaje interpretado (como Python) se ejecuta línea por línea al momento, lo que agiliza el desarrollo pero hace más lenta la ejecución.'},
+  {q:'What is the difference between static and dynamic typing? / ¿Tipado estático vs dinámico?',cat:'Conceptual',
+   ans:'Static typing (C#): variable types are declared and checked at compile time — "int edad = 28". Dynamic typing (Python): types are determined at runtime — "edad = 28". Static catches type errors earlier; dynamic is more flexible and concise. Neither is "better" — it\'s a trade-off.\n\n🇪🇸 Español: Tipado estático (C#): el tipo de cada variable se declara y se verifica al compilar — "int edad = 28". Tipado dinámico (Python): el tipo se determina al ejecutar — "edad = 28". El estático detecta errores de tipo antes; el dinámico es más flexible y conciso. Ninguno es "mejor" — es un trade-off (un intercambio de ventajas).'},
+  {q:'What is the difference between a for loop and a while loop? / ¿Diferencia entre for y while?',cat:'Técnica',
+   ans:'Use FOR when you know how many times to repeat, or when iterating over a collection. Use WHILE when repetition depends on a condition and you don\'t know how many iterations you\'ll need. Tip: mention that a while loop whose condition never becomes false causes an infinite loop.\n\n🇪🇸 Español: Usa FOR cuando sabes cuántas veces repetir, o al recorrer una colección elemento por elemento. Usa WHILE cuando la repetición depende de una condición y no sabes cuántas vueltas necesitarás. Tip: menciona que un while cuya condición nunca se vuelve falsa causa un bucle infinito — demuestra que conoces el riesgo.'},
+  {q:'What is the difference between == and = ? / ¿Diferencia entre == y =?',cat:'Técnica',
+   ans:'= is ASSIGNMENT: it stores a value in a variable (edad = 18). == is COMPARISON: it asks whether two values are equal and returns a boolean (edad == 18).\n\n🇪🇸 Español: = es ASIGNACIÓN: guarda un valor en una variable (edad = 18). == es COMPARACIÓN: pregunta si dos valores son iguales y devuelve un booleano (edad == 18). Es el error de principiante más común, y les gusta preguntarlo para verificar que dominas lo básico.'},
+  {q:'When would you use a dictionary instead of a list? / ¿Cuándo usar un diccionario en vez de una lista?',cat:'Técnica',
+   ans:'Use a dictionary when you need to look up values by a key (id, name, code) — lookups are nearly instant regardless of size. Use a list when order matters and you access elements by position or iterate over all of them. Senior bonus: dictionary lookup is O(1), list search is O(n).\n\n🇪🇸 Español: Usa un diccionario cuando necesitas buscar valores por una clave (id, nombre, código) — la búsqueda es casi instantánea sin importar el tamaño. Usa una lista cuando importa el orden y accedes por posición o recorres todos los elementos. Bonus senior: buscar en diccionario es O(1); buscar en lista es O(n).'},
+  {q:'What is an exception and how do you handle it? / ¿Qué es una excepción y cómo se maneja?',cat:'Técnica',
+   ans:'An exception is a runtime event that interrupts normal program flow — like dividing by zero or parsing invalid input. You handle it with try/catch (C#) or try/except (Python): the risky code goes in try, the recovery logic in catch. Mention "finally" for cleanup code that always runs, and that you should catch SPECIFIC exceptions, not everything.\n\n🇪🇸 Español: Una excepción es un evento en tiempo de ejecución que interrumpe el flujo normal — como dividir entre cero o convertir una entrada inválida. Se maneja con try/catch (C#) o try/except (Python): el código riesgoso va en el try; la lógica de recuperación en el catch. Menciona el "finally" para el código de limpieza que siempre corre, y que se deben atrapar excepciones ESPECÍFICAS, no todo indiscriminadamente.'},
+  {q:'Explain a function to someone non-technical. / Explica qué es una función a alguien no técnico.',cat:'Comportamental',
+   ans:'Great chance to show communication skills: "A function is like a coffee machine: you put in inputs (water, coffee), it does its internal process, and gives you back an output (the coffee). Once built, you reuse it without rebuilding it every time."\n\n🇪🇸 Español: Gran oportunidad para demostrar habilidades de comunicación: "Una función es como una cafetera: le pones entradas (agua, café), hace su proceso interno, y te devuelve una salida (el café). Una vez construida, la reutilizas sin reconstruirla cada vez." Las entrevistas valoran MUCHO poder explicar conceptos técnicos con analogías simples.'},
+  {q:'How do you debug a program that gives the wrong result? / ¿Cómo depuras un programa que da un resultado incorrecto?',cat:'Comportamental',
+   ans:'Describe a systematic process: 1) Reproduce the bug consistently. 2) Read the error message/stack trace carefully. 3) Add prints or breakpoints to inspect intermediate values. 4) Isolate the failing section (divide and conquer). 5) Fix, and test again including edge cases.\n\n🇪🇸 Español: Describe un proceso sistemático: 1) Reproduce el bug de forma consistente. 2) Lee con cuidado el mensaje de error o stack trace. 3) Agrega prints o breakpoints para inspeccionar valores intermedios. 4) Aísla la sección que falla (divide y vencerás). 5) Corrige y vuelve a probar, incluyendo los casos límite. Nunca digas "cambio cosas al azar hasta que funciona" — el proceso sistemático es exactamente lo que evalúan.'}
+];
+
+const quizData = {
+  1:[{q:'¿Qué es un algoritmo?',opts:['Un lenguaje de programación','Una serie de pasos ordenados para resolver un problema','Un tipo de computadora','Un error del programa'],ans:1},
+     {q:'¿Cuál es la diferencia clave entre compilado e interpretado?',opts:['El compilado es siempre mejor','El interpretado no tiene errores','El compilado traduce todo antes de ejecutar; el interpretado va línea por línea','No hay diferencia'],ans:2},
+     {q:'¿Cómo se marcan los bloques de código en Python?',opts:['Con llaves { }','Con punto y coma','Con indentación (espacios)','Con paréntesis'],ans:2},
+     {q:'¿Qué es el pseudocódigo?',opts:['Código con errores','La lógica escrita en lenguaje humano estructurado, para planear','Un lenguaje de Microsoft','Código encriptado'],ans:1},
+     {q:'C# fue creado por...',opts:['Google','Guido van Rossum','Microsoft','IBM'],ans:2}],
+  2:[{q:'Una variable es como...',opts:['Un programa completo','Una caja etiquetada que guarda un valor','Un error','Una función'],ans:1},
+     {q:'¿Qué tipo de dato guarda verdadero/falso?',opts:['int','string','bool','float'],ans:2},
+     {q:'En C# el tipo se declara antes del nombre porque su tipado es...',opts:['Dinámico','Estático','Inexistente','Automático'],ans:1},
+     {q:'¿Qué hace int("25") en Python?',opts:['Da error siempre','Convierte el texto "25" al número 25','Crea una lista','Imprime 25'],ans:1},
+     {q:'¿Cuál es la diferencia entre = y ==?',opts:['Son lo mismo','= asigna un valor; == compara si son iguales','== asigna; = compara','Ambos comparan'],ans:1},
+     {q:'"25" + "5" con textos (sin convertir) da...',opts:['30','"255" porque une los textos','Error siempre','25.5'],ans:1}],
+  3:[{q:'¿Qué estructura ejecuta código solo si una condición es verdadera?',opts:['for','while','if','print'],ans:2},
+     {q:'¿Cuándo usas while en vez de for?',opts:['Siempre','Cuando NO sabes cuántas repeticiones habrá; depende de una condición','Cuando la lista es corta','Nunca'],ans:1},
+     {q:'¿Qué hace break dentro de un bucle?',opts:['Pausa el programa','Sale del bucle inmediatamente','Reinicia el bucle','Salta a la siguiente vuelta'],ans:1},
+     {q:'range(5) en Python genera...',opts:['1,2,3,4,5','0,1,2,3,4','5 números aleatorios','0,1,2,3,4,5'],ans:1},
+     {q:'En FizzBuzz, ¿por qué se revisa PRIMERO el múltiplo de 3 y 5 a la vez?',opts:['Por estética','Porque si revisas primero el 3, un múltiplo de ambos imprimiría solo "Fizz"','Porque es más rápido','No importa el orden'],ans:1},
+     {q:'Un bucle cuya condición nunca se vuelve falsa es...',opts:['Un bucle eficiente','Un bucle infinito','Un foreach','Un switch'],ans:1}],
+  4:[{q:'En la analogía de la cafetera, el café que sale representa...',opts:['Los parámetros','El valor de retorno (return)','El nombre de la función','Un error'],ans:1},
+     {q:'¿Qué es un parámetro?',opts:['El resultado de la función','Una entrada que la función recibe','Un tipo de bucle','Una variable global'],ans:1},
+     {q:'Una variable creada DENTRO de una función...',opts:['Se puede usar en todo el programa','Solo existe dentro de esa función (alcance local)','Nunca se borra','Es siempre global'],ans:1},
+     {q:'El principio DRY dice...',opts:['Escribe todo dos veces','Si repites código, conviértelo en función','Usa solo variables globales','No uses funciones'],ans:1},
+     {q:'Una buena función debe...',opts:['Hacer muchas cosas a la vez','Hacer UNA sola cosa y hacerla bien','Ser lo más larga posible','No tener nombre claro'],ans:1}],
+  5:[{q:'El primer elemento de una lista está en el índice...',opts:['1','0','-1','Depende del día'],ans:1},
+     {q:'¿Cuándo conviene un diccionario en vez de una lista?',opts:['Cuando importa el orden','Cuando buscas valores por una clave (nombre, id)','Cuando hay pocos datos','Nunca'],ans:1},
+     {q:'¿Qué estructura NO permite duplicados?',opts:['Lista','Tupla','Conjunto (set)','Arreglo'],ans:2},
+     {q:'Una tupla se caracteriza por...',opts:['Poder crecer sin límite','Ser inmutable (no se modifica después de crearse)','Guardar pares clave-valor','Ordenarse sola'],ans:1},
+     {q:'En C#, la colección equivalente al dict de Python es...',opts:['List&lt;T&gt;','int[]','Dictionary&lt;K,V&gt;','HashSet&lt;T&gt;'],ans:2}],
+  6:[{q:'Un error de LÓGICA se caracteriza porque...',opts:['El programa no arranca','El programa truena a media ejecución','El programa corre bien pero da un resultado incorrecto','Aparece un stack trace'],ans:2},
+     {q:'¿Para qué sirve try/catch (o try/except)?',opts:['Para acelerar el programa','Para manejar errores sin que el programa truene','Para crear variables','Para repetir código'],ans:1},
+     {q:'El bloque finally...',opts:['Solo corre si hay error','Solo corre si NO hay error','Corre SIEMPRE, haya error o no','Nunca corre'],ans:2},
+     {q:'¿Qué información clave da un stack trace?',opts:['La hora del sistema','Tipo de error, mensaje, y archivo/línea donde ocurrió','El nombre del programador','La versión de Windows'],ans:1},
+     {q:'La técnica del "patito de goma" consiste en...',opts:['Comprar juguetes','Explicar tu código en voz alta línea por línea para descubrir el error','Borrar todo el código','Preguntarle a otro programador'],ans:1},
+     {q:'En Python se dice raise; en C# se dice...',opts:['catch','throw','finally','break'],ans:1}]
+};
+
+// ===== RENDER =====
+function setLang(lang){
+  localStorage.setItem('cp_lang',lang);
+  document.querySelectorAll('.code-wrap').forEach(w=>{
+    w.querySelectorAll('.ct-btn').forEach(b=>b.classList.toggle('ct-active',b.dataset.lang===lang));
+    w.querySelectorAll('.code-block').forEach(p=>p.classList.toggle('hidden',!p.classList.contains('code-'+lang)));
+  });
+}
+
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-teal-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp1_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp1_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp1_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-teal-600 text-white">'+
+      '<p class="text-xs text-teal-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-teal-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-teal-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-teal-100 text-teal-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-orange-100 text-orange-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp1_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp1_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp1_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp1_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-teal-100 text-teal-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+  setLang(localStorage.getItem('cp_lang')||'py');
+});
+</script>
+</body>
+</html>

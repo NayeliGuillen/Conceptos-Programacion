@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diseño de Sistemas y Liderazgo Técnico — Guía de Estudio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+  .nav-link.active-nav { background: rgba(101,163,13,0.12); color: #65a30d; font-weight: 600; }
+  .quiz-option { transition: all 0.2s; }
+  .quiz-option:hover { transform: translateX(4px); }
+  .quiz-option.correct { background: #d1fae5 !important; border-color: #10b981 !important; }
+  .quiz-option.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; }
+  html { scroll-behavior: smooth; }
+  .gterm { border-bottom: 2px dotted #65a30d; cursor: help; position: relative; color: #4d7c0f; font-weight: 600; }
+  .gterm .gtooltip {
+    display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+    background: #1a2e05; color: white; padding: 8px 12px; border-radius: 8px;
+    font-size: 11px; min-width: 200px; max-width: 280px; white-space: normal;
+    z-index: 999; line-height: 1.5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none;
+  }
+  .gterm:hover .gtooltip { display: block; }
+  .flashcard { perspective: 700px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 150px; transition: transform 0.55s; transform-style: preserve-3d; }
+  .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 14px; text-align: center;
+  }
+  .fc-back { transform: rotateY(180deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .acc-item.open .acc-body { max-height: 900px; }
+  .acc-arrow { transition: transform 0.3s; }
+  .acc-item.open .acc-arrow { transform: rotate(180deg); }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 14px 16px; font-size: 12.5px; overflow-x: auto; line-height: 1.7; font-family: Consolas, 'Courier New', monospace; margin: 0; }
+  .tok-k { color: #c084fc; } .tok-s { color: #86efac; } .tok-c { color: #64748b; font-style: italic; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- CROSS-NAV BAR -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:60;background:#1e293b;color:white;font-size:11px;height:32px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;overflow-x:auto;white-space:nowrap;">
+  <a href="index.html" style="color:#fbbf24;font-weight:600;text-decoration:none;">Inicio</a>
+  <a href="CP1-Fundamentos-de-programacion.html" title="Fundamentos de Programación" style="color:#2dd4bf;text-decoration:none;">CP1</a>
+  <a href="CP2-Programacion-orientada-a-objetos.html" title="POO" style="color:#c4b5fd;text-decoration:none;">CP2</a>
+  <a href="CP3-APIs-y-comunicacion.html" title="APIs" style="color:#6ee7b7;text-decoration:none;">CP3</a>
+  <a href="CP4-Lo-que-todo-programador-debe-saber.html" title="Esenciales" style="color:#fcd34d;text-decoration:none;">CP4</a>
+  <a href="CP5-Backend-avanzado.html" title="Backend Avanzado" style="color:#f0abfc;text-decoration:none;">CP5</a>
+  <a href="CP6-Bases-de-datos-avanzado.html" title="Bases de Datos Avanzado" style="color:#7dd3fc;text-decoration:none;">CP6</a>
+  <a href="CP7-DevOps-e-infraestructura.html" title="DevOps" style="color:#fdba74;text-decoration:none;">CP7</a>
+  <a href="CP8-Seguridad.html" title="Seguridad" style="color:#f87171;text-decoration:none;">CP8</a>
+  <span style="color:#bef264;font-weight:700;border-bottom:2px solid #bef264;">CP9</span>
+  <a href="CP10-Servicios-de-red-e-infraestructura.html" title="Servicios de Red e Infraestructura TI" style="color:#a5b4fc;text-decoration:none;">CP10</a>
+</div>
+
+<!-- NAVBAR -->
+<nav style="top:32px;" class="fixed left-0 right-0 bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-2">
+        <span class="text-lime-700 font-bold text-lg">CP9</span>
+        <span class="hidden sm:inline text-sm font-semibold text-slate-800">Diseño de Sistemas y Liderazgo Técnico</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2 flex-1 max-w-xs mx-6">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="globalProgress" class="bg-lime-600 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <span id="globalProgressText" class="text-xs text-gray-500 whitespace-nowrap">0%</span>
+      </div>
+      <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-1 text-sm flex-wrap">
+        <button onclick="showChapter(0)" class="nav-link active-nav px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="0">Inicio</button>
+        <button onclick="showChapter(1)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="1">Escalar</button>
+        <button onclick="showChapter(2)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="2">CAP</button>
+        <button onclick="showChapter(3)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="3">Eventos</button>
+        <button onclick="showChapter(4)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="4">Comunicar</button>
+        <button onclick="showChapter(5)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="5">Decidir</button>
+        <button onclick="showChapter(6)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="6">Liderar</button>
+        <button onclick="showChapter(7)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition" data-ch="7">Glosario</button>
+        <button onclick="showChapter(8)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-indigo-600 font-semibold" data-ch="8">Vocab EN</button>
+        <button onclick="showChapter(9)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-orange-600 font-semibold" data-ch="9">Entrevistas</button>
+        <button onclick="showChapter(10)" class="nav-link px-2 py-1.5 rounded-lg hover:bg-gray-100 transition text-rose-600 font-semibold" data-ch="10">Registro</button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 py-2 space-y-1 text-sm">
+    <button onclick="showChapter(0);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Inicio</button>
+    <button onclick="showChapter(1);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 1: Escalabilidad y Disponibilidad</button>
+    <button onclick="showChapter(2);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 2: APIs Escalables y Teorema CAP</button>
+    <button onclick="showChapter(3);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 3: Eventos y Sistemas Distribuidos</button>
+    <button onclick="showChapter(4);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 4: Comunicación y Mentoría</button>
+    <button onclick="showChapter(5);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 5: Decisiones, Estimación y Deuda Técnica</button>
+    <button onclick="showChapter(6);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Módulo 6: Liderazgo Técnico y Conflictos</button>
+    <button onclick="showChapter(7);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100">Glosario</button>
+    <button onclick="showChapter(8);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-indigo-600">Vocabulario en Inglés</button>
+    <button onclick="showChapter(9);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-orange-600">Consejos para Entrevistas</button>
+    <button onclick="showChapter(10);closeMob()" class="block w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-rose-600">Registro de Estudios</button>
+  </div>
+</nav>
+
+<main class="pt-24">
+
+<!-- ===== INICIO ===== -->
+<div class="chapter active" id="ch0">
+  <section class="bg-gradient-to-br from-slate-800 via-lime-900 to-green-800 text-white py-20 px-4">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="uppercase tracking-widest text-lime-300/70 text-sm mb-4">Guía de Estudio Completa · Nivel Avanzado · Curso 9 de 9</p>
+      <h1 class="text-4xl md:text-6xl font-black mb-4">Diseño de Sistemas<br>y Liderazgo Técnico</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">System design, escalabilidad, teorema CAP, arquitectura de eventos... y las habilidades blandas que definen el nivel senior: comunicar, mentorear, decidir y liderar.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="showChapter(1)" class="bg-white text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Comenzar a estudiar</button>
+        <button onclick="showChapter(9)" class="border-2 border-white/50 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition">Preparar entrevista</button>
+      </div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto -mt-10 px-4 mb-12">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-lime-700">99.9%</div><div class="text-sm text-gray-500 mt-1">Los famosos "nueves" de disponibilidad</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-orange-500">CAP</div><div class="text-sm text-gray-500 mt-1">El teorema de los trade-offs</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-slate-800">50%</div><div class="text-sm text-gray-500 mt-1">Del trabajo senior NO es código</div></div>
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center"><div class="text-3xl font-black text-sky-600">6</div><div class="text-sm text-gray-500 mt-1">Módulos con examen</div></div>
+    </div>
+  </section>
+  <section class="max-w-5xl mx-auto px-4 pb-16">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Contenido del Curso</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div onclick="showChapter(1)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-lime-500"><span class="text-xs font-bold text-lime-600 uppercase">Módulo 1</span><h3 class="font-bold mt-1">Escalabilidad y Disponibilidad</h3><p class="text-sm text-gray-500 mt-1">Vertical vs horizontal, réplicas, particionamiento.</p></div>
+      <div onclick="showChapter(2)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"><span class="text-xs font-bold text-blue-600 uppercase">Módulo 2</span><h3 class="font-bold mt-1">APIs Escalables y Teorema CAP</h3><p class="text-sm text-gray-500 mt-1">Consistencia vs disponibilidad: el trade-off inevitable.</p></div>
+      <div onclick="showChapter(3)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-purple-500"><span class="text-xs font-bold text-purple-600 uppercase">Módulo 3</span><h3 class="font-bold mt-1">Eventos y Sistemas Distribuidos</h3><p class="text-sm text-gray-500 mt-1">Event-driven architecture y las trampas de lo distribuido.</p></div>
+      <div onclick="showChapter(4)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-cyan-500"><span class="text-xs font-bold text-cyan-600 uppercase">Módulo 4</span><h3 class="font-bold mt-1">Comunicación y Mentoría</h3><p class="text-sm text-gray-500 mt-1">Hablar con no-técnicos y hacer crecer a los juniors.</p></div>
+      <div onclick="showChapter(5)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-green-500"><span class="text-xs font-bold text-green-600 uppercase">Módulo 5</span><h3 class="font-bold mt-1">Decisiones, Estimación y Deuda</h3><p class="text-sm text-gray-500 mt-1">Trade-offs documentados, estimar sin mentir y negociar deuda técnica.</p></div>
+      <div onclick="showChapter(6)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-rose-500"><span class="text-xs font-bold text-rose-600 uppercase">Módulo 6</span><h3 class="font-bold mt-1">Liderazgo Técnico y Conflictos</h3><p class="text-sm text-gray-500 mt-1">Liderar sin autoridad y resolver desacuerdos con datos.</p></div>
+      <div onclick="showChapter(7)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-gray-400"><span class="text-xs font-bold text-gray-500 uppercase">Extra</span><h3 class="font-bold mt-1">Glosario ES / EN</h3><p class="text-sm text-gray-500 mt-1">El vocabulario de arquitectura y liderazgo.</p></div>
+      <div onclick="showChapter(8)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-indigo-400"><span class="text-xs font-bold text-indigo-500 uppercase">Práctica</span><h3 class="font-bold mt-1">Vocabulario en Inglés</h3><p class="text-sm text-gray-500 mt-1">Tarjetas interactivas para practicar.</p></div>
+      <div onclick="showChapter(9)" class="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-5 border-l-4 border-orange-400"><span class="text-xs font-bold text-orange-500 uppercase">Carrera</span><h3 class="font-bold mt-1">Consejos para Entrevistas</h3><p class="text-sm text-gray-500 mt-1">System design interviews y preguntas de liderazgo.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== CAP 1: ESCALABILIDAD ===== -->
+<div class="chapter" id="ch1">
+  <section class="bg-gradient-to-r from-lime-700 to-lime-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-lime-300 text-sm mb-2">Módulo 1</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Escalabilidad y Disponibilidad</h1>
+    <p class="text-lg text-lime-200 max-w-3xl">¿Qué pasa cuando llegan 100 veces más usuarios? System design básico.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-lime-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📈 Escalar: hacia arriba o hacia los lados</h2>
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-lime-50 rounded-xl p-4 border border-lime-200">
+          <p class="text-sm font-semibold text-lime-800 mb-1">⬆️ Escalado VERTICAL (scale up)</p>
+          <p class="text-sm text-gray-600 mb-2">Comprar un servidor MÁS GRANDE: más CPU, más RAM. <em>Analogía: cambiar tu food truck por un restaurante más grande.</em></p>
+          <p class="text-xs text-gray-500">✅ Simple: nada cambia en el código. ❌ Tiene techo físico (no existe el servidor infinito), es caro, y sigue siendo UN punto único de fallo.</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-4 border border-green-200">
+          <p class="text-sm font-semibold text-green-800 mb-1">➡️ Escalado HORIZONTAL (scale out)</p>
+          <p class="text-sm text-gray-600 mb-2">Agregar MÁS servidores iguales detrás de un balanceador (¡el Nginx de CP7!). <em>Analogía: abrir más sucursales del food truck.</em></p>
+          <p class="text-xs text-gray-500">✅ Escala "sin límite" y tolera fallos (si un servidor muere, quedan los demás). ❌ Exige que tu app sea <strong>stateless</strong>: cualquier servidor debe poder atender a cualquier usuario (la sesión vive en Redis, no en la memoria del servidor).</p>
+        </div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-4 text-center text-xs md:text-sm text-white font-mono overflow-x-auto whitespace-nowrap">
+        Usuarios → <span class="text-amber-300">Balanceador</span> → <span class="text-lime-300">API ×N (stateless)</span> → <span class="text-sky-300">Caché Redis</span> → <span class="text-blue-300">BD principal + réplicas de lectura</span>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">☝️ Esta línea es la arquitectura de referencia del 90% de los sistemas web escalados. Nota cómo cada pieza la aprendiste ya: balanceador (CP7), caché (CP5), réplicas (aquí abajo).</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-lime-600 rounded-full"></span>Escalar la base de datos: réplicas y particionamiento</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-lime-700 mb-2">📚 Réplicas de lectura</h3>
+        <p class="text-sm text-gray-600 mb-2">La mayoría de las apps LEEN mucho más de lo que escriben. Solución: UNA base primaria recibe las escrituras y N <span class="gterm">réplicas<span class="gtooltip">🇪🇸 Réplica / 🇺🇸 Read Replica — Copia de la base de datos que se sincroniza con la primaria y atiende solo lecturas, repartiendo la carga.</span></span> copian sus datos y atienden las lecturas.</p>
+        <p class="text-xs text-gray-500">El matiz: la réplica va unos milisegundos "atrás" de la primaria — tu primer contacto con la consistencia eventual (módulo 2).</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="font-bold text-green-700 mb-2">🍕 Particionamiento (sharding)</h3>
+        <p class="text-sm text-gray-600 mb-2">Cuando NI la tabla cabe en un servidor: se parte HORIZONTALMENTE. Clientes A–H en el servidor 1, I–P en el 2, Q–Z en el 3 (o por hash del id). Cada <span class="gterm">shard<span class="gtooltip">🇺🇸 Shard — Fragmento de una base de datos particionada horizontalmente: cada shard guarda un subconjunto de las filas y vive en su propio servidor.</span></span> es una BD independiente con una fracción de los datos.</p>
+        <p class="text-xs text-gray-500">El costo: las consultas que cruzan shards ("total de ventas global") se vuelven complejas. Se hace cuando no queda de otra, no por deporte.</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🔢 Disponibilidad: el juego de los nueves</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">disponibilidad<span class="gtooltip">🇪🇸 Disponibilidad / 🇺🇸 Availability — Porcentaje del tiempo que el sistema responde correctamente. Se mide en "nueves": 99.9% permite ~8.7 horas caídas al año; 99.999% solo ~5 minutos.</span></span> se mide en "nueves" — y cada nueve extra cuesta exponencialmente más:</p>
+      <div class="overflow-x-auto mb-4">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Disponibilidad</th><th class="p-3 text-left">Downtime permitido al AÑO</th><th class="p-3 text-left">Qué exige</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-mono font-bold">99%</td><td class="p-3">~3.7 días</td><td class="p-3 text-gray-500">Un servidor decente con respaldos</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-mono font-bold">99.9%</td><td class="p-3">~8.8 horas</td><td class="p-3 text-gray-500">Redundancia, monitoreo, deploys sin downtime</td></tr>
+          <tr><td class="p-3 font-mono font-bold">99.99%</td><td class="p-3">~53 minutos</td><td class="p-3 text-gray-500">Multi-zona, failover automático, guardias 24/7</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-mono font-bold">99.999%</td><td class="p-3">~5 minutos</td><td class="p-3 text-gray-500">Multi-región, ingeniería de élite, MUCHO dinero</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="text-sm text-gray-600">La receta de la alta disponibilidad: <strong>eliminar puntos únicos de fallo</strong>. Todo por duplicado (servidores, zonas, bases), <span class="gterm">failover<span class="gtooltip">🇺🇸 Failover — Cambio automático a un componente de respaldo cuando el principal falla: la réplica se promueve a primaria, el balanceador saca al servidor muerto.</span></span> automático, y health checks (CP7). Pregunta senior: "¿qué pasa si ESTA caja del diagrama muere a las 3 AM?" — para cada caja.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-lime-600" id="quiz1">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 1</h3>
+      <p class="text-sm text-gray-500 mb-6">Escalabilidad y Disponibilidad.</p>
+      <div id="quiz1Questions"></div>
+      <button onclick="gradeQuiz(1)" class="mt-6 bg-lime-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-lime-700 transition">Calificar</button>
+      <div id="quiz1Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button>
+      <button onclick="showChapter(2)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-lime-800 transition text-sm font-semibold">Siguiente: CAP →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 2: CAP Y APIS ESCALABLES ===== -->
+<div class="chapter" id="ch2">
+  <section class="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-blue-300 text-sm mb-2">Módulo 2</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">APIs Escalables y Teorema CAP</h1>
+    <p class="text-lg text-blue-200">El trade-off que ninguna base de datos distribuida puede evitar.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-blue-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">⚖️ El teorema CAP, explicado con dos sucursales</h2>
+      <p class="text-sm text-gray-600 mb-4">Imagina un banco con dos sucursales que se sincronizan por teléfono... y <strong>la línea se corta</strong> (una <span class="gterm">partición de red<span class="gtooltip">🇪🇸 Partición de red / 🇺🇸 Network Partition — Falla de comunicación que divide un sistema distribuido en grupos que no pueden hablarse entre sí. En redes reales, SIEMPRE ocurre eventualmente.</span></span>). Llega un cliente a retirar dinero a cada sucursal. ¿Qué haces?</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+          <p class="text-sm font-semibold text-blue-800 mb-1">Opción C — priorizar Consistencia</p>
+          <p class="text-sm text-gray-600">"No puedo atenderte hasta reconectar con la otra sucursal" — <strong>rechazas operaciones</strong> antes que arriesgar datos incorrectos (que ambos retiren el mismo saldo). Sacrificas disponibilidad.</p>
+        </div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200">
+          <p class="text-sm font-semibold text-teal-800 mb-1">Opción A — priorizar Disponibilidad</p>
+          <p class="text-sm text-gray-600">"Te atiendo con la información que tengo" — <strong>sigues operando</strong> y reconcilias las diferencias cuando vuelva la línea. Sacrificas consistencia momentánea.</p>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 mb-4">El <span class="gterm">teorema CAP<span class="gtooltip">🇺🇸 CAP Theorem — En un sistema distribuido, ante una Partición de red solo puedes garantizar 2 de 3: Consistencia (todos ven el mismo dato), Availability (siempre respondes) y Partition tolerance. Como las particiones SIEMPRE ocurren, eliges entre C y A.</span></span> formaliza esto: ante una <strong>P</strong>artición, eliges entre <strong>C</strong>onsistencia y <strong>A</strong>vailability — no puedes tener ambas. Y como las particiones SIEMPRE ocurren tarde o temprano, todo sistema distribuido toma partido:</p>
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">Prioridad</th><th class="p-3 text-left">Comportamiento</th><th class="p-3 text-left">Casos típicos</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 font-bold text-blue-600">CP</td><td class="p-3">Prefiere rechazar operaciones antes que dar datos incorrectos</td><td class="p-3 text-gray-500">Bancos, inventarios, pagos — donde un dato incorrecto cuesta dinero</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 font-bold text-teal-600">AP</td><td class="p-3">Siempre responde, aunque el dato pueda estar unos segundos desactualizado (<span class="gterm">consistencia eventual<span class="gtooltip">🇺🇸 Eventual Consistency — Garantía de que, si dejan de llegar escrituras, todas las réplicas convergerán al mismo valor "eventualmente". Mientras tanto, distintas réplicas pueden mostrar datos ligeramente distintos.</span></span>)</td><td class="p-3 text-gray-500">Redes sociales, contadores de likes, carritos — donde responder importa más que la exactitud al segundo</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">💬 Que el contador de likes diga 1,204 en tu teléfono y 1,206 en el de tu amiga durante 3 segundos: nadie muere. Que dos personas retiren el mismo saldo: sí. Elegir C o A <strong>por dato y por operación</strong> es criterio de arquitecto.</p>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2"><span class="w-1.5 h-7 bg-blue-600 rounded-full"></span>Diseñar APIs que aguantan escala</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5"><h3 class="font-bold text-blue-700 text-sm uppercase mb-2">📄 Paginación obligatoria</h3><p class="text-sm text-gray-600">Ningún endpoint devuelve listas sin límite. Bonus senior: la paginación por <strong>cursor</strong> (?after=id_ultimo) aguanta mejor que ?page=500 en tablas gigantes, porque OFFSET grande obliga a la BD a contar todo lo saltado.</p></div>
+      <div class="bg-white rounded-xl shadow p-5"><h3 class="font-bold text-sky-700 text-sm uppercase mb-2">🔁 Idempotencia en pagos y creaciones</h3><p class="text-sm text-gray-600">El cliente reintenta por timeout... ¿y cobras DOS veces? Cura: el cliente envía una <code class="bg-gray-100 px-1 rounded text-xs">Idempotency-Key</code>; si el servidor ya la procesó, devuelve el resultado anterior sin repetir la operación. Así funciona Stripe.</p></div>
+      <div class="bg-white rounded-xl shadow p-5"><h3 class="font-bold text-cyan-700 text-sm uppercase mb-2">⏱️ Timeouts y reintentos con backoff</h3><p class="text-sm text-gray-600">Todo el que llama a otro servicio define un tiempo máximo de espera, y reintenta con pausas CRECIENTES (1s, 2s, 4s...). Reintentar inmediato y en masa convierte una falla pequeña en avalancha.</p></div>
+      <div class="bg-white rounded-xl shadow p-5"><h3 class="font-bold text-indigo-700 text-sm uppercase mb-2">🧯 Circuit breaker</h3><p class="text-sm text-gray-600">Si el servicio de recomendaciones lleva 50 fallos seguidos, deja de llamarlo un rato y muestra la página SIN recomendaciones. Un fusible: se sacrifica una función para salvar la casa. Degradación elegante > caída total.</p></div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-blue-600" id="quiz2">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 2</h3>
+      <p class="text-sm text-gray-500 mb-6">APIs Escalables y CAP.</p>
+      <div id="quiz2Questions"></div>
+      <button onclick="gradeQuiz(2)" class="mt-6 bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition">Calificar</button>
+      <div id="quiz2Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(1)" class="text-sm text-gray-500 hover:text-slate-800">← Escalar</button>
+      <button onclick="showChapter(3)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-lime-800 transition text-sm font-semibold">Siguiente: Eventos →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 3: EVENTOS Y DISTRIBUIDOS ===== -->
+<div class="chapter" id="ch3">
+  <section class="bg-gradient-to-r from-purple-700 to-purple-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-purple-300 text-sm mb-2">Módulo 3</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Eventos y Sistemas Distribuidos</h1>
+    <p class="text-lg text-purple-200">"Algo pasó" en lugar de "haz esto": la arquitectura orientada a eventos.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-purple-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">📢 Órdenes vs. anuncios</h2>
+      <p class="text-sm text-gray-600 mb-4">En la arquitectura tradicional, el servicio de pedidos DA ÓRDENES: "facturación, factura esto; inventario, descuenta aquello; correo, notifica" — y conoce (y depende de) cada uno. En la <span class="gterm">arquitectura orientada a eventos<span class="gtooltip">🇺🇸 Event-Driven Architecture — Los servicios publican EVENTOS ("PedidoCreado") a un bus/broker, y quien esté interesado se suscribe y reacciona. El emisor no conoce a sus consumidores.</span></span>, solo hace un ANUNCIO: publica el evento <code class="bg-gray-100 px-1 rounded text-xs">PedidoCreado</code> al bus de eventos (el Kafka de CP5)... y quien esté interesado, reacciona:</p>
+      <div class="bg-slate-800 rounded-xl p-4 text-center text-xs md:text-sm text-white font-mono mb-4 overflow-x-auto whitespace-nowrap">
+        Pedidos publica <span class="text-amber-300">"PedidoCreado"</span> → 📡 bus de eventos → <span class="text-purple-300">Facturación</span> · <span class="text-blue-300">Inventario</span> · <span class="text-teal-300">Correos</span> · <span class="text-pink-300">Analítica</span> (cada uno reacciona por su cuenta)
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-purple-50 rounded-xl p-4 border border-purple-200"><p class="text-sm font-semibold text-purple-800 mb-1">✅ Los superpoderes</p><p class="text-sm text-gray-600">Desacoplamiento total: agregar el servicio de "programa de lealtad" mañana = suscribirlo al evento, SIN tocar Pedidos (¿Open/Closed de CP2 a escala de sistemas?). Y si Correos está caído, los eventos lo esperan en el bus.</p></div>
+        <div class="bg-fuchsia-50 rounded-xl p-4 border border-fuchsia-200"><p class="text-sm font-semibold text-fuchsia-800 mb-1">⚠️ El precio</p><p class="text-sm text-gray-600">El flujo ya no se lee de arriba a abajo: está repartido entre suscriptores (más difícil de depurar — el monitoreo de CP7 se vuelve vital). Y la consistencia es eventual: la factura existe unos segundos después del pedido, no en el mismo instante.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-fuchsia-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🕸️ Las verdades incómodas de los sistemas distribuidos</h2>
+      <p class="text-sm text-gray-600 mb-4">Un <span class="gterm">sistema distribuido<span class="gtooltip">🇪🇸 Sistema Distribuido — Sistema compuesto por varias máquinas que se coordinan por red para actuar como uno solo. Introduce fallas parciales: partes del sistema fallan mientras otras siguen vivas.</span></span> es cualquier sistema repartido en varias máquinas que se hablan por red — o sea, casi todo lo moderno. Las "8 falacias" clásicas resumen los supuestos falsos que rompen sistemas; las 4 que más duelen:</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200"><p class="text-sm font-semibold text-slate-800 mb-1">❌ "La red es confiable"</p><p class="text-sm text-gray-600">Las peticiones se pierden, llegan tarde o llegan DOS veces. Por eso: timeouts, reintentos con backoff e idempotencia en todo.</p></div>
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200"><p class="text-sm font-semibold text-slate-800 mb-1">❌ "La latencia es cero"</p><p class="text-sm text-gray-600">Cada salto de red cuesta milisegundos. 50 llamadas entre microservicios para una página = una página lenta. (Por eso el monolito modular a veces gana.)</p></div>
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200"><p class="text-sm font-semibold text-slate-800 mb-1">❌ "Falla todo o no falla nada"</p><p class="text-sm text-gray-600">La realidad son las FALLAS PARCIALES: pagos vivo, inventario muerto. Diseña qué hace tu sistema en ese estado intermedio (circuit breaker, degradación elegante).</p></div>
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200"><p class="text-sm font-semibold text-slate-800 mb-1">❌ "Los relojes están sincronizados"</p><p class="text-sm text-gray-600">Cada máquina tiene su propio reloj con su propio error. Ordenar eventos "por hora" entre servidores es una trampa clásica.</p></div>
+      </div>
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900">
+        🧠 <strong>La moraleja senior:</strong> lo distribuido no es "mejor", es un COSTO que pagas cuando la escala lo exige. La habilidad no es distribuir todo, sino saber cuánta distribución necesita realmente TU problema. Un monolito bien hecho con réplicas puede servir a millones.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-purple-600" id="quiz3">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 3</h3>
+      <p class="text-sm text-gray-500 mb-6">Eventos y Sistemas Distribuidos.</p>
+      <div id="quiz3Questions"></div>
+      <button onclick="gradeQuiz(3)" class="mt-6 bg-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-purple-700 transition">Calificar</button>
+      <div id="quiz3Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(2)" class="text-sm text-gray-500 hover:text-slate-800">← CAP</button>
+      <button onclick="showChapter(4)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-lime-800 transition text-sm font-semibold">Siguiente: Comunicar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 4: COMUNICACIÓN Y MENTORÍA ===== -->
+<div class="chapter" id="ch4">
+  <section class="bg-gradient-to-r from-cyan-700 to-cyan-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-cyan-300 text-sm mb-2">Módulo 4 · Habilidades Blandas</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Comunicación y Mentoría</h1>
+    <p class="text-lg text-cyan-200">El código convence a las máquinas; las palabras convencen a las personas.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-cyan-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🗣️ Hablar con stakeholders no técnicos</h2>
+      <p class="text-sm text-gray-600 mb-4">Los <span class="gterm">stakeholders<span class="gtooltip">🇺🇸 Stakeholder — Cualquier persona con interés en el proyecto: gerentes, clientes, ventas, dirección. Normalmente no técnicos: les importan resultados, riesgos, costos y fechas.</span></span> (gerentes, clientes, dirección) no necesitan entender CÓMO funciona algo — necesitan decidir con la información correcta. El traductor eres tú:</p>
+      <div class="overflow-x-auto mb-4">
+      <table class="w-full text-sm bg-white rounded-xl overflow-hidden">
+        <thead class="bg-slate-800 text-white"><tr><th class="p-3 text-left">❌ Modo ingeniero</th><th class="p-3 text-left">✅ Modo traductor (impacto de negocio)</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="p-3 text-gray-500">"Tenemos un problema N+1 en el ORM y falta un índice compuesto"</td><td class="p-3">"La pantalla de pedidos tarda 9 segundos y los clientes la abandonan. Tengo el arreglo: 2 días, y baja a menos de 1 segundo."</td></tr>
+          <tr class="bg-gray-50"><td class="p-3 text-gray-500">"Hay que migrar a la 8 porque la 6 llega a end-of-life"</td><td class="p-3">"Si no actualizamos antes de noviembre, dejaremos de recibir parches de seguridad: riesgo directo de hackeo y multas."</td></tr>
+          <tr><td class="p-3 text-gray-500">"El refactor del módulo de facturación es deuda técnica"</td><td class="p-3">"Cada cambio en facturación hoy toma 2 semanas y sale con bugs. Invirtiendo 1 sprint, los siguientes cambios tomarán días."</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="grid md:grid-cols-3 gap-3 text-sm">
+        <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-200"><p class="font-semibold text-cyan-800 mb-1">1. Conclusión primero</p><p class="text-gray-600 text-xs">Empieza por el resultado y la recomendación; el detalle técnico después, solo si lo piden. (Al revés de como pensamos los devs.)</p></div>
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="font-semibold text-teal-800 mb-1">2. Opciones, no problemas</p><p class="text-gray-600 text-xs">No llegues solo con el problema: lleva 2-3 opciones con costo/beneficio y tu recomendación. Así decides TÚ la conversación.</p></div>
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200"><p class="font-semibold text-blue-800 mb-1">3. Sin jerga, sin condescendencia</p><p class="text-gray-600 text-xs">Analogías simples (¡las de estas guías!) sin sonar a que le explicas a un niño. "Es como una fila del banco con más cajas abiertas."</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-teal-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🌱 Mentoría: multiplicarte en otros</h2>
+      <p class="text-sm text-gray-600 mb-4">Un senior que solo produce código vale por uno; un senior que hace crecer a 4 juniors vale por cinco. La mentoría es EL multiplicador — y las empresas lo evalúan explícitamente para promociones:</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="text-sm font-semibold text-teal-800 mb-1">🎣 Enseña a pescar</p><p class="text-sm text-gray-600">Ante la pregunta de un junior, resiste dar la respuesta directa: "¿Qué dice el error? ¿Qué has probado? ¿Dónde pondrías un breakpoint?" — preguntas que enseñan el PROCESO. La respuesta regalada se olvida; el proceso se queda.</p></div>
+        <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200"><p class="text-sm font-semibold text-emerald-800 mb-1">📝 Code reviews formativos</p><p class="text-sm text-gray-600">El review es tu mejor aula: explica el PORQUÉ ("este nombre esconde la intención; ¿qué tal calcular_total?"), reconoce lo bueno explícitamente, y distingue lo bloqueante ("esto rompe producción") de la sugerencia ("nit: yo usaría...").</p></div>
+        <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-200"><p class="text-sm font-semibold text-cyan-800 mb-1">👥 Pair programming dosificado</p><p class="text-sm text-gray-600">Sesiones cortas y con rol claro: el junior teclea (¡siempre!), tú navegas con preguntas. Media hora de pair vale por diez explicaciones en el chat.</p></div>
+        <div class="bg-sky-50 rounded-xl p-4 border border-sky-200"><p class="text-sm font-semibold text-sky-800 mb-1">🛡️ Seguridad psicológica</p><p class="text-sm text-gray-600">El junior que teme preguntar comete errores en silencio durante semanas. Normaliza el "no sé": comparte TUS propias metidas de pata. El equipo donde preguntar es seguro aprende al doble de velocidad.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-cyan-600" id="quiz4">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 4</h3>
+      <p class="text-sm text-gray-500 mb-6">Comunicación y Mentoría.</p>
+      <div id="quiz4Questions"></div>
+      <button onclick="gradeQuiz(4)" class="mt-6 bg-cyan-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-cyan-700 transition">Calificar</button>
+      <div id="quiz4Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(3)" class="text-sm text-gray-500 hover:text-slate-800">← Eventos</button>
+      <button onclick="showChapter(5)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-lime-800 transition text-sm font-semibold">Siguiente: Decidir →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 5: DECISIONES ===== -->
+<div class="chapter" id="ch5">
+  <section class="bg-gradient-to-r from-green-700 to-green-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-green-300 text-sm mb-2">Módulo 5 · Habilidades Blandas</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Decisiones, Estimación y Deuda Técnica</h1>
+    <p class="text-lg text-green-200">Decidir con trade-offs, estimar sin mentir, y pagar la deuda antes de los intereses.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-green-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">⚖️ Decisiones técnicas: no hay balas de plata, hay trade-offs</h2>
+      <p class="text-sm text-gray-600 mb-4">La marca de un senior: NUNCA dice "X es mejor" a secas — dice "X nos da A y B, a cambio de C; para NUESTRO caso, donde A importa más, recomiendo X". Toda esta serie de guías está llena de ejemplos: ¿monolito o microservicios? ¿SQL o NoSQL? ¿ORM o SQL directo? La respuesta siempre fue "depende de..." + criterios.</p>
+      <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+        <p class="text-sm font-semibold text-green-800 mb-2">📄 El ADR: la decisión por escrito</p>
+        <p class="text-sm text-gray-600 mb-2">Un <span class="gterm">ADR<span class="gtooltip">🇺🇸 ADR — Architecture Decision Record — Documento corto que registra una decisión técnica: contexto, opciones consideradas, decisión y consecuencias. Vive en el repo junto al código.</span></span> (Architecture Decision Record) es una página que registra: <strong>contexto</strong> (qué problema había), <strong>opciones</strong> consideradas con sus pros/contras, <strong>decisión</strong> tomada y <strong>consecuencias</strong> aceptadas.</p>
+        <p class="text-xs text-gray-500">Su valor real aparece 18 meses después, cuando alguien pregunta "¿por qué diablos usamos X?" — y en vez de arqueología o leyendas, hay una respuesta escrita. También evita re-litigar decisiones cada vez que alguien nuevo llega al equipo.</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-emerald-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">⏱️ Estimar sin mentir(te)</h2>
+      <p class="text-sm text-gray-600 mb-4">Los devs subestimamos SISTEMÁTICAMENTE: pensamos en el "camino feliz" y olvidamos pruebas, revisión, imprevistos y reuniones. El proceso que sí funciona:</p>
+      <ol class="space-y-3 text-sm text-gray-600 mb-4">
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">1</span><span><strong>Desglosa</strong> la tarea en piezas de máximo 1 día. Lo que no puedes desglosar es lo que no entiendes — y ahí vive el riesgo. "Hacer el módulo de reportes" no es estimable; sus 12 sub-tareas sí.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">2</span><span><strong>Estima en rangos</strong>, no en puntos: "entre 3 y 5 días" es honesto; "3 días" es una promesa que romperás. Si la incertidumbre es enorme, pide un <em>spike</em>: 1 día de investigación ANTES de comprometerte.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">3</span><span><strong>Agrega el colchón honesto:</strong> pruebas, code review, despliegue e imprevistos son ~40-50% del total real. No es "inflar": es contar el trabajo completo.</span></li>
+        <li class="flex gap-3"><span class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">4</span><span><strong>Comunica los cambios YA:</strong> si a mitad del camino descubres que tomará el doble, avisar hoy da opciones (recortar alcance, mover fechas); avisar la víspera solo da enojo. Las malas noticias no mejoran con el tiempo.</span></li>
+      </ol>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-teal-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">💳 Gestionar la deuda técnica</h2>
+      <p class="text-sm text-gray-600 mb-4">La <span class="gterm">deuda técnica<span class="gtooltip">🇪🇸 Deuda Técnica / 🇺🇸 Technical Debt — El costo futuro de las soluciones rápidas de hoy. Como deuda financiera: útil si es deliberada y se paga; ruinosa si se acumula con intereses (bugs, lentitud, miedo a tocar el código).</span></span> (CP4) no es mala en sí — como un crédito, a veces conviene: lanzar rápido con un atajo CONSCIENTE puede ganar el mercado. Lo ruinoso es la deuda invisible y sin plan de pago:</p>
+      <div class="grid md:grid-cols-3 gap-3 text-sm mb-4">
+        <div class="bg-teal-50 rounded-xl p-4 border border-teal-200"><p class="font-semibold text-teal-800 mb-1">1. Hazla visible</p><p class="text-gray-600 text-xs">Registra cada atajo como ticket etiquetado "deuda técnica" con su costo actual ("cada release manual toma 4 horas"). La deuda que no está en el backlog no existe para nadie... hasta que explota.</p></div>
+        <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200"><p class="font-semibold text-emerald-800 mb-1">2. Págala en abonos</p><p class="text-gray-600 text-xs">Reserva ~10-20% de cada sprint para deuda, o aplica la regla del boy scout: deja cada archivo que toques un poco mejor de como lo encontraste. Los "grandes refactors de 3 meses" rara vez sobreviven.</p></div>
+        <div class="bg-green-50 rounded-xl p-4 border border-green-200"><p class="font-semibold text-green-800 mb-1">3. Negóciala en términos de negocio</p><p class="text-gray-600 text-xs">"Refactorizar" no vende; "reducir los bugs de facturación a la mitad y entregar cambios en días en vez de semanas" sí (módulo 4 en acción).</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-green-600" id="quiz5">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 5</h3>
+      <p class="text-sm text-gray-500 mb-6">Decisiones, Estimación y Deuda Técnica.</p>
+      <div id="quiz5Questions"></div>
+      <button onclick="gradeQuiz(5)" class="mt-6 bg-green-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-green-700 transition">Calificar</button>
+      <div id="quiz5Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(4)" class="text-sm text-gray-500 hover:text-slate-800">← Comunicar</button>
+      <button onclick="showChapter(6)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-lime-800 transition text-sm font-semibold">Siguiente: Liderar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 6: LIDERAZGO ===== -->
+<div class="chapter" id="ch6">
+  <section class="bg-gradient-to-r from-rose-600 to-rose-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-300 text-sm mb-2">Módulo 6 · Habilidades Blandas</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Liderazgo Técnico y Conflictos</h1>
+    <p class="text-lg text-rose-200">Liderar sin ser jefe, y convertir los desacuerdos en mejores decisiones.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-rose-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🧭 Liderar sin autoridad</h2>
+      <p class="text-sm text-gray-600 mb-4">El <span class="gterm">tech lead<span class="gtooltip">🇺🇸 Tech Lead — Rol de liderazgo técnico de un proyecto/equipo: guía las decisiones de arquitectura, destraba al equipo y coordina el trabajo técnico. NO suele ser el jefe: lidera por influencia, no por jerarquía.</span></span> rara vez es "el jefe" — nadie está obligado a obedecerle. Lidera por <strong>influencia</strong>: credibilidad técnica, claridad y confianza. En la práctica, liderar técnicamente significa:</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-rose-50 rounded-xl p-4 border border-rose-200"><p class="text-sm font-semibold text-rose-800 mb-1">🚧 Destrabar > producir</p><p class="text-sm text-gray-600">Tu métrica ya no es "cuánto código escribí" sino "cuánto avanzó el EQUIPO". Quitar bloqueos, aclarar requisitos ambiguos y proteger al equipo de interrupciones vale más que tus commits.</p></div>
+        <div class="bg-orange-50 rounded-xl p-4 border border-orange-200"><p class="text-sm font-semibold text-orange-800 mb-1">🎯 Dirección técnica clara</p><p class="text-sm text-gray-600">Definir el QUÉ y el PORQUÉ (arquitectura, estándares, prioridades) y delegar el CÓMO. El micro-management mata la motivación; la ambigüedad mata el avance. El punto medio: contexto + confianza.</p></div>
+        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200"><p class="text-sm font-semibold text-amber-800 mb-1">🪞 Dar el ejemplo</p><p class="text-sm text-gray-600">El estándar real del equipo no es el documento de estándares: es lo que TÚ haces. Si el lead se salta las pruebas "porque hay prisa", el equipo entero aprende que las pruebas son opcionales.</p></div>
+        <div class="bg-yellow-50 rounded-xl p-4 border border-yellow-200"><p class="text-sm font-semibold text-yellow-800 mb-1">🏆 Repartir el crédito, absorber el golpe</p><p class="text-sm text-gray-600">Cuando sale bien: "el equipo lo logró". Cuando sale mal: "yo tomé esa decisión, así lo corregimos". Al revés, destruyes la confianza en un mes.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10 border-l-4 border-orange-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">🤝 Conflictos técnicos: de la guerra de opiniones a la decisión</h2>
+      <p class="text-sm text-gray-600 mb-4">Dos devs seniors, dos propuestas de arquitectura, cero acuerdo. Pasa TODAS las semanas y no es malo — el desacuerdo bien manejado produce mejores decisiones que la unanimidad tibia. El protocolo:</p>
+      <ol class="space-y-3 text-sm text-gray-600 mb-4">
+        <li class="flex gap-3"><span class="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">1</span><span><strong>Baja de las opiniones a los criterios:</strong> "¿qué estamos optimizando: velocidad de entrega, rendimiento, mantenibilidad?" La mitad de los conflictos son dos personas optimizando cosas DISTINTAS sin saberlo.</span></li>
+        <li class="flex gap-3"><span class="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">2</span><span><strong>Datos > elocuencia:</strong> un benchmark de una tarde o un prototipo de un día resuelven lo que tres juntas de debate no pudieron. "Midámoslo" es la frase más pacificadora de la ingeniería.</span></li>
+        <li class="flex gap-3"><span class="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">3</span><span><strong>Ataca la idea, jamás a la persona:</strong> "esa opción sufre con N usuarios" ✔ vs "es que tú no entiendes de escala" ✘. Al primero que personalice, el líder redirige la conversación.</span></li>
+        <li class="flex gap-3"><span class="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-xs">4</span><span><strong>Decide y cierra — "disagree and commit":</strong> alguien (el lead, o el dueño del área) decide con los datos disponibles, se documenta en un ADR (módulo 5), y TODOS la ejecutan con compromiso total — incluidos los que preferían la otra opción. Re-litigar decisiones en cada sprint es veneno para el equipo.</span></li>
+      </ol>
+      <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-sm text-orange-900">
+        🧯 <strong>Y cuando el conflicto ya es personal:</strong> conversación 1 a 1 (nunca en público ni por chat), escuchar primero ("ayúdame a entender tu preocupación"), y buscar el interés común — ambos quieren que el proyecto funcione. Si no se destraba, escalar a tiempo con el manager no es rendirse: es madurez.
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-slate-800 to-lime-900 text-white rounded-2xl p-6 mb-10">
+      <h3 class="font-bold text-lg mb-3">🎓 Fin del camino: las 9 guías completas</h3>
+      <p class="text-sm text-gray-300 mb-3">Mira lo que recorriste: de "¿qué es una variable?" (CP1) a diseñar sistemas distribuidos y liderar equipos (CP9). Ese es, literalmente, el camino de junior a senior:</p>
+      <div class="grid md:grid-cols-3 gap-3 text-xs text-gray-200">
+        <p>📗 <strong class="text-teal-300">CP1-CP4:</strong> los fundamentos — programar, POO, APIs y el ecosistema profesional.</p>
+        <p>📕 <strong class="text-fuchsia-300">CP5-CP8:</strong> la profundidad técnica — backend, datos, DevOps y seguridad.</p>
+        <p>📙 <strong class="text-lime-300">CP9:</strong> el multiplicador — sistemas a escala y personas. Lo que convierte a un gran programador en un gran ingeniero. 🚀</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-t-4 border-rose-500" id="quiz6">
+      <h3 class="text-xl font-bold text-slate-800 mb-1">Examen — Módulo 6</h3>
+      <p class="text-sm text-gray-500 mb-6">Liderazgo Técnico y Conflictos.</p>
+      <div id="quiz6Questions"></div>
+      <button onclick="gradeQuiz(6)" class="mt-6 bg-rose-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-rose-700 transition">Calificar</button>
+      <div id="quiz6Result" class="mt-4 hidden"></div>
+    </div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(5)" class="text-sm text-gray-500 hover:text-slate-800">← Decidir</button>
+      <button onclick="showChapter(7)" class="bg-slate-800 text-white px-6 py-2 rounded-xl hover:bg-lime-800 transition text-sm font-semibold">Siguiente: Glosario →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 7: GLOSARIO ===== -->
+<div class="chapter" id="ch7">
+  <section class="bg-gradient-to-r from-gray-700 to-gray-900 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-gray-400 text-sm mb-2">Referencia</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Glosario</h1>
+    <p class="text-lg text-gray-300">Términos clave en Español e Inglés. Los términos subrayados en los capítulos muestran definiciones al pasar el cursor.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-6"><input type="text" id="glossSearch" placeholder="Buscar término... / Search term..." oninput="filterGloss()" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-lime-500 text-sm"></div>
+    <div id="glossGrid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(6)" class="text-sm text-gray-500 hover:text-slate-800">← Liderar</button>
+      <button onclick="showChapter(8)" class="bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition text-sm font-semibold">Vocabulario EN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 8: VOCABULARIO EN INGLÉS ===== -->
+<div class="chapter" id="ch8">
+  <section class="bg-gradient-to-r from-indigo-700 to-violet-800 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-indigo-200 text-sm mb-2">Práctica</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Vocabulario en Inglés</h1>
+    <p class="text-lg text-indigo-200">Haz clic en cada tarjeta para revelar la definición en inglés. Practica en voz alta.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <p class="text-sm text-gray-500 mb-6 text-center">💡 Haz clic en la tarjeta para voltearla. Practica decir el término en inglés antes de voltear.</p>
+    <div id="flashcardsGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10"></div>
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(7)" class="text-sm text-gray-500 hover:text-slate-800">← Glosario</button>
+      <button onclick="showChapter(9)" class="bg-orange-500 text-white px-6 py-2 rounded-xl hover:bg-orange-600 transition text-sm font-semibold">Consejos Entrevistas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 9: CONSEJOS ENTREVISTAS ===== -->
+<div class="chapter" id="ch9">
+  <section class="bg-gradient-to-r from-orange-600 to-amber-700 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-orange-200 text-sm mb-2">Carrera Profesional</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Consejos para Entrevistas</h1>
+    <p class="text-lg text-orange-100">System design y liderazgo: las entrevistas que definen el nivel (y el sueldo) senior.</p></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8">
+      <h2 class="font-bold text-amber-800 text-lg mb-2">🎯 La entrevista de system design en 4 pasos</h2>
+      <div class="grid md:grid-cols-4 gap-4 text-sm">
+        <div><strong class="text-amber-700">1. Aclara requisitos:</strong><p class="text-gray-600 mt-1">"¿Cuántos usuarios? ¿Lecturas o escrituras? ¿Qué tan crítica es la consistencia?" — empezar a dibujar sin preguntar es el error #1.</p></div>
+        <div><strong class="text-amber-700">2. Diseña simple primero:</strong><p class="text-gray-600 mt-1">Balanceador → API → caché → BD. La arquitectura de referencia del módulo 1 resuelve el 80%.</p></div>
+        <div><strong class="text-amber-700">3. Escala por dolor:</strong><p class="text-gray-600 mt-1">"Si las lecturas crecen: réplicas y caché. Si las escrituras: colas y sharding." Cada pieza entra cuando su problema aparece.</p></div>
+        <div><strong class="text-amber-700">4. Nombra los trade-offs:</strong><p class="text-gray-600 mt-1">"Esto nos da X a cambio de Y." Es LO que evalúan: criterio, no memorización de diagramas.</p></div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Preguntas frecuentes de diseño y liderazgo</h2>
+    <div id="interviewAccordion" class="space-y-3 mb-10"></div>
+
+    <h2 class="text-xl font-bold text-slate-800 mb-5">Frases clave en inglés para entrevistas / Key Phrases</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-lime-700 mb-3 text-sm uppercase">Hablar de diseño de sistemas</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-lime-600 font-mono text-xs">"Let me clarify the requirements before designing."</p><p class="text-gray-500 text-xs">Déjame aclarar los requisitos antes de diseñar.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-lime-600 font-mono text-xs">"We scale horizontally behind a load balancer."</p><p class="text-gray-500 text-xs">Escalamos horizontalmente detrás de un balanceador.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-lime-600 font-mono text-xs">"For this data, eventual consistency is acceptable."</p><p class="text-gray-500 text-xs">Para este dato, la consistencia eventual es aceptable.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-lime-600 font-mono text-xs">"The trade-off is added latency for higher availability."</p><p class="text-gray-500 text-xs">El trade-off es más latencia a cambio de mayor disponibilidad.</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h3 class="font-bold text-indigo-700 mb-3 text-sm uppercase">Hablar de liderazgo</h3>
+        <div class="space-y-2 text-sm">
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"I mentored two junior developers through code reviews."</p><p class="text-gray-500 text-xs">Mentoré a dos desarrolladores junior a través de code reviews.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"We documented the decision in an ADR."</p><p class="text-gray-500 text-xs">Documentamos la decisión en un ADR.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"We disagreed, ran a benchmark, and committed to the result."</p><p class="text-gray-500 text-xs">No estábamos de acuerdo, hicimos un benchmark y nos comprometimos con el resultado.</p></div>
+          <div class="bg-gray-50 rounded p-2"><p class="text-indigo-600 font-mono text-xs">"I translate technical risk into business impact."</p><p class="text-gray-500 text-xs">Traduzco el riesgo técnico a impacto de negocio.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-8 mb-4">
+      <button onclick="showChapter(8)" class="text-sm text-gray-500 hover:text-slate-800">← Vocabulario</button>
+      <button onclick="showChapter(10)" class="bg-rose-600 text-white px-6 py-2 rounded-xl hover:bg-rose-700 transition text-sm font-semibold">Registro →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAP 10: REGISTRO ===== -->
+<div class="chapter" id="ch10">
+  <section class="bg-gradient-to-r from-rose-500 to-red-600 text-white py-16 px-4">
+    <div class="max-w-5xl mx-auto"><p class="uppercase tracking-widest text-rose-200 text-sm mb-2">Herramienta</p>
+    <h1 class="text-3xl md:text-5xl font-black mb-3">Registro de Estudios</h1></div>
+  </section>
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-lime-600" id="statDays">0</div><div class="text-sm text-gray-500">Días estudiados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-orange-500" id="statStreak">0</div><div class="text-sm text-gray-500">Racha actual</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-slate-800" id="statChapters">0/6</div><div class="text-sm text-gray-500">Exámenes aprobados</div></div>
+      <div class="bg-white rounded-xl shadow p-5 text-center"><div class="text-3xl font-black text-purple-600" id="statAvg">—</div><div class="text-sm text-gray-500">Promedio</div></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Registrar hoy</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-lime-600" value="1"><span class="text-sm">Módulo 1: Escalar</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-lime-600" value="2"><span class="text-sm">Módulo 2: CAP</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-lime-600" value="3"><span class="text-sm">Módulo 3: Eventos</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-lime-600" value="4"><span class="text-sm">Módulo 4: Comunicar</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-lime-600" value="5"><span class="text-sm">Módulo 5: Decidir</span></label>
+        <label class="flex items-center gap-2 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100"><input type="checkbox" class="study-check accent-lime-600" value="6"><span class="text-sm">Módulo 6: Liderar</span></label>
+      </div>
+      <button onclick="saveStudyDay()" class="bg-lime-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-lime-700 transition">Guardar</button>
+      <span id="saveMsg" class="ml-3 text-sm text-lime-600 hidden">¡Guardado!</span>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Historial</h2>
+      <div id="studyHistory" class="space-y-2 text-sm"></div>
+      <p id="noHistory" class="text-gray-400 text-sm">No hay registros aún.</p>
+    </div>
+    <div class="mt-8"><button onclick="showChapter(0)" class="text-sm text-gray-500 hover:text-slate-800">← Inicio</button></div>
+  </div>
+</div>
+
+</main>
+<footer class="bg-slate-800 text-white/50 text-center text-xs py-6">Guía de Estudio · Diseño de Sistemas y Liderazgo Técnico · Conceptos de Programación CP9</footer>
+
+<script>
+// ===== DATA =====
+const glossaryData = [
+  {es:'Escalabilidad',en:'Scalability',def:'Capacidad de un sistema de manejar crecimiento (usuarios, datos) sin colapsar ni reescribirse.'},
+  {es:'Escalado Vertical',en:'Vertical Scaling / Scale Up',def:'Comprar un servidor más grande. Simple pero con techo físico y punto único de fallo.'},
+  {es:'Escalado Horizontal',en:'Horizontal Scaling / Scale Out',def:'Agregar más servidores iguales detrás de un balanceador. Exige apps stateless.'},
+  {es:'Stateless',en:'Stateless',def:'El servidor no guarda estado del usuario en su memoria: cualquier servidor atiende a cualquiera. La sesión vive en Redis/BD.'},
+  {es:'Punto Único de Fallo',en:'SPOF — Single Point of Failure',def:'Componente sin respaldo cuya caída tumba todo el sistema. La alta disponibilidad consiste en eliminarlos.'},
+  {es:'Réplica de Lectura',en:'Read Replica',def:'Copia de la BD que se sincroniza con la primaria y atiende solo lecturas, repartiendo la carga.'},
+  {es:'Particionamiento',en:'Sharding / Partitioning',def:'Dividir los datos horizontalmente entre varios servidores: cada shard guarda una fracción de las filas.'},
+  {es:'Disponibilidad',en:'Availability',def:'% del tiempo que el sistema responde. Se mide en "nueves": 99.9% ≈ 8.8 horas caídas/año.'},
+  {es:'Failover',en:'Failover',def:'Cambio automático al componente de respaldo cuando el principal falla.'},
+  {es:'Redundancia',en:'Redundancy',def:'Tener todo por duplicado (servidores, zonas, bases) para sobrevivir fallas individuales.'},
+  {es:'Teorema CAP',en:'CAP Theorem',def:'Ante una Partición de red, eliges: Consistencia o Availability. Las particiones siempre ocurren, así que todo sistema distribuido toma partido.'},
+  {es:'Consistencia',en:'Consistency',def:'Todos los nodos ven el mismo dato al mismo tiempo. Los sistemas CP la priorizan (bancos, pagos).'},
+  {es:'Consistencia Eventual',en:'Eventual Consistency',def:'Las réplicas convergen "eventualmente": durante unos segundos pueden mostrar valores distintos. Los sistemas AP la aceptan.'},
+  {es:'Partición de Red',en:'Network Partition',def:'Falla que divide el sistema en grupos que no pueden comunicarse. El detonador del teorema CAP.'},
+  {es:'Paginación por Cursor',en:'Cursor Pagination',def:'Paginar con ?after=ultimo_id en vez de ?page=N: rendimiento constante en tablas gigantes.'},
+  {es:'Llave de Idempotencia',en:'Idempotency Key',def:'Identificador que el cliente envía en operaciones críticas: si el servidor ya la procesó, no repite (no cobra dos veces).'},
+  {es:'Backoff Exponencial',en:'Exponential Backoff',def:'Reintentar con pausas crecientes (1s, 2s, 4s...) para no convertir una falla pequeña en avalancha.'},
+  {es:'Circuit Breaker',en:'Circuit Breaker',def:'"Fusible" de software: tras N fallos seguidos deja de llamar al servicio caído y degrada la función con elegancia.'},
+  {es:'Degradación Elegante',en:'Graceful Degradation',def:'Ante fallas parciales, el sistema pierde funciones secundarias pero sigue operando en lo esencial.'},
+  {es:'Arquitectura de Eventos',en:'Event-Driven Architecture',def:'Los servicios publican eventos ("PedidoCreado") y los interesados se suscriben. El emisor no conoce a sus consumidores.'},
+  {es:'Bus de Eventos',en:'Event Bus / Broker',def:'El canal central (Kafka, RabbitMQ) por donde viajan los eventos entre servicios.'},
+  {es:'Pub/Sub',en:'Publish/Subscribe',def:'Patrón donde emisores publican a un tema y suscriptores reciben. El Observer (CP2/CP5) a escala de sistemas.'},
+  {es:'Sistema Distribuido',en:'Distributed System',def:'Varias máquinas coordinándose por red para actuar como una. Introduce fallas parciales, latencia y relojes distintos.'},
+  {es:'Falla Parcial',en:'Partial Failure',def:'Parte del sistema muere mientras el resto vive. La condición normal de los sistemas distribuidos.'},
+  {es:'Falacias de lo Distribuido',en:'Fallacies of Distributed Computing',def:'Los 8 supuestos falsos clásicos: "la red es confiable", "la latencia es cero", "los relojes están sincronizados"...'},
+  {es:'Stakeholder',en:'Stakeholder',def:'Cualquier interesado en el proyecto: gerentes, clientes, ventas. Les importan resultados, riesgos, costos y fechas.'},
+  {es:'Impacto de Negocio',en:'Business Impact',def:'La traducción del hecho técnico a lo que importa al negocio: dinero, riesgo, tiempo, clientes.'},
+  {es:'Mentoría',en:'Mentoring',def:'Hacer crecer a otros devs: enseñar el proceso (no regalar respuestas), reviews formativos, pair programming.'},
+  {es:'Seguridad Psicológica',en:'Psychological Safety',def:'Ambiente donde preguntar y equivocarse es seguro. El predictor #1 de equipos efectivos según Google.'},
+  {es:'ADR',en:'ADR — Architecture Decision Record',def:'Documento corto que registra una decisión técnica: contexto, opciones, decisión y consecuencias. Vive en el repo.'},
+  {es:'Trade-off',en:'Trade-off',def:'Todo lo que ganas a cambio de algo que cedes. La palabra más usada por los seniors: no hay soluciones, hay trade-offs.'},
+  {es:'Spike',en:'Spike',def:'Investigación corta y acotada (ej. 1 día) para reducir incertidumbre ANTES de comprometerse a una estimación.'},
+  {es:'Estimación por Rangos',en:'Range Estimation',def:'"Entre 3 y 5 días" en vez de "3 días": comunica la incertidumbre real en lugar de prometer lo imposible.'},
+  {es:'Deuda Técnica',en:'Technical Debt',def:'El costo futuro de los atajos de hoy. Útil si es deliberada y visible; ruinosa si se acumula en silencio.'},
+  {es:'Regla del Boy Scout',en:'Boy Scout Rule',def:'Deja cada archivo que toques un poco mejor de como lo encontraste. La deuda se paga en abonos.'},
+  {es:'Tech Lead',en:'Tech Lead',def:'Liderazgo técnico por influencia, no jerarquía: dirección técnica, destrabar al equipo y dar el ejemplo.'},
+  {es:'Delegar',en:'Delegation',def:'Definir el QUÉ y el PORQUÉ, y confiar el CÓMO. Lo opuesto al micro-management.'},
+  {es:'Disagree and Commit',en:'Disagree and Commit',def:'Debatir con datos, decidir, y ejecutar TODOS con compromiso total — incluidos los que preferían otra opción.'},
+  {es:'Benchmark',en:'Benchmark',def:'Medición comparativa que convierte una guerra de opiniones en una decisión con datos. "Midámoslo."'},
+  {es:'Retrospectiva',en:'Retrospective',def:'Reunión periódica del equipo para mejorar el proceso: qué funcionó, qué no, qué cambiamos. Sin culpas.'}
+];
+
+const flashcards = [
+  {en:'Scalability',es:'Escalabilidad',def:'A system\'s ability to handle growth without collapsing or being rewritten.',pron:'skey-lah-BIL-ih-tee'},
+  {en:'High Availability',es:'Alta Disponibilidad',def:'Designing so the system stays up despite failures — measured in "nines".',pron:'hy ah-vey-lah-BIL-ih-tee'},
+  {en:'Sharding',es:'Particionamiento',def:'Splitting data horizontally across servers, each holding a fraction of the rows.',pron:'SHAR-ding'},
+  {en:'Trade-off',es:'Trade-off / Compromiso',def:'What you gain in exchange for what you give up. The senior\'s favorite word.',pron:'TREYD-of'},
+  {en:'Eventual Consistency',es:'Consistencia Eventual',def:'Replicas converge to the same value over time; briefly they may differ.',pron:'ee-VEN-choo-al kun-SIS-ten-see'},
+  {en:'Single Point of Failure',es:'Punto Único de Fallo',def:'A component with no backup whose failure takes down the whole system.',pron:'SIN-gul poynt ov FEYL-yur'},
+  {en:'Event-Driven',es:'Orientado a Eventos',def:'Services publish events and interested parties subscribe and react.',pron:'ee-VENT DRIH-ven'},
+  {en:'Stakeholder',es:'Interesado / Stakeholder',def:'Anyone with an interest in the project: managers, clients, sales.',pron:'STEYK-hohl-der'},
+  {en:'Mentoring',es:'Mentoría',def:'Growing other developers by teaching the process, not gifting answers.',pron:'MEN-tor-ing'},
+  {en:'Estimate',es:'Estimación',def:'A forecast of effort — honest ones come in ranges, not single numbers.',pron:'ES-tih-mit'},
+  {en:'Technical Debt',es:'Deuda Técnica',def:'The future cost of today\'s shortcuts, paid with interest if ignored.',pron:'TEK-nih-kul det'},
+  {en:'Leadership',es:'Liderazgo',def:'Influencing direction and unblocking the team — with or without authority.',pron:'LEE-der-ship'},
+  {en:'Alignment',es:'Alineación',def:'Everyone understanding and pulling toward the same goal.',pron:'ah-LYN-ment'},
+  {en:'Ownership',es:'Responsabilidad / Dueño',def:'Acting as the owner of an outcome, not just a task executor.',pron:'OH-ner-ship'},
+  {en:'Feedback',es:'Retroalimentación',def:'Specific, actionable information about performance — given kindly and often.',pron:'FEED-bak'}
+];
+
+const interviewQA = [
+  {q:'Design a system for 1 million users. Where do you start? / Diseña un sistema para 1 millón de usuarios, ¿por dónde empiezas?',cat:'Técnica',
+   ans:'By clarifying requirements — starting to draw without asking is the #1 mistake: How many concurrent users? Read-heavy or write-heavy? How critical is consistency? Then I design the simple reference architecture: load balancer → stateless API servers → cache → database with read replicas. From there I scale by pain: more reads → more replicas and caching; more writes → queues and eventually sharding; and I name the trade-off of each piece I add.\n\n🇪🇸 Español: Aclarando requisitos — empezar a dibujar sin preguntar es el error #1: ¿Cuántos usuarios simultáneos? ¿Domina la lectura o la escritura? ¿Qué tan crítica es la consistencia? Después diseño la arquitectura de referencia simple: balanceador → APIs stateless → caché → base de datos con réplicas de lectura. De ahí escalo según el dolor: más lecturas → más réplicas y caché; más escrituras → colas y eventualmente sharding; y nombro el trade-off de cada pieza que agrego.'},
+  {q:'Explain the CAP theorem with an example. / Explica el teorema CAP con un ejemplo.',cat:'Técnica',
+   ans:'In a distributed system, when a network partition occurs (and it always eventually does), you must choose between Consistency (everyone sees the same data) and Availability (always responding). Bank example: if two branches lose connection, a CP system refuses withdrawals rather than risk two people withdrawing the same balance; an AP system (like a social feed) keeps serving slightly stale data because responding matters more than to-the-second accuracy. Senior nuance: you choose per data type, not per company.\n\n🇪🇸 Español: En un sistema distribuido, cuando ocurre una partición de red (y siempre ocurre tarde o temprano), debes elegir entre Consistencia (todos ven el mismo dato) y Disponibilidad (responder siempre). Ejemplo del banco: si dos sucursales pierden conexión, un sistema CP rechaza retiros antes que arriesgar que dos personas retiren el mismo saldo; un sistema AP (como un feed social) sigue sirviendo datos ligeramente desactualizados porque responder importa más que la exactitud al segundo. Matiz senior: se elige por tipo de dato, no por empresa.'},
+  {q:'What is event-driven architecture and when would you use it?',cat:'Técnica',
+   ans:'Instead of services giving each other direct orders, they publish events ("OrderCreated") to a bus, and interested services subscribe and react. Benefits: total decoupling (adding a loyalty service = subscribing it, without touching Orders) and resilience (if email is down, events wait in the bus). Costs: the flow is scattered across subscribers (harder to debug — monitoring becomes vital) and consistency is eventual. I\'d use it between services with genuinely independent reactions to the same fact.\n\n🇪🇸 Español: En vez de que los servicios se den órdenes directas, publican eventos ("PedidoCreado") a un bus, y los servicios interesados se suscriben y reaccionan. Beneficios: desacoplamiento total (agregar un servicio de lealtad = suscribirlo, sin tocar Pedidos) y resiliencia (si correos está caído, los eventos lo esperan en el bus). Costos: el flujo queda repartido entre suscriptores (más difícil de depurar — el monitoreo se vuelve vital) y la consistencia es eventual. Lo usaría entre servicios con reacciones genuinamente independientes al mismo hecho.'},
+  {q:'How do you explain a technical problem to a non-technical manager? / ¿Cómo le explicas un problema técnico a un gerente no técnico?',cat:'Comportamental',
+   ans:'Conclusion first, in business terms: impact, options, and my recommendation — technical detail only if asked. Instead of "we have an N+1 problem in the ORM", I say "the orders screen takes 9 seconds and customers abandon it; I have the fix: 2 days of work and it drops under 1 second". I bring options with cost/benefit, not just problems, and use simple analogies without being condescending.\n\n🇪🇸 Español: Conclusión primero, en términos de negocio: impacto, opciones y mi recomendación — el detalle técnico solo si lo piden. En vez de "tenemos un problema N+1 en el ORM", digo "la pantalla de pedidos tarda 9 segundos y los clientes la abandonan; tengo el arreglo: 2 días de trabajo y baja a menos de 1 segundo". Llevo opciones con costo/beneficio, no solo problemas, y uso analogías simples sin sonar condescendiente.'},
+  {q:'How do you mentor junior developers? / ¿Cómo mentoreas a desarrolladores junior?',cat:'Comportamental',
+   ans:'Three tools. Teaching the process, not gifting answers: "what does the error say? what have you tried? where would you put a breakpoint?". Formative code reviews: explaining the WHY, recognizing what\'s good, and separating blocking issues from suggestions. And psychological safety: sharing my own past mistakes so asking questions is safe — a junior afraid to ask makes silent mistakes for weeks. The senior\'s value multiplies through the people they grow.\n\n🇪🇸 Español: Tres herramientas. Enseñar el proceso, no regalar respuestas: "¿qué dice el error? ¿qué has probado? ¿dónde pondrías un breakpoint?". Code reviews formativos: explicar el PORQUÉ, reconocer lo bueno y separar lo bloqueante de las sugerencias. Y seguridad psicológica: compartir mis propios errores pasados para que preguntar sea seguro — un junior con miedo a preguntar comete errores en silencio durante semanas. El valor del senior se multiplica en la gente que hace crecer.'},
+  {q:'Tell me about a technical disagreement and how it was resolved. / Cuéntame de un desacuerdo técnico y cómo se resolvió.',cat:'Comportamental',
+   ans:'Structure it: the context (two valid options), how you moved from opinions to CRITERIA ("what are we optimizing?"), how data settled it (a one-day benchmark or prototype), and the close: decision documented in an ADR and everyone committed — "disagree and commit". Never tell a story where you "won an argument"; tell one where the TEAM reached a better decision. Attacking ideas, never people.\n\n🇪🇸 Español: Estructúralo: el contexto (dos opciones válidas), cómo pasaron de opiniones a CRITERIOS ("¿qué estamos optimizando?"), cómo los datos lo resolvieron (un benchmark o prototipo de un día), y el cierre: decisión documentada en un ADR y todos comprometidos — "disagree and commit". Nunca cuentes una historia donde "ganaste una discusión"; cuenta una donde el EQUIPO llegó a una mejor decisión. Se atacan ideas, nunca personas.'},
+  {q:'How do you estimate a project? / ¿Cómo estimas un proyecto?',cat:'Comportamental',
+   ans:'Break it into pieces of at most one day — what I can\'t break down is what I don\'t understand, and that\'s where the risk lives; a spike (one bounded research day) reduces that uncertainty. I estimate in ranges ("3 to 5 days"), include testing, review, and deployment (~40-50% of the real total), and communicate deviations IMMEDIATELY: warning today gives options; warning the day before only gives anger.\n\n🇪🇸 Español: Lo desgloso en piezas de máximo un día — lo que no puedo desglosar es lo que no entiendo, y ahí vive el riesgo; un spike (un día acotado de investigación) reduce esa incertidumbre. Estimo en rangos ("de 3 a 5 días"), incluyo pruebas, revisión y despliegue (~40-50% del total real), y comunico las desviaciones DE INMEDIATO: avisar hoy da opciones; avisar la víspera solo da enojo.'},
+  {q:'How do you handle technical debt? / ¿Cómo gestionas la deuda técnica?',cat:'Comportamental',
+   ans:'Three moves. Make it visible: every shortcut becomes a labeled ticket with its current cost ("each manual release takes 4 hours"). Pay in installments: ~10-20% of each sprint, plus the boy scout rule — leave every file you touch slightly better; giant 3-month refactors rarely survive. And negotiate it in business terms: "refactoring" doesn\'t sell, but "halving billing bugs and shipping changes in days instead of weeks" does. Deliberate debt with a payment plan is a tool; silent debt is ruin.\n\n🇪🇸 Español: Tres movimientos. Hacerla visible: cada atajo se vuelve un ticket etiquetado con su costo actual ("cada release manual toma 4 horas"). Pagarla en abonos: ~10-20% de cada sprint, más la regla del boy scout — dejar cada archivo que tocas un poco mejor; los refactors gigantes de 3 meses rara vez sobreviven. Y negociarla en términos de negocio: "refactorizar" no vende, pero "reducir a la mitad los bugs de facturación y entregar cambios en días en vez de semanas" sí. La deuda deliberada y con plan de pago es una herramienta; la silenciosa es la ruina.'}
+];
+
+const quizData = {
+  1:[{q:'Escalar horizontalmente significa...',opts:['Comprar un servidor más grande','Agregar más servidores iguales detrás de un balanceador','Comprimir los datos','Usar menos RAM'],ans:1},
+     {q:'El escalado horizontal exige que la app sea...',opts:['Más bonita','Stateless: cualquier servidor puede atender a cualquier usuario','Más lenta','De Microsoft'],ans:1},
+     {q:'Las réplicas de lectura sirven porque...',opts:['Las apps escriben más de lo que leen','La mayoría de las apps LEEN mucho más de lo que escriben','Son gratis','Cifran los datos'],ans:1},
+     {q:'El sharding consiste en...',opts:['Copiar la BD completa','Partir los datos horizontalmente: cada servidor guarda una fracción de las filas','Borrar datos viejos','Comprimir tablas'],ans:1},
+     {q:'99.9% de disponibilidad permite al año aproximadamente...',opts:['5 minutos caídos','8.8 horas caídas','3.7 días caídos','1 mes caído'],ans:1},
+     {q:'La pregunta clave de alta disponibilidad es...',opts:['¿Cuánto cuesta el servidor?','¿Qué pasa si ESTA caja del diagrama muere a las 3 AM?','¿Qué lenguaje usamos?','¿De qué color es el dashboard?'],ans:1}],
+  2:[{q:'El teorema CAP dice que ante una partición de red eliges entre...',opts:['Velocidad y precio','Consistencia y Disponibilidad','SQL y NoSQL','Python y C#'],ans:1},
+     {q:'Un banco típicamente prioriza...',opts:['A (disponibilidad)','C (consistencia): rechazar operaciones antes que dar datos incorrectos','P (particiones)','Nada'],ans:1},
+     {q:'Que el contador de likes difiera 3 segundos entre teléfonos es un ejemplo aceptable de...',opts:['Un bug grave','Consistencia eventual (sistema AP)','Inyección SQL','Deadlock'],ans:1},
+     {q:'La Idempotency-Key evita...',opts:['Los hackeos','Cobrar dos veces cuando el cliente reintenta por timeout','Los logs','La latencia'],ans:1},
+     {q:'El backoff exponencial consiste en...',opts:['Reintentar inmediatamente en masa','Reintentar con pausas crecientes (1s, 2s, 4s...)','No reintentar nunca','Apagar el servidor'],ans:1},
+     {q:'Un circuit breaker...',opts:['Corta la luz','Deja de llamar a un servicio que falla repetidamente y degrada la función con elegancia','Acelera la red','Es un tipo de índice'],ans:1}],
+  3:[{q:'En la arquitectura de eventos, el servicio de pedidos...',opts:['Da órdenes directas a cada servicio','Publica el evento "PedidoCreado" y quien esté interesado reacciona','Espera respuestas de todos','No hace nada'],ans:1},
+     {q:'El gran beneficio del event-driven es...',opts:['Es más fácil de depurar','Desacoplamiento: agregar consumidores sin tocar al emisor','Usa menos servidores','Es más barato siempre'],ans:1},
+     {q:'Su precio principal es...',opts:['No funciona','Flujo repartido (difícil de depurar) y consistencia eventual','Es ilegal','Solo funciona en la nube'],ans:1},
+     {q:'"La red es confiable" es...',opts:['Una verdad','Una de las falacias clásicas de los sistemas distribuidos','Un teorema','Una métrica'],ans:1},
+     {q:'Una falla PARCIAL significa que...',opts:['Todo el sistema murió','Parte del sistema falla mientras el resto sigue vivo','No pasó nada','Solo falló el CSS'],ans:1},
+     {q:'La moraleja senior sobre lo distribuido es...',opts:['Distribuir todo siempre','Es un costo que pagas cuando la escala lo exige; usa solo la distribución que TU problema necesita','Nunca distribuir','Solo Google puede hacerlo'],ans:1}],
+  4:[{q:'Al hablar con stakeholders no técnicos, empieza por...',opts:['El detalle técnico','La conclusión y la recomendación, en términos de impacto de negocio','La historia del proyecto','Las siglas'],ans:1},
+     {q:'"La pantalla tarda 9 segundos y los clientes la abandonan; el arreglo toma 2 días" es mejor que hablar del N+1 porque...',opts:['Es más corto','Traduce lo técnico a impacto y decisión de negocio','Suena más inteligente','Evita la verdad'],ans:1},
+     {q:'En vez de llegar solo con el problema, un senior lleva...',opts:['Quejas','2-3 opciones con costo/beneficio y una recomendación','Un renuncia','Más problemas'],ans:1},
+     {q:'Ante la pregunta de un junior, lo formativo es...',opts:['Darle la respuesta ya','Preguntas que enseñan el proceso: ¿qué dice el error? ¿qué has probado?','Ignorarlo','Hacerlo tú'],ans:1},
+     {q:'En un code review formativo se debe...',opts:['Solo señalar errores','Explicar el porqué, reconocer lo bueno y separar lo bloqueante de las sugerencias','Aprobar todo','Reescribir todo tú misma'],ans:1},
+     {q:'La seguridad psicológica importa porque...',opts:['Suena bien en RRHH','El junior que teme preguntar comete errores en silencio durante semanas','Es un requisito legal','Reduce los costos de servidor'],ans:1}],
+  5:[{q:'La marca de un senior al decidir es...',opts:['"X es mejor y punto"','Nombrar el trade-off: qué se gana, qué se cede, y por qué encaja en ESTE caso','Elegir lo más nuevo','Preguntar en Twitter'],ans:1},
+     {q:'Un ADR registra...',opts:['Los sueldos','Contexto, opciones, decisión y consecuencias de una decisión técnica','Los bugs','Las vacaciones'],ans:1},
+     {q:'Su valor real aparece cuando...',opts:['Se escribe','Meses después alguien pregunta "¿por qué usamos X?" y hay respuesta escrita','Se imprime','Nunca'],ans:1},
+     {q:'Estimar en rangos ("3 a 5 días") es mejor porque...',opts:['Suena indeciso','Comunica la incertidumbre real en vez de prometer lo imposible','Es más largo','Impresiona menos'],ans:1},
+     {q:'Si descubres a mitad de camino que tomará el doble, debes...',opts:['Callarlo y trabajar de noche','Avisar YA: avisar hoy da opciones; avisar la víspera solo da enojo','Renunciar','Culpar al framework'],ans:1},
+     {q:'La regla del boy scout dice...',opts:['Acampar seguido','Deja cada archivo que toques un poco mejor de como lo encontraste','Hacer nudos','Refactorizar todo en 3 meses'],ans:1}],
+  6:[{q:'El tech lead normalmente lidera por...',opts:['Jerarquía y órdenes','Influencia: credibilidad técnica, claridad y confianza','Miedo','Antigüedad'],ans:1},
+     {q:'La métrica del lead es...',opts:['Sus propios commits','Cuánto avanzó el EQUIPO: destrabar vale más que producir','Sus horas conectado','Sus certificados'],ans:1},
+     {q:'El estándar real del equipo lo define...',opts:['El documento de estándares','Lo que el líder HACE: si se salta las pruebas, todos aprenden que son opcionales','El manual de RRHH','El framework'],ans:1},
+     {q:'El paso 1 ante un conflicto técnico es...',opts:['Votar','Bajar de las opiniones a los criterios: ¿qué estamos optimizando?','Escalar al CEO','Evitar el tema'],ans:1},
+     {q:'"Midámoslo" (benchmark/prototipo) sirve porque...',opts:['Retrasa la decisión','Los datos resuelven lo que las juntas de debate no pueden','Es caro','Da igual'],ans:1},
+     {q:'"Disagree and commit" significa...',opts:['Pelear para siempre','Debatir con datos, decidir, y ejecutar TODOS con compromiso — sin re-litigar cada sprint','Nunca estar en desacuerdo','Renunciar si pierdes'],ans:1}]
+};
+
+// ===== RENDER =====
+function showChapter(n){
+  document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ch'+n).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));
+  const b=document.querySelector('.nav-link[data-ch="'+n+'"]');
+  if(b)b.classList.add('active-nav');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===10)loadStudyData();
+}
+function closeMob(){document.getElementById('mobileMenu').classList.add('hidden');}
+
+function renderQuizzes(){
+  for(let ch=1;ch<=6;ch++){
+    const c=document.getElementById('quiz'+ch+'Questions');
+    if(!c)continue;
+    c.innerHTML=quizData[ch].map((q,i)=>
+      '<div class="mb-6"><p class="font-semibold text-gray-800 mb-3">'+(i+1)+'. '+q.q+'</p><div class="space-y-2">'+
+      q.opts.map((o,j)=>'<label class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-400" data-ch="'+ch+'" data-q="'+i+'" data-opt="'+j+'"><input type="radio" name="q'+ch+'_'+i+'" value="'+j+'" class="accent-lime-600"><span class="text-sm">'+o+'</span></label>').join('')+
+      '</div></div>'
+    ).join('');
+  }
+}
+
+function gradeQuiz(ch){
+  const qs=quizData[ch]; let correct=0;
+  qs.forEach((q,i)=>{
+    const sel=document.querySelector('input[name="q'+ch+'_'+i+'"]:checked');
+    const labels=document.querySelectorAll('label[data-ch="'+ch+'"][data-q="'+i+'"]');
+    labels.forEach(l=>{l.classList.remove('correct','incorrect');});
+    if(sel){
+      const v=parseInt(sel.value);
+      if(v===q.ans){correct++;sel.closest('label').classList.add('correct');}
+      else{sel.closest('label').classList.add('incorrect');if(labels[q.ans])labels[q.ans].classList.add('correct');}
+    }
+  });
+  const pct=Math.round(correct/qs.length*100);
+  const r=document.getElementById('quiz'+ch+'Result');
+  r.classList.remove('hidden');
+  const pass=pct>=70;
+  r.innerHTML='<div class="p-4 rounded-xl '+(pass?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200')+'"><p class="font-bold '+(pass?'text-green-700':'text-red-700')+' text-lg">'+correct+'/'+qs.length+' — '+pct+'%</p><p class="text-sm '+(pass?'text-green-600':'text-red-600')+'">'+(pass?'¡Aprobado! 🎉':'Necesitas 70% para aprobar. Revisa el material.')+'</p></div>';
+  const scores=JSON.parse(localStorage.getItem('cp9_scores')||'{}');
+  scores[ch]={correct,total:qs.length,pct,passed:pass};
+  localStorage.setItem('cp9_scores',JSON.stringify(scores));
+  updateProgress();
+}
+
+function updateProgress(){
+  const scores=JSON.parse(localStorage.getItem('cp9_scores')||'{}');
+  let passed=0; for(let i=1;i<=6;i++)if(scores[i]&&scores[i].passed)passed++;
+  const pct=Math.round(passed/6*100);
+  document.getElementById('globalProgress').style.width=pct+'%';
+  document.getElementById('globalProgressText').textContent=pct+'%';
+}
+
+function renderGlossary(){
+  const grid=document.getElementById('glossGrid');
+  grid.innerHTML=glossaryData.map((t,i)=>
+    '<div class="gloss-item bg-white rounded-xl shadow p-5"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-slate-800">'+t.es+'</h4><span class="text-xs bg-lime-100 text-lime-700 px-2 py-0.5 rounded-full font-mono">'+t.en+'</span></div><p class="text-sm text-gray-600">'+t.def+'</p></div>'
+  ).join('');
+}
+function filterGloss(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  document.querySelectorAll('.gloss-item').forEach((el,i)=>{
+    const t=glossaryData[i];
+    el.style.display=(t.es.toLowerCase().includes(q)||t.en.toLowerCase().includes(q)||t.def.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderFlashcards(){
+  const grid=document.getElementById('flashcardsGrid');
+  grid.innerHTML=flashcards.map((f,i)=>
+    '<div class="flashcard" onclick="this.classList.toggle(\'flipped\')" title="Clic para voltear">'+
+    '<div class="fc-inner">'+
+    '<div class="fc-front bg-lime-600 text-white">'+
+      '<p class="text-xs text-lime-200 mb-1">🇺🇸 Inglés — haz clic para ver definición</p>'+
+      '<h3 class="text-lg font-black">'+f.en+'</h3>'+
+      '<p class="text-lime-200 text-sm mt-1">🇪🇸 '+f.es+'</p>'+
+      '<p class="text-xs text-lime-300 mt-2 italic">🔊 '+f.pron+'</p>'+
+    '</div>'+
+    '<div class="fc-back bg-slate-800 text-white">'+
+      '<p class="text-xs text-gray-400 mb-2 uppercase">Definition</p>'+
+      '<p class="text-sm text-gray-200">'+f.def+'</p>'+
+    '</div>'+
+    '</div></div>'
+  ).join('');
+}
+
+function renderInterviewAccordion(){
+  const div=document.getElementById('interviewAccordion');
+  const catColors={Conceptual:'bg-lime-100 text-lime-800',Técnica:'bg-blue-100 text-blue-800',Comportamental:'bg-orange-100 text-orange-800'};
+  div.innerHTML=interviewQA.map((item,i)=>
+    '<div class="acc-item bg-white rounded-xl shadow overflow-hidden">'+
+    '<button class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition" onclick="this.closest(\'.acc-item\').classList.toggle(\'open\')">'+
+    '<div class="flex items-start gap-3"><span class="inline-block '+(catColors[item.cat]||'bg-gray-100 text-gray-700')+' text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-0.5">'+item.cat+'</span>'+
+    '<span class="font-semibold text-sm text-slate-800">'+item.q+'</span></div>'+
+    '<svg class="acc-arrow w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'+
+    '</button>'+
+    '<div class="acc-body"><div class="px-5 pb-5 text-sm text-gray-600 whitespace-pre-line border-t border-gray-100 pt-4">'+item.ans+'</div></div>'+
+    '</div>'
+  ).join('');
+}
+
+function saveStudyDay(){
+  const checks=document.querySelectorAll('.study-check:checked');
+  if(!checks.length)return;
+  const chapters=Array.from(checks).map(c=>parseInt(c.value));
+  const today=new Date().toISOString().split('T')[0];
+  const log=JSON.parse(localStorage.getItem('cp9_log')||'[]');
+  const idx=log.findIndex(e=>e.date===today);
+  if(idx>=0)log[idx].chapters=[...new Set([...log[idx].chapters,...chapters])];
+  else log.push({date:today,chapters});
+  localStorage.setItem('cp9_log',JSON.stringify(log));
+  document.getElementById('saveMsg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('saveMsg').classList.add('hidden'),2000);
+  loadStudyData();
+}
+
+function loadStudyData(){
+  const log=JSON.parse(localStorage.getItem('cp9_log')||'[]');
+  const scores=JSON.parse(localStorage.getItem('cp9_scores')||'{}');
+  document.getElementById('statDays').textContent=log.length;
+  let streak=0;const today=new Date();
+  for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(log.some(e=>e.date===d.toISOString().split('T')[0]))streak++;else if(i>0)break;}
+  document.getElementById('statStreak').textContent=streak;
+  let passed=0,totalPct=0,count=0;
+  for(let i=1;i<=6;i++)if(scores[i]){count++;totalPct+=scores[i].pct;if(scores[i].passed)passed++;}
+  document.getElementById('statChapters').textContent=passed+'/6';
+  document.getElementById('statAvg').textContent=count>0?Math.round(totalPct/count)+'%':'—';
+  const h=document.getElementById('studyHistory'),nh=document.getElementById('noHistory');
+  if(!log.length){nh.classList.remove('hidden');h.innerHTML='';return;}
+  nh.classList.add('hidden');
+  h.innerHTML=[...log].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(e=>
+    '<div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3"><span class="font-semibold text-slate-800">'+e.date+'</span>'+
+    '<div class="flex flex-wrap gap-1">'+e.chapters.sort().map(c=>'<span class="bg-lime-100 text-lime-700 text-xs px-2 py-0.5 rounded-full">Módulo '+c+'</span>').join('')+'</div></div>'
+  ).join('');
+  const ts=new Date().toISOString().split('T')[0];
+  const te=log.find(e=>e.date===ts);
+  if(te)document.querySelectorAll('.study-check').forEach(cb=>{if(te.chapters.includes(parseInt(cb.value)))cb.checked=true;});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuizzes();
+  renderGlossary();
+  renderFlashcards();
+  renderInterviewAccordion();
+  updateProgress();
+});
+</script>
+</body>
+</html>
